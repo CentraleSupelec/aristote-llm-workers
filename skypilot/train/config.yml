@@ -1,0 +1,14 @@
+resources:
+  cloud: gcp
+
+num_nodes: 1
+
+file_mounts: 
+  ~/sky_workdir/.env: ./.env
+  ~/.gitconfig: ~/.gitconfig
+
+workdir: .
+
+setup: bash ./skypilot/train/setup.sh
+
+run: bash ./skypilot/train/run.sh
