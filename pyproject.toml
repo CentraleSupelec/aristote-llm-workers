@@ -31,6 +31,10 @@ exp = [
     "guidance>=0.0.64",
     "redis>=4.6.0",
     "redis-om>=0.2.1",
+    "click>=8.1.7",
+    "tiktoken>=0.5.1",
+    "pydantic>=2.0.3",
+    "tqdm>=4.66.1",
 ]
 dev = [
     "quiz-generation[exp]",
@@ -64,8 +68,13 @@ include = ["quiz_generation", "quiz_generation.*", "experiment_template", "exper
 quiz_generation = ["py.typed"]
 
 [tool.deptry.per_rule_ignores]
+DEP001 = [
+    "outlines", # exp dependency
+]
 DEP002 = [
     "protobuf", # exp dependency
+    "redis", # exp dependency
+    "redis-om", # exp dependency
     "black", # dev dependency
     "copier", # dev dependency
     "deptry", # dev dependency
