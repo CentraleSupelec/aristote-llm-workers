@@ -17,7 +17,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "llm-core[cli,gcs] @ git+https://gitlab.illuin.tech/large-language-models/llm-core/libraries/llm-core.git",
+    "Jinja2>=3.1.2",
 ]
 
 [project.optional-dependencies]
@@ -32,7 +32,7 @@ dev = [
     "black>=23.3.0",
     "deptry>=0.12.0",
     "mypy>=1.4.0",
-    "ruff>=0.0.277",
+    "ruff>=0.0.290",
     "coverage>=7.2.0",
     "pytest>=7.4.0",
 ]
@@ -57,6 +57,26 @@ include = ["quiz_generation", "quiz_generation.*", "experiment_template", "exper
 
 [tool.setuptools.package-data]
 quiz_generation = ["py.typed"]
+
+[tool.deptry.per_rule_ignores]
+DEP002 = [
+    "protobuf", # exp dependency
+    "black", # dev dependency
+    "copier", # dev dependency
+    "deptry", # dev dependency
+    "isort", # dev dependency
+    "coverage", # dev dependency
+    "mypy", # dev dependency
+    "pip-tools", # dev dependency
+    "pytest", # dev dependency
+    "parameterized", # dev dependency
+    "ruff", # dev dependency
+    "jinja2-time", # dev dependency
+    "quiz-generation", # project dependency
+    "gradio", # demo dependency
+    "ipykernel", # notebook dependency
+    "nbformat", # notebook dependency
+]
 
 [tool.mypy]
 ignore_missing_imports = true

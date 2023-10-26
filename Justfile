@@ -105,10 +105,13 @@ checks: check-deps check-lockfiles format lint type
 
 # Check code formatting
 format:
-    black --preview --check .
+    black .
+    ruff --fix .
 
 # Run linting
 lint:
+    deptry .
+    black --check .
     ruff check .
 
 # Run type checking

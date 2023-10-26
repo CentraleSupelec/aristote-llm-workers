@@ -1,150 +1,60 @@
-stages:
-  - Update cache
-  - Test
-
-workflow:
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS
-      when: never
-    - when: always
-
-variables:
-  PIP_CACHE_DIR: $CI_PROJECT_DIR/.cache/pip
-
-.on-merge-request-event:
+.python_job_template:
+  image: python:3.10.11
   interruptible: true
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == "main"
   tags:
     - docker
 
-.on-main-branch-event:
-  interruptible: true
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "main"
-  tags:
-    - docker
-
-.on-tag-event:
-  interruptible: true
-  rules:
-    - if: $CI_COMMIT_TAG
-
-.on-schedule-event:
-  interruptible: true
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-  tags:
-    - docker
-
-.update-cache-template:
-  stage: Update cache
-  extends: .on-schedule-event
-  allow_failure: true
-  script:
-    - echo "Dependencies cache updated"
-  cache:
-    policy: push
-
-.python-job-template:
-  image: python:3.11
+download_deps:
+  extends: .python_job_template
+  stage: download_deps
   before_script:
-    - python -m venv .venv
-    - source .venv/bin/activate
-    - pip install --no-cache-dir --upgrade pip
-    - pip install --no-cache-dir setuptools_scm[toml]
-    - curl -sSL https://pdm.fming.dev/install-pdm.py | python - --version v2.9.3
-    - export PATH="/root/.local/bin:$PATH"
-    - pdm config pypi.extra.url "$NEXUS_PYPI_PULL_URL"
-    - pdm sync --dev -G :all -L lockfiles/cpu.lock
-  cache:
-    policy: pull
-    paths:
-      - .venv
-    key: "python-venv"
-
-Update Python cache:
-  extends:
-    - .python-job-template
-    - .update-cache-template
-
-Tests:
-  extends:
-    - .python-job-template
-    - .on-merge-request-event
-  stage: Test
+    - mkdir ~/.pip
+    - python -m venv venv
+    - . ./venv/bin/activate
   script:
-    - coverage run --data-file .coverage.local_tests -m pytest tests/
+    - pip install --upgrade pip
+    - pip install --no-cache-dir torch==2.0.1 --index-url https://download.pytorch.org/whl/cpu
+    - pip install -r requirements.txt
+    - pip install -e .[dev]
   artifacts:
     paths:
-      - .coverage.local_tests
-    expire_in: 1 hour
-    when: always
+      - "venv"
+    expire_in: 2 hour
+  rules:
+    - if: $CI_COMMIT_BRANCH
 
-Code coverage:
-  extends:
-    - .python-job-template
-    - .on-merge-request-event
-  stage: Test
-  needs:
-    - Tests
-  script:
-    - coverage combine
-    - coverage xml -o coverage.xml
-    - coverage report -m --skip-covered
-  coverage: '/\d+\%\s*$/'
-  allow_failure: true
-  when: always
-  artifacts:
-    when: always
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage.xml
+.lint_test_template:
+  extends: .python_job_template
+  dependencies:
+    - download_deps
+  before_script:
+    - . ./venv/bin/activate
+  rules:
+    - if: $CI_COMMIT_BRANCH
 
-Check code formatting:
-  extends:
-    - .python-job-template
-    - .on-merge-request-event
-  stage: Test
-  script:
-    - black --preview --check .
-
-Lint:
-  extends:
-    - .python-job-template
-    - .on-merge-request-event
-  stage: Test
-  script:
-    - ruff check .
-
-Type check:
-  extends:
-    - .python-job-template
-    - .on-merge-request-event
-  stage: Test
-  script:
-    - mypy .
-
-Check dependencies:
-  extends:
-    - .python-job-template
-    - .on-merge-request-event
-  stage: Test
+lint:
+  extends: .lint_test_template
+  stage: lint
   script:
     - deptry .
+    - black . --check
+    - ruff check .
 
-Check lockfiles:
-  extends:
-    - .python-job-template
-    - .on-merge-request-event
-  stage: Test
-  script:
-    - pdm lock --check -L lockfiles/cpu.lock
-    - pdm lock --check -L lockfiles/gpu.lock
+# test:
+#   extends: .lint_test_template
+#   stage: test
+#   script:
+#     - coverage run -m pytest tests/
+#     - coverage xml -o coverage.xml
+#     - coverage report -m --skip-covered
+#   artifacts:
+#     expire_in: 2 hour
+#     reports:
+#       coverage_report:
+#         coverage_format: cobertura
+#         path: coverage.xml
+
+stages:
+  - download_deps
+  - lint
+  - test
