@@ -31,9 +31,8 @@ State some references that are related to the experiment. Summarize the main kno
 
 ## Studied methods
 
-<!-- Delete this line -->
-Detail the methods that were used for the experiment and how they can prove or disprove the hypothesis.
 <!-- Can be used to answer the section "Contribution scientifique, technique ou technologique"; "Description de la démarche suivie et des travaux réalisés" of the CIR -->
+Try using GPT-4 to generate a quiz in a zero-shot setting.
 
 ## Results
 

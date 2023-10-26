@@ -25,7 +25,12 @@ exp = [
     "copier>=8.3.0,<9.0.0",
     "GitPython>=3.0.0,<4.0.0",
     "jinja2-time>=0.2.0,<0.3.0",
-    "python-slugify>=8.0.0,<9.0.0"
+    "python-slugify>=8.0.0,<9.0.0",
+    "illuin-llm-tools>=0.1.4",
+    "python-dotenv>=1.0.0",
+    "guidance>=0.0.64",
+    "redis>=4.6.0",
+    "redis-om>=0.2.1",
 ]
 dev = [
     "quiz-generation[exp]",
@@ -127,3 +132,9 @@ log_cli = true
 log_cli_level = "INFO"
 log_cli_format = "%(asctime)s %(levelname)s [%(filename)s:%(lineno)s] %(message)s"
 log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
+[tool.pdm.dev-dependencies]
+notebook = [
+    "ipykernel>=6.26.0",
+    "nbformat>=5.9.2",
+]
