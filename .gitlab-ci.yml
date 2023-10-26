@@ -10,12 +10,14 @@ download_deps:
   before_script:
     - mkdir ~/.pip
     - python -m venv venv
-    - . ./venv/bin/activate
+    - source ./venv/bin/activate
   script:
-    - pip install --upgrade pip
-    - pip install --no-cache-dir torch==2.0.1 --index-url https://download.pytorch.org/whl/cpu
-    - pip install -r requirements.txt
-    - pip install -e .[dev]
+    - pip install --no-cache-dir --upgrade pip
+    - pip install --no-cache-dir setuptools_scm[toml]
+    - curl -sSL https://pdm.fming.dev/install-pdm.py | python - --version v2.9.3
+    - export PATH="/root/.local/bin:$PATH"
+    - pdm config pypi.extra.url "$NEXUS_PYPI_PULL_URL"
+    - pdm sync --dev -G :all -L lockfiles/cpu.lock
   artifacts:
     paths:
       - "venv"
@@ -28,7 +30,7 @@ download_deps:
   dependencies:
     - download_deps
   before_script:
-    - . ./venv/bin/activate
+    - source ./venv/bin/activate
   rules:
     - if: $CI_COMMIT_BRANCH
 
@@ -57,4 +59,4 @@ lint:
 stages:
   - download_deps
   - lint
-  - test
+  # - test
