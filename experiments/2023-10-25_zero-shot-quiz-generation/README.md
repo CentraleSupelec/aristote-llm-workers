@@ -19,8 +19,8 @@ Here are some template sections that you can fill or delete as you wish. For eac
 
 ## Objectives
 
-<!-- Delete this line -->
-State the hypothesis that you are trying to prove. Describe the goal(s) of the experiment. 
+The objective of this experiment is to generate a quiz from a text in few-shot or zero-shot settings.
+
 <!-- Can be used to answer the section "Objectifs scientifiques et techniques" and "Incertitudes" of the CIR -->
 
 ## Bibliography
