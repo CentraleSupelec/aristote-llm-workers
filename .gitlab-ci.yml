@@ -1,8 +1,6 @@
 .python_job_template:
-  image: python:3.10.11
+  image: python:3.11
   interruptible: true
-  tags:
-    - docker
 
 download_deps:
   extends: .python_job_template
@@ -16,6 +14,7 @@ download_deps:
     - pip install --no-cache-dir setuptools_scm[toml]
     - curl -sSL https://pdm.fming.dev/install-pdm.py | python - --version v2.9.3
     - export PATH="/root/.local/bin:$PATH"
+    - rm -f .pdm.toml
     - pdm config pypi.extra.url "$NEXUS_PYPI_PULL_URL"
     - pdm sync --dev -G :all -L lockfiles/cpu.lock
   artifacts:
