@@ -1,0 +1,129 @@
+[project]
+name = "quiz-generation"
+description = "Generate quizzes with Large Language Models for educational purposes"
+dynamic = ["version"]
+authors = [{ name = "Antonio Loison", email = "antonio.loison@illuin.tech" }]
+maintainers = [{ name = "Antonio Loison", email = "antonio.loison@illuin.tech" }]
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Private :: Do Not Upload",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+dependencies = [
+    "Jinja2>=3.1.2",
+]
+
+[project.optional-dependencies]
+exp = [
+    "copier>=8.3.0,<9.0.0",
+    "GitPython>=3.0.0,<4.0.0",
+    "jinja2-time>=0.2.0,<0.3.0",
+    "python-slugify>=8.0.0,<9.0.0"
+]
+dev = [
+    "quiz-generation[exp]",
+    "black>=23.3.0",
+    "deptry>=0.12.0",
+    "mypy>=1.4.0",
+    "ruff>=0.0.290",
+    "coverage>=7.2.0",
+    "pytest>=7.4.0",
+]
+
+[project.urls]
+homepage = "https://gitlab.illuin.tech/large-language-models/llm-core/tasks/quiz-generation"
+repository = "https://gitlab.illuin.tech/large-language-models/llm-core/tasks/quiz-generation"
+
+[build-system]
+requires = ["setuptools", "setuptools-scm[toml]", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+fallback_version = "0.0.0-dev"
+
+[tool.setuptools]
+zip-safe = false
+platforms = ["any"]
+
+[tool.setuptools.packages.find]
+include = ["quiz_generation", "quiz_generation.*", "experiment_template", "experiment_template.*"]
+
+[tool.setuptools.package-data]
+quiz_generation = ["py.typed"]
+
+[tool.deptry.per_rule_ignores]
+DEP002 = [
+    "protobuf", # exp dependency
+    "black", # dev dependency
+    "copier", # dev dependency
+    "deptry", # dev dependency
+    "isort", # dev dependency
+    "coverage", # dev dependency
+    "mypy", # dev dependency
+    "pip-tools", # dev dependency
+    "pytest", # dev dependency
+    "parameterized", # dev dependency
+    "ruff", # dev dependency
+    "jinja2-time", # dev dependency
+    "quiz-generation", # project dependency
+    "gradio", # demo dependency
+    "ipykernel", # notebook dependency
+    "nbformat", # notebook dependency
+]
+
+[tool.mypy]
+ignore_missing_imports = true
+check_untyped_defs = true
+disallow_untyped_defs = true
+enable_error_code = ["ignore-without-code"]
+exclude = ["docs/", "venv/", ".venv/"]
+mypy_path = "$MYPY_CONFIG_FILE_DIR/typings"
+no_implicit_optional = true
+show_error_codes = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unused_configs = true
+warn_unused_ignores = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = []
+ignore_missing_imports = true
+
+[tool.coverage.run]
+include = ["quiz_generation/*"]
+relative_files = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == \"__main__\":",
+    "if TYPE_CHECKING:",
+    "def __repr__",
+    "@abstractmethod",
+]
+
+[tool.black]
+line-length = 120
+
+[tool.ruff]
+select = ["E", "F", "W", "I", "N"]
+line-length = 120
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.pytest.ini_options]
+addopts = ["-ra", "--strict-markers"]
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s %(levelname)s [%(filename)s:%(lineno)s] %(message)s"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
