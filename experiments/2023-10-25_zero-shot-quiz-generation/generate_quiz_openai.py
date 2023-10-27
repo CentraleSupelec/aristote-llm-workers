@@ -69,7 +69,7 @@ Explication:
 {{~/assistant}}
 """
 
-MODEL_NAME = "gpt-4"
+MODEL_NAME = "gpt-3.5-instruct"
 
 
 class MultipleAnswerQuiz(BaseModel):
@@ -90,7 +90,7 @@ def generate_quiz(excerpt, model):
     return quiz
 
 
-def get_good_length_transcripts(transcripts: List[str], max_length: int = 1000):
+def get_good_length_transcripts(transcripts: List[str], max_length: int = 1000, model_name: str = MODEL_NAME):
     """Get list of transcripts with length under max_length
 
     Args:
@@ -100,7 +100,7 @@ def get_good_length_transcripts(transcripts: List[str], max_length: int = 1000):
     Returns:
         _type_: _description_
     """
-    encoder = tiktoken.encoding_for_model(MODEL_NAME)
+    encoder = tiktoken.encoding_for_model(model_name)
     new_tanscripts = []
     new_transcript = ""
     for transcript in transcripts:
@@ -119,35 +119,39 @@ def get_good_length_transcripts(transcripts: List[str], max_length: int = 1000):
 
 
 @click.command()
+@click.option("--model_name", type=str, default=MODEL_NAME)
 @click.option("--transcript_path", help="Transcript path to generate quiz from")
 @click.option("--output_path", help="Path to generate output.")
-def main(transcript_path, output_path):
+def main(model_name, transcript_path, output_path):
     load_dotenv()
 
     with open(transcript_path, "r") as f:
         transcripts = json.load(f)["transcripts"]
 
-    new_transcripts = get_good_length_transcripts(transcripts)
+    new_transcripts = get_good_length_transcripts(transcripts, model_name=model_name)
+    encoder = tiktoken.encoding_for_model(model_name)
 
     with open(output_path, "w") as file:
         for i, new_transcript in tqdm(enumerate(new_transcripts), total=len(new_transcripts)):
-            file.write(f"# Transcript {i+1}:\n\n")
+            file.write(f"# Transcript {i+1}\n\n")
 
             openai_connector = OpenAIConnector(
-                model="gpt-4",
-                max_tokens=len(new_transcript),
+                model=model_name,
+                max_tokens=len(encoder.encode(new_transcript)),
                 temperature=0.2,
                 use_cost_estimation=True,
                 cache_path=".cache",
             )
             print("Generating reformulation...")
             prompt = Prompt(id=0, text=PROMPT_REFORMULATION.replace("[TRANSCRIPT]", new_transcript))
-            file.write("## Prompt:\n\n")
+
+            file.write("## Prompt\n\n")
             file.write(f"```txt\n{prompt.text}\n```\n\n")
             print(
                 "Estimated cost:",
                 openai_connector.get_costs(
-                    prompts=[prompt], completions=[TextGeneration(prompt_text=prompt.text, text=prompt.text)]
+                    prompts=[prompt],
+                    completions=[TextGeneration(prompt_text=prompt.text, text=prompt.text)]
                 ),
             )
             reformulation = openai_connector.multi_requests(
@@ -157,14 +161,15 @@ def main(transcript_path, output_path):
                         text=prompt.text,
                     )
                 ]
-            )[0]
-            file.write("## Reformulation:\n\n")
-            file.write(f"```txt\n{reformulation.text}\n```\n\n")
+            )[0].text
+            reformulation = reformulation.replace("\n\n", "\n")
+            file.write("## Reformulation\n\n")
+            file.write(f"```txt\n{reformulation}\n```\n\n")
 
             print("Generating quiz...")
-            guidance_model = guidance.llms.OpenAI(MODEL_NAME)
-            quiz = generate_quiz(reformulation.text, guidance_model)
-            file.write("## Quiz:\n\n")
+            guidance_model = guidance.llms.OpenAI(model_name)
+            quiz = generate_quiz(reformulation, guidance_model)
+            file.write("## Quiz\n\n")
             file.write(f"```txt\n{quiz}\n```\n\n")
 
 

@@ -47,7 +47,18 @@ Link to reference slides where you might keep the update of the project results.
 
 ## Steps to reproduce experiments
 
+Generate GPT-4 Quizzes:
+
 ```bash
+cd experiments/2023-10-25_zero-shot-quiz-generation
+python generate_quiz_openai.py --model_name gpt-3.5-turbo --transcript_path ../../data/cs_videos_transcripts/transcript_rl.json --output_path results/gpt_3_5_ri_quiz.md
+```
+
+Generate GPT-3.5-turbo Quizzes:
+
+```bash
+cd experiments/2023-10-25_zero-shot-quiz-generation
+python generate_quiz_openai.py --model_name gpt-3.5-turbo --transcript_path ../../data/cs_videos_transcripts/transcript_rl.json --output_path results/gpt_3_5_ri_quiz.md
 ```
 
 ## Conclusion/TLDR
