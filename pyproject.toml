@@ -35,6 +35,14 @@ exp = [
     "tiktoken>=0.5.1",
     "pydantic>=2.0.3",
     "tqdm>=4.66.1",
+    "transformers>=4.34.1",
+    "fastapi>=0.104.0",
+    "torch>=2.1.0",
+    "uvicorn>=0.23.2",
+    "accelerate>=0.24.0",
+    "sentencepiece>=0.1.99",
+    "protobuf>=4.24.4",
+    "diskcache>=5.6.3",
 ]
 dev = [
     "quiz-generation[exp]",

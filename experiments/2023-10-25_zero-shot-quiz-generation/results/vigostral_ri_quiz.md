@@ -1,0 +1,26 @@
+# Transcript 1
+
+## Prompt
+
+```txt
+Tu vas recevoir un transcript d'un cours sur la recherche d'informationsGénère une reformulation du transcript suivant:
+Bonjour, on attaque aujourd'hui la deuxième partie du cours d'apprentissage pour la recherche d'information. Je vais rapidement commencer par un rêve récapitulatif des notions introduites la dernière fois.
+La dernière fois, j'ai présenté un nouveau paradigme pour la recherche d'information qui est un paradigme basé sur de l'apprentissage qui s'appelle « Learning to Rank » où on a un jeu de données d'apprentissage qui est composé principalement de paires requêtes, documents, décrits caractérisés avec un vecteur caractéristique qu'il faut construire et puis des données de sortie, des labels qui sont des valeurs de pertinence. A partir de ces données d'apprentissage, on apprend une fonction qui va être une fonction d'ordonnancement ou un critère et puis cette fonction d'ordonnancement apprise, on l'utilise ensuite sur des données de test ou des données de production qui consistent uniquement en des données non labellisées. Bien sûr, on n'a pas la vérité de terrain pour ces données. Et puis sur ces données de test, on utilise la fonction F apprise pour prédire la pertinence et classer les résultats. En sortie, on obtient bien toujours une liste ordonnée de documents. Ce principe d'apprentissage pour l'AERI repose sur deux concepts principaux qui sont
+la notation des données et la représentation des couples requêtes-documents dans l'espace des caractéristiques. C'est vraiment une étape très importante qu'on appelle l'étape de description.
+Et puis la partie apprentissage en tant que telle avec une structure d'apprentissage classique en deux étapes. Une étape d'apprentissage de la fonction d'ordonnancement F, puis l'étape de test de production sur de nouvelles requêtes. On peut bien sûr aussi rajouter à ça une étape de validation qui, par exemple, pourrait consister à choisir les hyperparamètres du modèle. La dernière fois, il avait été aussi introduit le fait qu'il existait trois grandes familles d'approches dans ce paradigm learning to rank. L'approche par points, dont on a parlé la dernière fois, où les documents sont considérés de manière indépendante. L'approche par paire, dont on va parler aujourd'hui. Et l'approche par liste, qui va être aussi rapidement évoquée aujourd'hui. L'approche par points, c'est une approche qui
+consiste à transformer le problème de classement en un problème soit de classification, soit de régression, soit de régression ordinale. Selon le type des valeurs de pertinence qu'on a à disposition. Typiquement, si on a des valeurs de pertinence qui sont des nombres réels, on va se ramener à un problème de régression. Si on a des valeurs de pertinence qui sont des catégories, on va se ramener à un problème de classification. Et enfin, si on a des catégories ordonnées, on va se ramener à un problème de régression ordinaire. Donc voilà, on a notre vecteur caractéristique. Trois types de problèmes selon le type de valeur de sortie. On en déduit la fonction f2x, on apprend la fonction f2x, qui va être une fonction de classement. Ça c'est la phase d'apprentissage. Et pour la phase de classement en tant que telle, on a nos données qui sont décrites selon le même schéma de description. Et puis
+La reformulation doit contenir tous les points essentiels et pas de répétitions.
+Reformulation:
+
+```
+
+## Reformulation
+
+```txt
+Bonjour, nous allons aborder aujourd'hui la deuxième partie du cours sur la recherche d'information. Avant de commencer, je vais rapidement résumer les notions présentées la dernière fois.
+La dernière fois, nous avons introduit un nouveau paradigme pour la recherche d'information basé sur l'apprentissage appelé "Learning to Rank". Ce paradigme utilise un jeu de données d'apprentissage composé de paires requêtes-documents, caractérisées par un vecteur de caractéristiques, et de données de sortie, des labels de pertinence. À partir de ces données d'apprentissage, on apprend une fonction d'ordonnancement ou un critère, qui est ensuite utilisé sur des données de test ou de production non labellisées pour prédire la pertinence et classer les résultats.
+Ce paradigme repose sur deux concepts principaux : la notation des données et la représentation des couples requêtes-documents dans l'espace des caractéristiques. La notation des données est une étape cruciale appelée "étape de description". Ensuite, il y a la partie apprentissage en deux étapes : apprentissage de la fonction d'ordonnancement F et test de production sur de nouvelles requêtes.
+La dernière fois, nous avons introduit trois grandes familles d'approches dans le paradigme "Learning to Rank" : l'approche par points, l'approche par paire et l'approche par liste. L'approche par points consiste à transformer le problème de classement en un problème de classification, de régression ou de régression ordinale, selon le type de valeurs de pertinence. Les documents sont considérés de manière indépendante.
+Aujourd'hui, nous allons aborder l'approche par paire, qui consiste à considérer les paires requêtes-documents plutôt que les documents individuellement. Ensuite, nous discuterons de l'approche par liste, qui consiste à classer des listes de documents plutôt que des documents individuels.
+```
+
