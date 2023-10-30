@@ -1,18 +1,15 @@
+import hashlib
 import json
+import re
 import warnings
 from typing import List
 
 import click
-import guidance
-import tiktoken
+import requests
+from diskcache import Cache
 from pydantic import BaseModel, constr
 from tqdm import tqdm
-import requests
 from transformers import AutoTokenizer
-from typing import Dict, List
-from diskcache import Cache
-import hashlib
-import re
 
 cache = Cache(".cache2")
 
@@ -31,6 +28,7 @@ tokenizer = AutoTokenizer.from_pretrained("bofenghuang/vigostral-7b-chat")
 def get_cache_key(text, model_name):
     str_to_encode = f"{model_name}-{text}"
     return str(hashlib.sha256(str_to_encode.encode()).hexdigest())
+
 
 def generate(
     text: str,
@@ -52,7 +50,7 @@ def generate(
                 "stop": stop,
             },
             timeout=1000,
-        ).json()["text"][0][len(text):]
+        ).json()["text"][0][len(text) :]
         cache.set(cache_key, res)
         return res
 
@@ -84,15 +82,11 @@ def generate_quiz(excerpt):
                 "Tu dois également fournir une explication pour la réponse et les fausses réponses.\n"
                 "Voici la question et ces réponses:\n"
                 "Question:\n"
-            )
+            ),
         },
     ]
     text = tokenizer.apply_chat_template(conversation=conv, tokenize=False, add_generation_prompt=True)
-    question = generate(
-        text,
-        max_tokens=256,
-        stop=["?"]
-    )
+    question = generate(text, max_tokens=256, stop=["?"])
     question += "?"
     conv += [
         {"role": "assistant", "content": question},
@@ -100,44 +94,28 @@ def generate_quiz(excerpt):
     ]
     # print(conv)
     text = tokenizer.apply_chat_template(conversation=conv, tokenize=False, add_generation_prompt=True)
-    answer = generate(
-        text,
-        max_tokens=256,
-        stop=["."]
-    )
+    answer = generate(text, max_tokens=256, stop=["."])
     answer += "."
     conv += [
         {"role": "assistant", "content": answer},
         {"role": "user", "content": "Fausse Réponse 1:"},
     ]
     text = tokenizer.apply_chat_template(conversation=conv, tokenize=False, add_generation_prompt=True)
-    fake_answer_1 = generate(
-        text,
-        max_tokens=256,
-        stop=["."]
-    )
+    fake_answer_1 = generate(text, max_tokens=256, stop=["."])
     fake_answer_1 += "."
     conv += [
         {"role": "assistant", "content": fake_answer_1},
         {"role": "user", "content": "Fausse Réponse 2:"},
     ]
     text = tokenizer.apply_chat_template(conversation=conv, tokenize=False, add_generation_prompt=True)
-    fake_answer_2 = generate(
-        text,
-        max_tokens=256,
-        stop=["."]
-    )
+    fake_answer_2 = generate(text, max_tokens=256, stop=["."])
     fake_answer_2 += "."
     conv += [
         {"role": "assistant", "content": fake_answer_2},
         {"role": "user", "content": "Fausse Réponse 3:"},
     ]
     text = tokenizer.apply_chat_template(conversation=conv, tokenize=False, add_generation_prompt=True)
-    fake_answer_3 = generate(
-        text,
-        max_tokens=256,
-        stop=["."]
-    )
+    fake_answer_3 = generate(text, max_tokens=256, stop=["."])
     fake_answer_3 += "."
     conv += [
         {"role": "assistant", "content": fake_answer_3},
@@ -157,8 +135,10 @@ def generate_quiz(excerpt):
         explanation=explanation,
     )
 
+
 def get_token_nb(text: str):
     return len(tokenizer.encode(text))
+
 
 def get_good_length_transcripts(transcripts: List[str], max_length: int = 1000):
     """Get list of transcripts with length under max_length
@@ -186,9 +166,10 @@ def get_good_length_transcripts(transcripts: List[str], max_length: int = 1000):
 
     return new_tanscripts
 
+
 def replace_special_characters(text):
     # Define a regular expression pattern to match special UTF-8 characters
-    pattern = r'\\u[0-9a-fA-F]{4}'
+    pattern = r"\\u[0-9a-fA-F]{4}"
 
     # Use re.sub to replace matched patterns with their corresponding characters
     def replace(match):
@@ -202,7 +183,6 @@ def replace_special_characters(text):
 @click.option("--transcript_path", help="Transcript path to generate quiz from")
 @click.option("--output_path", help="Path to generate output.")
 def main(transcript_path, output_path):
-
     with open(transcript_path, "r") as f:
         transcripts = json.load(f)["transcripts"]
 
@@ -220,9 +200,7 @@ def main(transcript_path, output_path):
             conversation = [
                 {"role": "user", "content": initial_text},
             ]
-            text = tokenizer.apply_chat_template(
-                conversation, tokenize=False, add_generation_prompt=True
-            )
+            text = tokenizer.apply_chat_template(conversation, tokenize=False, add_generation_prompt=True)
             reformulation = generate(
                 text,
                 max_tokens=get_token_nb(text),

@@ -43,6 +43,7 @@ exp = [
     "sentencepiece>=0.1.99",
     "protobuf>=4.24.4",
     "diskcache>=5.6.3",
+    "requests>=2.31.0",
 ]
 dev = [
     "quiz-generation[exp]",
@@ -82,11 +83,15 @@ quiz_generation = ["py.typed"]
 [tool.deptry.per_rule_ignores]
 DEP001 = [
     "outlines", # exp dependency
+    "vllm", # exp dependency
 ]
 DEP002 = [
     "protobuf", # exp dependency
     "redis", # exp dependency
     "redis-om", # exp dependency
+    "torch", # exp dependency
+    "accelerate", # exp dependency
+    "sentencepiece", # exp dependency
     "black", # dev dependency
     "copier", # dev dependency
     "deptry", # dev dependency

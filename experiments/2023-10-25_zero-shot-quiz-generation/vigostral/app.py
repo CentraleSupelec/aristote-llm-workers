@@ -2,10 +2,9 @@ import argparse
 import json
 from typing import AsyncGenerator
 
+import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, Response, StreamingResponse
-import uvicorn
-
 from vllm.engine.arg_utils import AsyncEngineArgs
 from vllm.engine.async_llm_engine import AsyncLLMEngine
 from vllm.sampling_params import SamplingParams
@@ -38,9 +37,7 @@ async def generate(request: Request) -> Response:
     async def stream_results() -> AsyncGenerator[bytes, None]:
         async for request_output in results_generator:
             prompt = request_output.prompt
-            text_outputs = [
-                prompt + output.text for output in request_output.outputs
-            ]
+            text_outputs = [prompt + output.text for output in request_output.outputs]
             ret = {"text": text_outputs}
             yield (json.dumps(ret) + "\0").encode("utf-8")
 
@@ -73,8 +70,4 @@ if __name__ == "__main__":
     engine_args = AsyncEngineArgs.from_cli_args(args)
     engine = AsyncLLMEngine.from_engine_args(engine_args)
 
-    uvicorn.run(app,
-                host=args.host,
-                port=args.port,
-                log_level="debug",
-                timeout_keep_alive=TIMEOUT_KEEP_ALIVE)
+    uvicorn.run(app, host=args.host, port=args.port, log_level="debug", timeout_keep_alive=TIMEOUT_KEEP_ALIVE)
