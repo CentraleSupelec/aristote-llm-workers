@@ -71,11 +71,11 @@ python generate_quiz_openai.py --model_name gpt-3.5-turbo --transcript_path ../.
 
 ### Generate Vigostral Quizzes
 
-Launch the app in a V100 machine with `python>=3.10`:
+Launch the `experiments/2023-10-25_zero-shot-quiz-generation/vigostral/app.py` in a A100 machine with `python>=3.10`:
 
 ```bash
 pip install -r experiments/2023-10-25_zero-shot-quiz-generation/vigostral_app/requirements.txt
-python experiments/2023-10-25_zero-shot-quiz-generation/vigostral_app/app.py
+python -m app
 ```
 
 Connect API in machine to local machine:

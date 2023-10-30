@@ -12,8 +12,9 @@ from transformers import AutoTokenizer
 from typing import Dict, List
 from diskcache import Cache
 import hashlib
+import re
 
-cache = Cache(".cache")
+cache = Cache(".cache2")
 
 PROMPT_REFORMULATION = (
     "Tu vas recevoir un transcript d'un cours sur la recherche d'informations"
@@ -23,57 +24,6 @@ PROMPT_REFORMULATION = (
     "Reformulation:\n"
 )
 
-QUIZ_PROMPT = """
-{{#system~}}
-Tu es un assistant d'enseignement qui aide un professeur à créer un examen des connaissances pour ses élèves.
-{{~/system}}
-{{#user~}}
-Génère une question à propos de l'extrait suivant qui peut être répondue en une phrase:
-[EXTRACT]
-Génère également la réponse à la question en une phrase.
-La réponse doit être dans l'extrait.
-Tu dois également fournir 3 fausses réponses en une phrase chacune.
-Une des fausses réponses doit être évidemment fausse mais liée à l'extrait.
-Les deux autres doivent être subtilement fausses.
-Tu dois également fournir une explication pour la réponse et les fausses réponses.
-Voici la question et ces réponses:
-Question:
-{{~/user}}
-{{#assistant~}}
-{{gen 'question' stop='?' temperature=0.7}}
-{{~/assistant}}
-{{#user~}}
-Réponse:
-{{~/user}}
-{{#assistant~}}
-{{gen 'answer' stop='.' temperature=0.2}}
-{{~/assistant}}
-{{#user~}}
-Fausse Réponse 1:
-{{~/user}}
-{{#assistant~}}
-{{gen 'fake_answer_1' stop='.' temperature=0.2}}
-{{~/assistant}}
-{{#user~}}
-Fausse Réponse 2:
-{{~/user}}
-{{#assistant~}}
-{{gen 'fake_answer_2' stop='.' temperature=0.2}}
-{{~/assistant}}
-{{#user~}}
-Fausse Réponse 3:
-{{~/user}}
-{{#assistant~}}
-{{gen 'fake_answer_3' stop='.' temperature=0.2}}
-{{~/assistant}}
-{{#user~}}
-Explication:
-{{~/user}}
-{{#assistant~}}
-{{gen 'explanation' temperature=0.5}}
-{{~/assistant}}
-"""
-
 MODEL_NAME = "bofenghuang/vigostral-7b-chat"
 tokenizer = AutoTokenizer.from_pretrained("bofenghuang/vigostral-7b-chat")
 
@@ -82,7 +32,12 @@ def get_cache_key(text, model_name):
     str_to_encode = f"{model_name}-{text}"
     return str(hashlib.sha256(str_to_encode.encode()).hexdigest())
 
-def generate(text: str, max_length: int = 256, do_sample: bool = False, temperature: float = 0.5) -> str:
+def generate(
+    text: str,
+    max_tokens: int = 256,
+    temperature: float = 0.5,
+    stop: List[str] = None,
+) -> str:
     cache_key = get_cache_key(text, MODEL_NAME)
     cached_text = cache.get(cache_key)
     if cached_text is not None:
@@ -91,35 +46,116 @@ def generate(text: str, max_length: int = 256, do_sample: bool = False, temperat
         res = requests.post(
             "http://0.0.0.0:8000/generate",
             json={
-                "text": text,
-                "parameters": {
-                    "max_new_tokens": max_length,
-                    "do_sample": do_sample,
-                    "temperature": temperature,
-                }
+                "prompt": text,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+                "stop": stop,
             },
             timeout=1000,
-        ).json()["generation"]
+        ).json()["text"][0][len(text):]
         cache.set(cache_key, res)
         return res
 
 
-# class MultipleAnswerQuiz(BaseModel):
-#     question: constr(min_length=10)
-#     answer: constr(min_length=1)
-#     fake_answer_1: constr(min_length=1)
-#     fake_answer_2: constr(min_length=1)
-#     fake_answer_3: constr(min_length=1)
-#     explanation: constr(min_length=10)
+class MultipleAnswerQuiz(BaseModel):
+    question: constr(min_length=10)
+    answer: constr(min_length=1)
+    fake_answer_1: constr(min_length=1)
+    fake_answer_2: constr(min_length=1)
+    fake_answer_3: constr(min_length=1)
+    explanation: constr(min_length=10)
 
 
-# def generate_quiz(excerpt, model):
-#     quiz_prompt = QUIZ_PROMPT.replace("[EXTRACT]", excerpt)
-#     quiz_prompt = quiz_prompt.replace("[TEMPERATURE]", str(0))
-#     print(quiz_prompt)
-#     quiz_guidance = guidance(quiz_prompt)
-#     quiz = quiz_guidance(llm=model)
-#     return quiz
+def generate_quiz(excerpt):
+    # Generate question
+    conv = [
+        {
+            "role": "user",
+            "content": (
+                "Tu es un assistant d'enseignement qui aide un professeur à créer un examen des "
+                "connaissances pour ses élèves. Génère une question à propos de l'extrait suivant "
+                "qui peut être répondue en une phrase:\n"
+                f"{excerpt}\n"
+                "Génère également la réponse à la question en une phrase."
+                "La réponse doit être dans l'extrait."
+                "Tu dois également fournir 3 fausses réponses en une phrase chacune."
+                "Une des fausses réponses doit être évidemment fausse mais liée à l'extrait."
+                "Les deux autres doivent être subtilement fausses."
+                "Tu dois également fournir une explication pour la réponse et les fausses réponses.\n"
+                "Voici la question et ces réponses:\n"
+                "Question:\n"
+            )
+        },
+    ]
+    text = tokenizer.apply_chat_template(conversation=conv, tokenize=False, add_generation_prompt=True)
+    question = generate(
+        text,
+        max_tokens=256,
+        stop=["?"]
+    )
+    question += "?"
+    conv += [
+        {"role": "assistant", "content": question},
+        {"role": "user", "content": "Réponse:"},
+    ]
+    # print(conv)
+    text = tokenizer.apply_chat_template(conversation=conv, tokenize=False, add_generation_prompt=True)
+    answer = generate(
+        text,
+        max_tokens=256,
+        stop=["."]
+    )
+    answer += "."
+    conv += [
+        {"role": "assistant", "content": answer},
+        {"role": "user", "content": "Fausse Réponse 1:"},
+    ]
+    text = tokenizer.apply_chat_template(conversation=conv, tokenize=False, add_generation_prompt=True)
+    fake_answer_1 = generate(
+        text,
+        max_tokens=256,
+        stop=["."]
+    )
+    fake_answer_1 += "."
+    conv += [
+        {"role": "assistant", "content": fake_answer_1},
+        {"role": "user", "content": "Fausse Réponse 2:"},
+    ]
+    text = tokenizer.apply_chat_template(conversation=conv, tokenize=False, add_generation_prompt=True)
+    fake_answer_2 = generate(
+        text,
+        max_tokens=256,
+        stop=["."]
+    )
+    fake_answer_2 += "."
+    conv += [
+        {"role": "assistant", "content": fake_answer_2},
+        {"role": "user", "content": "Fausse Réponse 3:"},
+    ]
+    text = tokenizer.apply_chat_template(conversation=conv, tokenize=False, add_generation_prompt=True)
+    fake_answer_3 = generate(
+        text,
+        max_tokens=256,
+        stop=["."]
+    )
+    fake_answer_3 += "."
+    conv += [
+        {"role": "assistant", "content": fake_answer_3},
+        {"role": "user", "content": "Explication:"},
+    ]
+    text = tokenizer.apply_chat_template(conversation=conv, tokenize=False, add_generation_prompt=True)
+    explanation = generate(
+        text,
+        max_tokens=800,
+    )
+    return MultipleAnswerQuiz(
+        question=question,
+        answer=answer,
+        fake_answer_1=fake_answer_1,
+        fake_answer_2=fake_answer_2,
+        fake_answer_3=fake_answer_3,
+        explanation=explanation,
+    )
 
 def get_token_nb(text: str):
     return len(tokenizer.encode(text))
@@ -150,6 +186,17 @@ def get_good_length_transcripts(transcripts: List[str], max_length: int = 1000):
 
     return new_tanscripts
 
+def replace_special_characters(text):
+    # Define a regular expression pattern to match special UTF-8 characters
+    pattern = r'\\u[0-9a-fA-F]{4}'
+
+    # Use re.sub to replace matched patterns with their corresponding characters
+    def replace(match):
+        return chr(int(match.group(0)[2:], 16))
+
+    result = re.sub(pattern, replace, text)
+    return result
+
 
 @click.command()
 @click.option("--transcript_path", help="Transcript path to generate quiz from")
@@ -159,7 +206,7 @@ def main(transcript_path, output_path):
     with open(transcript_path, "r") as f:
         transcripts = json.load(f)["transcripts"]
 
-    new_transcripts = get_good_length_transcripts(transcripts)[:1]
+    new_transcripts = get_good_length_transcripts(transcripts)
 
     with open(output_path, "w") as file:
         for i, new_transcript in tqdm(enumerate(new_transcripts), total=len(new_transcripts)):
@@ -178,17 +225,19 @@ def main(transcript_path, output_path):
             )
             reformulation = generate(
                 text,
-                max_length=get_token_nb(text),
+                max_tokens=get_token_nb(text),
             )
             reformulation = reformulation.replace("\n\n", "\n")
             file.write("## Reformulation\n\n")
             file.write(f"```txt\n{reformulation}\n```\n\n")
 
-            # print("Generating quiz...")
-            # guidance_model = guidance.llms.OpenAI(model_name)
-            # quiz = generate_quiz(reformulation, guidance_model)
-            # file.write("## Quiz\n\n")
-            # file.write(f"```txt\n{quiz}\n```\n\n")
+            print("Generating quiz...")
+            quiz = generate_quiz(reformulation)
+            quiz_json = quiz.model_dump(mode="json")
+            quiz_str = json.dumps(quiz_json, indent=4)
+            quiz_str = replace_special_characters(quiz_str)
+            file.write("## Quiz\n\n")
+            file.write(f"```txt\n{quiz_str}\n```\n\n")
 
 
 if __name__ == "__main__":
