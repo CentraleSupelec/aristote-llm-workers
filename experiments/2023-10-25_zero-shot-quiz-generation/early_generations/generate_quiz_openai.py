@@ -20,7 +20,8 @@ PROMPT_REFORMULATION = (
 
 QUIZ_PROMPT = """
 {{#system~}}
-Tu es un assistant d'enseignement qui aide un professeur à créer un examen des connaissances pour ses élèves.
+Tu es un assistant d'enseignement qui aide un professeur à créer un examen des
+connaissances pour ses élèves.
 {{~/system}}
 {{#user~}}
 Génère une question à propos de l'extrait suivant qui peut être répondue en une phrase:
@@ -90,7 +91,9 @@ def generate_quiz(excerpt, model):
     return quiz
 
 
-def get_good_length_transcripts(transcripts: List[str], max_length: int = 1000, model_name: str = MODEL_NAME):
+def get_good_length_transcripts(
+    transcripts: List[str], max_length: int = 1000, model_name: str = MODEL_NAME
+):
     """Get list of transcripts with length under max_length
 
     Args:
@@ -112,7 +115,9 @@ def get_good_length_transcripts(transcripts: List[str], max_length: int = 1000, 
         else:
             new_transcript = longer_transcript
     new_tanscripts.append(new_transcript.strip())
-    if any([len(encoder.encode(transcript)) > max_length for transcript in new_tanscripts]):
+    if any(
+        [len(encoder.encode(transcript)) > max_length for transcript in new_tanscripts]
+    ):
         warnings.warn("Some transcripts are still too long")
 
     return new_tanscripts
@@ -132,7 +137,9 @@ def main(model_name, transcript_path, output_path):
     encoder = tiktoken.encoding_for_model(model_name)
 
     with open(output_path, "w") as file:
-        for i, new_transcript in tqdm(enumerate(new_transcripts), total=len(new_transcripts)):
+        for i, new_transcript in tqdm(
+            enumerate(new_transcripts), total=len(new_transcripts)
+        ):
             file.write(f"# Transcript {i+1}\n\n")
 
             openai_connector = OpenAIConnector(
@@ -143,14 +150,19 @@ def main(model_name, transcript_path, output_path):
                 cache_path=".cache",
             )
             print("Generating reformulation...")
-            prompt = Prompt(id=0, text=PROMPT_REFORMULATION.replace("[TRANSCRIPT]", new_transcript))
+            prompt = Prompt(
+                id=0, text=PROMPT_REFORMULATION.replace("[TRANSCRIPT]", new_transcript)
+            )
 
             file.write("## Prompt\n\n")
             file.write(f"```txt\n{prompt.text}\n```\n\n")
             print(
                 "Estimated cost:",
                 openai_connector.get_costs(
-                    prompts=[prompt], completions=[TextGeneration(prompt_text=prompt.text, text=prompt.text)]
+                    prompts=[prompt],
+                    completions=[
+                        TextGeneration(prompt_text=prompt.text, text=prompt.text)
+                    ],
                 ),
             )
             reformulation = openai_connector.multi_requests(

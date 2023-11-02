@@ -14,5 +14,9 @@ class GitAuthorExtension(Extension):
     def __init__(self, environment: Environment) -> None:
         super().__init__(environment)
         git_config = GitConfigParser()
-        environment.globals["git_user_name"] = git_config.get_value("user", "name", default="")
-        environment.globals["git_user_mail"] = git_config.get_value("user", "email", default="")
+        environment.globals["git_user_name"] = git_config.get_value(
+            "user", "name", default=""
+        )
+        environment.globals["git_user_mail"] = git_config.get_value(
+            "user", "email", default=""
+        )

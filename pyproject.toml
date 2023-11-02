@@ -26,8 +26,8 @@ exp = [
     "GitPython>=3.0.0,<4.0.0",
     "jinja2-time>=0.2.0,<0.3.0",
     "python-slugify>=8.0.0,<9.0.0",
-    "illuin-llm-tools>=0.1.5",
     "python-dotenv>=1.0.0",
+    "illuin-llm-tools>=0.1.5",
     "guidance>=0.0.64",
     "redis>=4.6.0",
     "redis-om>=0.2.1",
@@ -143,11 +143,11 @@ exclude_lines = [
 ]
 
 [tool.black]
-line-length = 120
+line-length = 88
 
 [tool.ruff]
 select = ["E", "F", "W", "I", "N"]
-line-length = 120
+line-length = 88
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]

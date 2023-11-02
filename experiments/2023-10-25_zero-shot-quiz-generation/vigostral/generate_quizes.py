@@ -70,22 +70,27 @@ def generate_quiz(excerpt):
         {
             "role": "user",
             "content": (
-                "Tu es un assistant d'enseignement qui aide un professeur à créer un examen des "
-                "connaissances pour ses élèves. Génère une question à propos de l'extrait suivant "
+                "Tu es un assistant d'enseignement qui aide un professeur à "
+                "créer un examen des connaissances pour ses élèves. "
+                "Génère une question à propos de l'extrait suivant "
                 "qui peut être répondue en une phrase:\n"
                 f"{excerpt}\n"
                 "Génère également la réponse à la question en une phrase."
                 "La réponse doit être dans l'extrait."
                 "Tu dois également fournir 3 fausses réponses en une phrase chacune."
-                "Une des fausses réponses doit être évidemment fausse mais liée à l'extrait."
+                "Une des fausses réponses doit être évidemment fausse mais liée à "
+                "l'extrait."
                 "Les deux autres doivent être subtilement fausses."
-                "Tu dois également fournir une explication pour la réponse et les fausses réponses.\n"
+                "Tu dois également fournir une explication pour la réponse et "
+                "les fausses réponses.\n"
                 "Voici la question et ces réponses:\n"
                 "Question:\n"
             ),
         },
     ]
-    text = tokenizer.apply_chat_template(conversation=conv, tokenize=False, add_generation_prompt=True)
+    text = tokenizer.apply_chat_template(
+        conversation=conv, tokenize=False, add_generation_prompt=True
+    )
     question = generate(text, max_tokens=256, stop=["?"])
     question += "?"
     conv += [
@@ -93,35 +98,45 @@ def generate_quiz(excerpt):
         {"role": "user", "content": "Réponse:"},
     ]
     # print(conv)
-    text = tokenizer.apply_chat_template(conversation=conv, tokenize=False, add_generation_prompt=True)
+    text = tokenizer.apply_chat_template(
+        conversation=conv, tokenize=False, add_generation_prompt=True
+    )
     answer = generate(text, max_tokens=256, stop=["."])
     answer += "."
     conv += [
         {"role": "assistant", "content": answer},
         {"role": "user", "content": "Fausse Réponse 1:"},
     ]
-    text = tokenizer.apply_chat_template(conversation=conv, tokenize=False, add_generation_prompt=True)
+    text = tokenizer.apply_chat_template(
+        conversation=conv, tokenize=False, add_generation_prompt=True
+    )
     fake_answer_1 = generate(text, max_tokens=256, stop=["."])
     fake_answer_1 += "."
     conv += [
         {"role": "assistant", "content": fake_answer_1},
         {"role": "user", "content": "Fausse Réponse 2:"},
     ]
-    text = tokenizer.apply_chat_template(conversation=conv, tokenize=False, add_generation_prompt=True)
+    text = tokenizer.apply_chat_template(
+        conversation=conv, tokenize=False, add_generation_prompt=True
+    )
     fake_answer_2 = generate(text, max_tokens=256, stop=["."])
     fake_answer_2 += "."
     conv += [
         {"role": "assistant", "content": fake_answer_2},
         {"role": "user", "content": "Fausse Réponse 3:"},
     ]
-    text = tokenizer.apply_chat_template(conversation=conv, tokenize=False, add_generation_prompt=True)
+    text = tokenizer.apply_chat_template(
+        conversation=conv, tokenize=False, add_generation_prompt=True
+    )
     fake_answer_3 = generate(text, max_tokens=256, stop=["."])
     fake_answer_3 += "."
     conv += [
         {"role": "assistant", "content": fake_answer_3},
         {"role": "user", "content": "Explication:"},
     ]
-    text = tokenizer.apply_chat_template(conversation=conv, tokenize=False, add_generation_prompt=True)
+    text = tokenizer.apply_chat_template(
+        conversation=conv, tokenize=False, add_generation_prompt=True
+    )
     explanation = generate(
         text,
         max_tokens=800,
@@ -189,7 +204,9 @@ def main(transcript_path, output_path):
     new_transcripts = get_good_length_transcripts(transcripts)
 
     with open(output_path, "w") as file:
-        for i, new_transcript in tqdm(enumerate(new_transcripts), total=len(new_transcripts)):
+        for i, new_transcript in tqdm(
+            enumerate(new_transcripts), total=len(new_transcripts)
+        ):
             file.write(f"# Transcript {i+1}\n\n")
 
             print("Generating reformulation...")
@@ -200,7 +217,9 @@ def main(transcript_path, output_path):
             conversation = [
                 {"role": "user", "content": initial_text},
             ]
-            text = tokenizer.apply_chat_template(conversation, tokenize=False, add_generation_prompt=True)
+            text = tokenizer.apply_chat_template(
+                conversation, tokenize=False, add_generation_prompt=True
+            )
             reformulation = generate(
                 text,
                 max_tokens=get_token_nb(text),

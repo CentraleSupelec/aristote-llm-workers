@@ -71,11 +71,10 @@ python generate_quiz_openai.py --model_name gpt-3.5-turbo --transcript_path ../.
 
 ### Generate Vigostral Quizzes
 
-Launch the `experiments/2023-10-25_zero-shot-quiz-generation/vigostral/app.py` in a A100 machine with `python>=3.10`:
+Launch the vLLM server with skypilot:
 
 ```bash
-pip install -r experiments/2023-10-25_zero-shot-quiz-generation/vigostral_app/requirements.txt
-python -m app
+sky launch -c zero-shot-a100 --gpus A100:1 experiments/2023-10-25_zero-shot-quiz-generation/vigostral/skypilot_config.yml
 ```
 
 Connect API in machine to local machine:

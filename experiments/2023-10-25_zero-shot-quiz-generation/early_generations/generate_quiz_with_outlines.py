@@ -17,14 +17,16 @@ PROMPT_REFORMULATION = (
 )
 
 PROMPT_QUIZ = (
-    "Génère une question à propos de l'extrait suivant qui peut être répondue en une phrase:\n"
+    "Génère une question à propos de l'extrait suivant qui peut être "
+    "répondue en une phrase:\n"
     "[EXTRAIT]\n"
     "Génère également la réponse à la question en une phrase.\n"
     "La réponse doit être dans l'extrait.\n"
     "Tu dois également fournir 3 fausses réponses en une phrase chacune.\n"
     "Une des fausses réponses doit être évidemment fausse mais liée à l'extrait.\n"
     "Les deux autres doivent être subtilement fausses.\n"
-    "Tu dois également fournir une explication pour la réponse et les fausses réponses.\n"
+    "Tu dois également fournir une explication pour la réponse et "
+    "les fausses réponses.\n"
 )
 MODEL_NAME = "meta-llama/Llama-2-13b-chat-hf"
 
@@ -76,7 +78,9 @@ def get_good_length_transcripts(transcripts: List[str], max_length: int = 1000):
         else:
             new_transcript = longer_transcript
     new_tanscripts.append(new_transcript.strip())
-    if any([len(encoder.encode(transcript)) > max_length for transcript in new_tanscripts]):
+    if any(
+        [len(encoder.encode(transcript)) > max_length for transcript in new_tanscripts]
+    ):
         warnings.warn("Some transcripts are still too long")
 
     return new_tanscripts

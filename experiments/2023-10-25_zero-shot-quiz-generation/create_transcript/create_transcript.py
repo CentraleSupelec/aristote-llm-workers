@@ -10,8 +10,14 @@ def deduplicate_lines(transcripts):
         index_2 = len(transcripts) - 2 - i
         index_3 = len(transcripts) - 3 - i
 
-        if transcripts[index_3] == transcripts[index_1][: len(transcripts[index_3])] and transcripts[index_2] == "":
-            new_transcripts[index_3 : index_1 + 1] = [transcripts[index_2], transcripts[index_3]]
+        if (
+            transcripts[index_3] == transcripts[index_1][: len(transcripts[index_3])]
+            and transcripts[index_2] == ""
+        ):
+            new_transcripts[index_3 : index_1 + 1] = [
+                transcripts[index_2],
+                transcripts[index_3],
+            ]
     return new_transcripts
 
 
