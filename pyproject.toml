@@ -18,6 +18,14 @@ classifiers = [
 ]
 dependencies = [
     "Jinja2>=3.1.2",
+    "jsonlines>=4.0.0",
+    "requests>=2.31.0",
+    "diskcache>=5.6.3",
+    "pydantic>=2.0.3",
+    "tqdm>=4.66.1",
+    "transformers>=4.35.0",
+    "configue>=4.2.0",
+    "click>=8.1.7",
 ]
 
 [project.optional-dependencies]
@@ -31,19 +39,14 @@ exp = [
     "guidance>=0.0.64",
     "redis>=4.6.0",
     "redis-om>=0.2.1",
-    "click>=8.1.7",
     "tiktoken>=0.5.1",
-    "pydantic>=2.0.3",
-    "tqdm>=4.66.1",
-    "transformers>=4.34.1",
     "fastapi>=0.104.0",
     "torch>=2.1.0",
     "uvicorn>=0.23.2",
     "accelerate>=0.24.0",
     "sentencepiece>=0.1.99",
     "protobuf>=4.24.4",
-    "diskcache>=5.6.3",
-    "requests>=2.31.0",
+    "types-requests>=2.31.0.10",
 ]
 dev = [
     "quiz-generation[exp]",
@@ -98,6 +101,7 @@ DEP002 = [
     "isort", # dev dependency
     "coverage", # dev dependency
     "mypy", # dev dependency
+    "types-requests", # dev dependency
     "pip-tools", # dev dependency
     "pytest", # dev dependency
     "parameterized", # dev dependency

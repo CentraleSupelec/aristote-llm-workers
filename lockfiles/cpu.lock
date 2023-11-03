@@ -5,7 +5,7 @@
 groups = ["default", "dev", "exp", "notebook"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:0949137ff863ad4baa4a2e5a316162dac9e173a754b70e33fc4c4cb4669e388e"
+content_hash = "sha256:2c6cf10a41a5cbd80062174f25ce5f7cdc02f47d72995c2ab3c86e322b65560f"
 
 [[package]]
 name = "accelerate"
@@ -331,6 +331,19 @@ dependencies = [
 files = [
     {file = "comm-0.1.4-py3-none-any.whl", hash = "sha256:6d52794cba11b36ed9860999cd10fd02d6b2eac177068fdd585e1e2f8a96e67a"},
     {file = "comm-0.1.4.tar.gz", hash = "sha256:354e40a59c9dd6db50c5cc6b4acc887d82e9603787f83b68c01a80a923984d15"},
+]
+
+[[package]]
+name = "configue"
+version = "4.2.0"
+requires_python = ">=3.6,<4.0"
+summary = "Helpers to load your application configuration from YAML files"
+dependencies = [
+    "pyyaml<7.0.0,>=5.1.0",
+]
+files = [
+    {file = "configue-4.2.0-py3-none-any.whl", hash = "sha256:729fbd4cef28fe0e0b347f14e9b2bfa58ac32c3345cb43f6b3b0b940bb316169"},
+    {file = "configue-4.2.0.tar.gz", hash = "sha256:e11b8734897fc1510a1dd80f39e8b6878f878b7984e78ea630e8dfa91805dd7b"},
 ]
 
 [[package]]
@@ -842,6 +855,19 @@ dependencies = [
 files = [
     {file = "jinja2-time-0.2.0.tar.gz", hash = "sha256:d14eaa4d315e7688daa4969f616f226614350c48730bfa1692d2caebd8c90d40"},
     {file = "jinja2_time-0.2.0-py2.py3-none-any.whl", hash = "sha256:d3eab6605e3ec8b7a0863df09cc1d23714908fa61aa6986a845c20ba488b4efa"},
+]
+
+[[package]]
+name = "jsonlines"
+version = "4.0.0"
+requires_python = ">=3.8"
+summary = "Library with helpers for the jsonlines file format"
+dependencies = [
+    "attrs>=19.2.0",
+]
+files = [
+    {file = "jsonlines-4.0.0-py3-none-any.whl", hash = "sha256:185b334ff2ca5a91362993f42e83588a360cf95ce4b71a73548502bda52a7c55"},
+    {file = "jsonlines-4.0.0.tar.gz", hash = "sha256:0c6d2c09117550c089995247f605ae4cf77dd1533041d366351f6f298822ea74"},
 ]
 
 [[package]]
@@ -2069,7 +2095,7 @@ files = [
 
 [[package]]
 name = "transformers"
-version = "4.34.1"
+version = "4.35.0"
 requires_python = ">=3.8.0"
 summary = "State-of-the-art Machine Learning for JAX, PyTorch and TensorFlow"
 dependencies = [
@@ -2085,8 +2111,8 @@ dependencies = [
     "tqdm>=4.27",
 ]
 files = [
-    {file = "transformers-4.34.1-py3-none-any.whl", hash = "sha256:d06ac09151d7b845e4a4acd6b143a591d946031ee67b4cbb20693b241920ffc0"},
-    {file = "transformers-4.34.1.tar.gz", hash = "sha256:1d0258d5a18063b66005bbe1e3276ec5943d9ab4ab47f020db1fd485cc40ea22"},
+    {file = "transformers-4.35.0-py3-none-any.whl", hash = "sha256:45aa9370d7d9ba1c43e6bfa04d7f8b61238497d4b646e573fd95e597fe4040ff"},
+    {file = "transformers-4.35.0.tar.gz", hash = "sha256:e4b41763f651282fc979348d3aa148244387ddc9165f4b18455798c770ae23b9"},
 ]
 
 [[package]]
@@ -2123,6 +2149,19 @@ dependencies = [
 files = [
     {file = "types-redis-4.6.0.8.tar.gz", hash = "sha256:1abb2859bbf9b171a22ef69d1ece0e35ef93e642fba97538497add884ad75b5e"},
     {file = "types_redis-4.6.0.8-py3-none-any.whl", hash = "sha256:4839923b4cce77bbf987290ca83710f8218529eebe1d2c3a0f067416c86847f5"},
+]
+
+[[package]]
+name = "types-requests"
+version = "2.31.0.10"
+requires_python = ">=3.7"
+summary = "Typing stubs for requests"
+dependencies = [
+    "urllib3>=2",
+]
+files = [
+    {file = "types-requests-2.31.0.10.tar.gz", hash = "sha256:dc5852a76f1eaf60eafa81a2e50aefa3d1f015c34cf0cba130930866b1b22a92"},
+    {file = "types_requests-2.31.0.10-py3-none-any.whl", hash = "sha256:b32b9a86beffa876c0c3ac99a4cd3b8b51e973fb8e3bd4e0a6bb32c7efad80fc"},
 ]
 
 [[package]]
