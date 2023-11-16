@@ -61,16 +61,29 @@ def get_generated_data(
     else:
         raise ValueError("Model not recognized")
 
+    main_path = "experiments/2023-10-25_zero-shot-quiz-generation/"
+    if "ri" in transcript:
+        chunks_path = os.path.join(
+            main_path,
+            "results/chunks/transcript_ri.jsonl",
+        )
+    else:
+        chunks_path = os.path.join(
+            main_path,
+            "results/chunks/transcript_mit_clustering.jsonl",
+        )
     metadata_filename = f"metadata_{model_name}_{language_input}_{transcript}.json"
     metadata_path = os.path.join(
-        "experiments/2023-10-25_zero-shot-quiz-generation/",
+        main_path,
         f"results/metadata/{metadata_filename}",
     )
     quizzes_filename = f"quizzes_{model_name}_{language_input}_{transcript}.jsonl"
     quizzes_path = os.path.join(
-        "experiments/2023-10-25_zero-shot-quiz-generation/",
+        main_path,
         f"results/quizzes/{quizzes_filename}",
     )
+    with jsonlines.open(chunks_path) as reader:
+        chunks = list(reader)
     with open(metadata_path) as file:
         metadata = json.load(file)
     with jsonlines.open(quizzes_path) as reader:
@@ -96,4 +109,4 @@ def get_generated_data(
     if order:
         quizzes = sorted(quizzes, key=lambda x: x["evaluation"]["score"], reverse=True)
 
-    return metadata, quizzes
+    return chunks, metadata, quizzes

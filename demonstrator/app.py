@@ -24,13 +24,19 @@ TRANSCRIPT_PATHS = [
 ]
 
 
-def generate_html(metadata, quizzes):
+def generate_html(chunks, metadata, quizzes, show_original_text=False, show_reformulation: bool = False):
     html = ""
     html += f"<h2>Title: {metadata['title']}</h2>\n"
     html += "<h3>Desctiption: </h3>\n"
     html += f"<p>{metadata['description']}</p>\n"
     html += "<p>============================================</p>\n"
     for i, quiz in enumerate(quizzes):
+        if show_original_text and i < len(chunks):
+            html += "<h3>Original Transcript:</h3>\n"
+            html += f"<p>{chunks[i]['chunk']}</p>\n"
+        if show_reformulation:
+            html += "<h3>Reformulated Transcript:</h3>\n"
+            html += f"<p>{quiz['quiz']['quiz_origin_text']}</p>\n"
         question = quiz["quiz"]["question"]
         answer = quiz["quiz"]["answer"]
         fake_answer_1 = quiz["quiz"]["fake_answer_1"]
@@ -53,12 +59,12 @@ def generate_html(metadata, quizzes):
     return html
 
 
-def main(live_mode: bool, language_input: str, model: str, transcript_path: str, order: bool):
+def main(live_mode: bool, language_input: str, model: str, transcript_path: str, order: bool, show_original_text: bool = False, show_reformulation: bool = False):
     if live_mode:
-        metadata, quizzes = generate_data_live(language_input, model, transcript_path, order)
+        chunks, metadata, quizzes = generate_data_live(language_input, model, transcript_path, order)
     else:
-        metadata, quizzes = get_generated_data(language_input, model, transcript_path, order)
-    return generate_html(metadata, quizzes)
+        chunks, metadata, quizzes = get_generated_data(language_input, model, transcript_path, order)
+    return generate_html(chunks, metadata, quizzes, show_original_text=show_original_text, show_reformulation=show_reformulation)
 
 
 with gr.Blocks(css="demonstrator/style.css") as demo:
@@ -79,10 +85,12 @@ with gr.Blocks(css="demonstrator/style.css") as demo:
             value="cs_ri",
         )
         order = gr.Checkbox(label="Order by Score")
+        show_original_text = gr.Checkbox(label="Show Original Text")
+        show_reformulated_text = gr.Checkbox(label="Show Reformulated Text")
         btn = gr.Button("Run")
         out = gr.HTML()
     btn.click(
-        fn=main, inputs=[live_mode, language_input, model, transcript_path, order], outputs=out
+        fn=main, inputs=[live_mode, language_input, model, transcript_path, order, show_original_text, show_reformulated_text], outputs=out
     )
 
 if __name__ == "__main__":
