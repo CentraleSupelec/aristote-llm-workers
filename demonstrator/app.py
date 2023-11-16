@@ -28,32 +28,40 @@ def generate_html(metadata, quizzes):
     html = ""
     html += f"<h2>Title: {metadata['title']}</h2>\n"
     html += "<h3>Desctiption: </h3>\n"
-    html += f"{metadata['description']}\n"
-    html += "============================================\n"
-    for quiz in quizzes:
+    html += f"<p>{metadata['description']}</p>\n"
+    html += "<p>============================================</p>\n"
+    for i, quiz in enumerate(quizzes):
         question = quiz["quiz"]["question"]
         answer = quiz["quiz"]["answer"]
         fake_answer_1 = quiz["quiz"]["fake_answer_1"]
         fake_answer_2 = quiz["quiz"]["fake_answer_2"]
         fake_answer_3 = quiz["quiz"]["fake_answer_3"]
-        html += f"<h3>Question: {question}</h3>\n"
+        explanation = quiz["quiz"]["explanation"]
+        html += f"<h3>Question {i+1}: {question}</h3>\n"
         html += "<ul>\n"
         for choice in [answer, fake_answer_1, fake_answer_2, fake_answer_3]:
             html += f"<li>{choice}</li>\n"
         html += "</ul>\n"
-        html += "------------------------------------------\n"
+        html += f"<h4>Evaluation:</h4>\n"
+        html += "<ul>\n"
+        for key in quiz["evaluation"]:
+            html += f"<li>{key}: {quiz['evaluation'][key]}</li>\n"
+        html += "</ul>\n"
+        html += f"<h4>Explanation:</h4>\n"
+        html += f"<p>{explanation}</p>\n"
+        html += "<p>------------------------------------------</p>\n"
     return html
 
 
-def main(live_mode: str, language_input: str, model: str, transcript_path: str):
+def main(live_mode: bool, language_input: str, model: str, transcript_path: str, order: bool):
     if live_mode:
-        metadata, quizzes = generate_data_live(language_input, model, transcript_path)
+        metadata, quizzes = generate_data_live(language_input, model, transcript_path, order)
     else:
-        metadata, quizzes = get_generated_data(language_input, model, transcript_path)
+        metadata, quizzes = get_generated_data(language_input, model, transcript_path, order)
     return generate_html(metadata, quizzes)
 
 
-with gr.Blocks() as demo:
+with gr.Blocks(css="demonstrator/style.css") as demo:
     gr.Markdown("# Quiz Generator")
     gr.Markdown("Generate quizzes with the best open source models:")
 
@@ -70,10 +78,11 @@ with gr.Blocks() as demo:
             label="Transcript Choice",
             value="cs_ri",
         )
+        order = gr.Checkbox(label="Order by Score")
+        btn = gr.Button("Run")
         out = gr.HTML()
-    btn = gr.Button("Run")
     btn.click(
-        fn=main, inputs=[live_mode, language_input, model, transcript_path], outputs=out
+        fn=main, inputs=[live_mode, language_input, model, transcript_path, order], outputs=out
     )
 
 if __name__ == "__main__":
