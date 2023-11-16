@@ -7,5 +7,5 @@ The format of the answer must be similar to the false answers.
 One of the false answers must be obviously false, but related to the extract.
 The other two must be subtly wrong.
 You must also provide an explanation for the answer and the wrong answers.
-Here's the question and these answers:
+Here's the question and the answers:
 Question:

@@ -6,12 +6,18 @@ from typing import List, Optional
 
 import requests
 from diskcache import Cache
-from illuin_llm_tools import OpenAIConnector, Prompt, PromptParameters, TextGeneration
+from illuin_llm_tools import (
+    Message,
+    OpenAIConnector,
+    Prompt,
+    PromptParameters,
+    TextGeneration,
+)
 from pydantic import BaseModel
 from tqdm import tqdm
 
 
-class CustomPromptParametrs(BaseModel):
+class CustomPromptParameters(BaseModel):
     model_name: str
     max_tokens: int = 256
     temperature: float = 0.5
@@ -19,8 +25,10 @@ class CustomPromptParametrs(BaseModel):
 
 
 class CustomPrompt(BaseModel):
-    text: str
-    parameters: CustomPromptParametrs
+    text: Optional[str] = None
+    messages: Optional[List[Message]] = None
+    parameters: CustomPromptParameters
+
 
 class AbstractConnector:
     def __init__(self, cache_path: str) -> None:
@@ -31,25 +39,54 @@ class AbstractConnector:
         pass
 
     @abstractmethod
-    def custom_multi_requests(self, prompts: List[CustomPrompt]) -> str:
+    def custom_multi_requests(
+        self, prompts: List[CustomPrompt], progress_desc: str
+    ) -> str:
         pass
 
 
 class CustomOpenAIConnector(OpenAIConnector, AbstractConnector):
-    def __init__(self, cache_path: str, max_requests_per_second: float) -> None:
-        super().__init__(cache_path)
+    def __init__(
+        self,
+        api_key: str | None = None,
+        organization: str | None = None,
+        backoff_max_time: int = 30,
+        request_timeout: int | None = None,
+        cache_path: str | None = None,
+        verbosity: int = 1,
+        max_requests_per_second: float = 1.0,
+    ):
+        super().__init__(
+            api_key,
+            organization,
+            backoff_max_time,
+            request_timeout,
+            cache_path,
+            verbosity,
+        )
+
+        # def __init__(self,
+        #              api_key: Optional[str] = None,
+        #             organization: Optional[str] = None,
+        #             backoff_max_time: int = 30,
+        #             request_timeout: Optional[int] = None,
+        #             cache_path: Optional[str] = None,
+        #             verbosity: int = 0,
+        #              cache_path: str, max_requests_per_second: float) -> None:
+        #     super().__init__(cache_path)
         self.max_requests_per_second = max_requests_per_second
 
     def generate(self, prompt: CustomPrompt) -> str:
         text_generation = self.make_request(
             prompt=Prompt(
                 text=prompt.text,
+                messages=prompt.messages,
                 parameters=PromptParameters(
                     model=prompt.parameters.model_name,
                     max_tokens=prompt.parameters.max_tokens,
                     temperature=prompt.parameters.temperature,
                     stop=prompt.parameters.stop,
-                )
+                ),
             )
         )
         if isinstance(text_generation, TextGeneration):
@@ -57,26 +94,33 @@ class CustomOpenAIConnector(OpenAIConnector, AbstractConnector):
         else:
             raise ValueError("Wring generation type")
 
-    def custom_multi_requests(self, prompts: List[CustomPrompt]) -> List[str]:
+    def custom_multi_requests(
+        self, prompts: List[CustomPrompt], progress_desc: str
+    ) -> List[str]:
+        llm_tools_prompts = [
+            Prompt(
+                text=prompt.text,
+                messages=prompt.messages,
+                parameters=PromptParameters(
+                    model=prompt.parameters.model_name,
+                    max_tokens=prompt.parameters.max_tokens,
+                    temperature=prompt.parameters.temperature,
+                    stop=prompt.parameters.stop,
+                ),
+            )
+            for prompt in prompts
+        ]
+        print("Cost: ", self.get_costs(llm_tools_prompts))
         results = self.multi_requests(
-            [
-                CustomPrompt(
-                    text=prompt.text,
-                    parameters=CustomPromptParametrs(
-                        model_name=prompt.model_name,
-                        max_tokens=prompt.max_tokens,
-                        temperature=prompt.temperature,
-                        stop=prompt.stop,
-                    )
-                )
-                for prompt in prompts
-            ],
+            llm_tools_prompts,
             max_requests_per_second=self.max_requests_per_second,
+            progress_desc=progress_desc,
         )
         return [result.text for result in results]
 
+
 def get_cache_key(prompt: CustomPrompt) -> str:
-    if prompt.stop is not None:
+    if prompt.parameters.stop is not None:
         stop_str = "-".join(prompt.parameters.stop)
     else:
         stop_str = ""
@@ -105,6 +149,8 @@ class APIConnector(AbstractConnector):
             return cached_text
         else:
             try:
+                if prompt.text is None:
+                    raise ValueError("Prompt must contain text")
                 response = requests.post(
                     self.api_url,
                     json={
@@ -126,7 +172,9 @@ class APIConnector(AbstractConnector):
                 result = str(response.json()["text"][0])[len(prompt.text) :]
                 if prompt.parameters.stop is not None:
                     if any([stop in result for stop in prompt.parameters.stop]):
-                        result = result[: result.index(prompt.parameters.stop[0])].strip()
+                        result = result[
+                            : result.index(prompt.parameters.stop[0])
+                        ].strip()
                 self.cache.set(cache_key, result)
                 return result.strip()
 
@@ -134,7 +182,7 @@ class APIConnector(AbstractConnector):
         self,
         prompts: List[CustomPrompt],
         batch_size: int = 16,
-        description: Optional[str] = None,
+        progress_desc: Optional[str] = None,
     ) -> List[str]:
         # Create a thread pool to parallelize requests
         with ThreadPoolExecutor(max_workers=batch_size) as executor:
@@ -143,7 +191,7 @@ class APIConnector(AbstractConnector):
                 tqdm(
                     executor.map(self.generate, prompts),
                     total=len(prompts),
-                    desc=description,
+                    desc=progress_desc,
                 )
             )
         # for response in responses:

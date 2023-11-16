@@ -3,7 +3,11 @@ from typing import List, Literal
 
 from transformers import AutoTokenizer
 
-from quiz_generation.connectors.api_connector import APIConnector, Prompt
+from quiz_generation.connectors.connectors import (
+    AbstractConnector,
+    CustomPrompt,
+    CustomPromptParameters,
+)
 from quiz_generation.preprocessing.preprocessing import (
     get_templated_script,
     get_token_nb,
@@ -33,7 +37,7 @@ def create_reformulations(
     transcripts: List[str],
     model_name: str,
     tokenizer: AutoTokenizer,
-    api_connector: APIConnector,
+    api_connector: AbstractConnector,
     language: Literal["en", "fr"],
 ) -> List[str]:
     if language == "en":
@@ -49,17 +53,20 @@ def create_reformulations(
     templated_transcripts = [
         get_templated_script(text, tokenizer) for text in replaced_texts
     ]
-    reformulations = api_connector.multi_requests(
+    # print(templated_transcripts)
+    reformulations = api_connector.custom_multi_requests(
         prompts=[
-            Prompt(
+            CustomPrompt(
                 text=templated_transcript,
-                model_name=model_name,
-                max_tokens=get_token_nb(templated_transcript, tokenizer),
-                temperature=0.1,
+                parameters=CustomPromptParameters(
+                    model_name=model_name,
+                    max_tokens=get_token_nb(templated_transcript, tokenizer),
+                    temperature=0.1,
+                ),
             )
             for templated_transcript in templated_transcripts
         ],
-        description="Generating reformulations",
+        progress_desc="Generating reformulations",
     )
     reformulations = [
         reformulation.replace("\n\n", "\n") for reformulation in reformulations

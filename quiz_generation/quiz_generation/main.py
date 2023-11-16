@@ -2,17 +2,14 @@ import json
 from typing import Literal
 
 import jsonlines
-from transformers import AutoTokenizer
 
 from quiz_generation.connectors.connectors import AbstractConnector
 from quiz_generation.metadata_generation.metadata_generator import MetaData
-from quiz_generation.preprocessing.preprocessing import load_file
+from quiz_generation.preprocessing.preprocessing import get_tokenizer, load_file
 from quiz_generation.quiz_generation.quiz_generator import (
     QuizGenerator,
     QuizPromptsConfig,
 )
-
-API_URL = "http://0.0.0.0:8000/generate"
 
 
 def main(
@@ -24,7 +21,7 @@ def main(
     prompts_config: QuizPromptsConfig,
     output_path: str,
 ) -> None:
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer = get_tokenizer(model_name)
 
     transcripts = load_file(transcript_path)
 

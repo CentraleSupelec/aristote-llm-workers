@@ -3,7 +3,11 @@ from typing import List, Optional, Tuple
 from pydantic import BaseModel
 from transformers import AutoTokenizer
 
-from quiz_generation.connectors.api_connector import APIConnector, Prompt
+from quiz_generation.connectors.connectors import (
+    AbstractConnector,
+    CustomPrompt,
+    CustomPromptParameters,
+)
 from quiz_generation.preprocessing.preprocessing import (
     get_templated_script,
     get_token_nb,
@@ -29,7 +33,7 @@ class MetadataGenerator:
         self,
         model_name: str,
         tokenizer: AutoTokenizer,
-        api_connector: APIConnector,
+        api_connector: AbstractConnector,
         prompts_config: MetadataPromptsConfig,
     ) -> None:
         self.model_name = model_name
@@ -68,18 +72,20 @@ class MetadataGenerator:
         templated_transcripts = [
             get_templated_script(text, self.tokenizer) for text in replaced_texts
         ]
-        summaries = self.api_connector.multi_requests(
+        summaries = self.api_connector.custom_multi_requests(
             prompts=[
-                Prompt(
+                CustomPrompt(
                     text=templated_transcript,
-                    model_name=self.model_name,
-                    max_tokens=get_token_nb(templated_transcript, self.tokenizer),
-                    temperature=0.1,
-                    stop=["\n"],
+                    parameters=CustomPromptParameters(
+                        model_name=self.model_name,
+                        max_tokens=get_token_nb(templated_transcript, self.tokenizer),
+                        temperature=0.1,
+                        stop=["\n"],
+                    ),
                 )
                 for templated_transcript in templated_transcripts
             ],
-            description="Generating summaries",
+            progress_desc="Generating summaries",
         )
         summaries = [summary.replace("\n\n", "\n") for summary in summaries]
         return summaries
@@ -95,23 +101,27 @@ class MetadataGenerator:
             "[SUMMARIES]", full_summary
         )
         description = self.api_connector.generate(
-            Prompt(
+            CustomPrompt(
                 text=get_templated_script(description_instruction, self.tokenizer),
-                model_name=self.model_name,
-                max_tokens=500,
-                temperature=0.1,
+                parameters=CustomPromptParameters(
+                    model_name=self.model_name,
+                    max_tokens=500,
+                    temperature=0.1,
+                ),
             ),
         )
         if "[SUMMARIES]" not in self.title_prompt:
             raise ValueError("Title prompt must contain [SUMMARIES]")
         title_instruction = self.title_prompt.replace("[SUMMARIES]", full_summary)
         title = self.api_connector.generate(
-            Prompt(
+            CustomPrompt(
                 text=get_templated_script(title_instruction, self.tokenizer),
-                model_name=self.model_name,
-                max_tokens=30,
-                temperature=0,
-                stop=["\n", "."],
+                parameters=CustomPromptParameters(
+                    model_name=self.model_name,
+                    max_tokens=30,
+                    temperature=0,
+                    stop=["\n", "."],
+                ),
             ),
         )
         return description, title

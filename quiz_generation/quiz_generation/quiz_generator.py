@@ -1,19 +1,22 @@
-from concurrent.futures import ThreadPoolExecutor
 from enum import Enum
 from typing import List, Literal, Tuple
 
+from illuin_llm_tools import Message
 from pydantic import BaseModel
-from tqdm import tqdm
 from transformers import AutoTokenizer
 
-from quiz_generation.connectors.api_connector import APIConnector, Prompt
+from quiz_generation.connectors.connectors import (
+    AbstractConnector,
+    CustomPrompt,
+    CustomPromptParameters,
+)
 from quiz_generation.metadata_generation.metadata_generator import MetaData
 from quiz_generation.preprocessing.preprocessing import (
     get_splits,
 )
 from quiz_generation.reformulation.reformulation import create_reformulations
 
-BATCH_SIZE = 16
+BATCH_SIZE = 4
 
 
 class QuizType(str, Enum):
@@ -74,7 +77,7 @@ class QuizGenerator:
         model_name: str,
         course_metadata: MetaData,
         tokenizer: AutoTokenizer,
-        api_connector: APIConnector,
+        api_connector: AbstractConnector,
         language: Literal["fr", "en"],
         prompts_config: QuizPromptsConfig,
     ) -> None:
@@ -130,6 +133,30 @@ class QuizGenerator:
         ) as file:
             self.fake_answers_are_not_obvious_prompt = file.read()
 
+    def get_custom_prompt(self, conv):
+        if isinstance(self.tokenizer, AutoTokenizer):
+            text = self.tokenizer.apply_chat_template(
+                conversation=conv, tokenize=False, add_generation_prompt=True
+            )
+            prompt_input = CustomPrompt(
+                text=text,
+                parameters=CustomPromptParameters(
+                    model_name=self.model_name,
+                    max_tokens=100,
+                    temperature=0,
+                ),
+            )
+        else:
+            prompt_input = CustomPrompt(
+                messages=[Message(**message) for message in conv],
+                parameters=CustomPromptParameters(
+                    model_name=self.model_name,
+                    max_tokens=100,
+                    temperature=0,
+                ),
+            )
+        return prompt_input
+
     def generate_quiz(self, reformulation: str, quiz_type: QuizType) -> str:
         if "[EXTRACT]" not in self.quiz_generation_prompt:
             raise ValueError("Title prompt must contain [EXTRACT]")
@@ -141,17 +168,7 @@ class QuizGenerator:
                 ),
             }
         ]
-        text = self.tokenizer.apply_chat_template(
-            conversation=conv, tokenize=False, add_generation_prompt=True
-        )
-        question = self.api_connector.generate(
-            Prompt(
-                text=text,
-                model_name=self.model_name,
-                max_tokens=100,
-                temperature=0,
-            )
-        )
+        question = self.api_connector.generate(self.get_custom_prompt(conv))
         if "?" in question:
             question = question.split("?")[0]
             question += "?"
@@ -165,18 +182,7 @@ class QuizGenerator:
             {"role": "assistant", "content": question},
             {"role": "user", "content": answer_prompt},
         ]
-        text = self.tokenizer.apply_chat_template(
-            conversation=conv, tokenize=False, add_generation_prompt=True
-        )
-        answer = self.api_connector.generate(
-            Prompt(
-                text=text,
-                model_name=self.model_name,
-                max_tokens=256,
-                temperature=0,
-                stop=["."],
-            )
-        )
+        answer = self.api_connector.generate(self.get_custom_prompt(conv))
         answer += "."
 
         if self.language == "fr":
@@ -188,18 +194,7 @@ class QuizGenerator:
             {"role": "assistant", "content": answer},
             {"role": "user", "content": fake_answer_prompt_1},
         ]
-        text = self.tokenizer.apply_chat_template(
-            conversation=conv, tokenize=False, add_generation_prompt=True
-        )
-        fake_answer_1 = self.api_connector.generate(
-            Prompt(
-                text=text,
-                model_name=self.model_name,
-                max_tokens=256,
-                temperature=0.1,
-                stop=["."],
-            )
-        )
+        fake_answer_1 = self.api_connector.generate(self.get_custom_prompt(conv))
         fake_answer_1 += "."
 
         if self.language == "fr":
@@ -211,18 +206,7 @@ class QuizGenerator:
             {"role": "assistant", "content": fake_answer_1},
             {"role": "user", "content": fake_answer_prompt_2},
         ]
-        text = self.tokenizer.apply_chat_template(
-            conversation=conv, tokenize=False, add_generation_prompt=True
-        )
-        fake_answer_2 = self.api_connector.generate(
-            Prompt(
-                text=text,
-                model_name=self.model_name,
-                max_tokens=256,
-                temperature=0.1,
-                stop=["."],
-            )
-        )
+        fake_answer_2 = self.api_connector.generate(self.get_custom_prompt(conv))
         fake_answer_2 += "."
 
         if self.language == "fr":
@@ -233,18 +217,7 @@ class QuizGenerator:
             {"role": "assistant", "content": fake_answer_2},
             {"role": "user", "content": fake_answer_prompt_3},
         ]
-        text = self.tokenizer.apply_chat_template(
-            conversation=conv, tokenize=False, add_generation_prompt=True
-        )
-        fake_answer_3 = self.api_connector.generate(
-            Prompt(
-                text=text,
-                model_name=self.model_name,
-                max_tokens=256,
-                temperature=0.1,
-                stop=["."],
-            )
-        )
+        fake_answer_3 = self.api_connector.generate(self.get_custom_prompt(conv))
         fake_answer_3 += "."
 
         if self.language == "fr":
@@ -255,17 +228,7 @@ class QuizGenerator:
             {"role": "assistant", "content": fake_answer_3},
             {"role": "user", "content": explanation},
         ]
-        text = self.tokenizer.apply_chat_template(
-            conversation=conv, tokenize=False, add_generation_prompt=True
-        )
-        explanation = self.api_connector.generate(
-            Prompt(
-                text=text,
-                model_name=self.model_name,
-                max_tokens=800,
-                temperature=0.1,
-            )
-        )
+        explanation = self.api_connector.generate(self.get_custom_prompt(conv))
         return MultipleAnswerQuiz(
             question=question,
             answer=answer,
@@ -309,18 +272,135 @@ class QuizGenerator:
         quiz_type: QuizType,
         batch_size: int = BATCH_SIZE,
     ) -> List[MultipleAnswerQuiz]:
-        with ThreadPoolExecutor(max_workers=batch_size) as executor:
-            # Send requests in batches
-            ma_quizzes = list(
-                tqdm(
-                    executor.map(
-                        lambda extract: self.generate_quiz(extract, quiz_type), extracts
+        # Get Questions
+        if "[EXTRACT]" not in self.quiz_generation_prompt:
+            raise ValueError("Title prompt must contain [EXTRACT]")
+        conversations = [
+            [
+                {
+                    "role": "user",
+                    "content": self.quiz_generation_prompt.replace(
+                        "[EXTRACT]", extract
                     ),
-                    total=len(extracts),
-                    desc="Generating quizzes",
-                )
+                }
+            ]
+            for extract in extracts
+        ]
+        questions = self.api_connector.custom_multi_requests(
+            [self.get_custom_prompt(conv) for conv in conversations],
+            progress_desc="Generating questions",
+        )
+        for i, question in enumerate(questions):
+            if "?" in question:
+                questions[i] = question.split("?")[0]
+                questions[i] += "?"
+
+        if self.language == "fr":
+            answer_prompt = "Réponse:"
+        elif self.language == "en":
+            answer_prompt = "Answer:"
+
+        for i, question in enumerate(questions):
+            conversations[i] += [
+                {"role": "assistant", "content": question},
+                {"role": "user", "content": answer_prompt},
+            ]
+        answers = self.api_connector.custom_multi_requests(
+            [self.get_custom_prompt(conv) for conv in conversations],
+            progress_desc="Generating answers",
+        )
+        answers = [answer + "." for answer in answers]
+
+        if self.language == "fr":
+            fake_answer_prompt_1 = "Fausse Réponse 1:"
+        elif self.language == "en":
+            fake_answer_prompt_1 = "Fake Answer 1:"
+
+        for i, answer in enumerate(answers):
+            conversations[i] += [
+                {"role": "assistant", "content": answer},
+                {"role": "user", "content": fake_answer_prompt_1},
+            ]
+        fake_answers_1 = self.api_connector.custom_multi_requests(
+            [self.get_custom_prompt(conv) for conv in conversations],
+            progress_desc="Generating fake answers 1",
+        )
+        fake_answers_1 = [fake_answer + "." for fake_answer in fake_answers_1]
+
+        if self.language == "fr":
+            fake_answer_prompt_2 = "Fausse Réponse 2:"
+        elif self.language == "en":
+            fake_answer_prompt_2 = "Fake Answer 2:"
+
+        for i, fa_1 in enumerate(fake_answers_1):
+            conversations[i] += [
+                {"role": "assistant", "content": fa_1},
+                {"role": "user", "content": fake_answer_prompt_2},
+            ]
+        fake_answers_2 = self.api_connector.custom_multi_requests(
+            [self.get_custom_prompt(conv) for conv in conversations],
+            progress_desc="Generating fake answers 2",
+        )
+        fake_answers_2 = [fake_answer + "." for fake_answer in fake_answers_2]
+
+        if self.language == "fr":
+            fake_answer_prompt_3 = "Fausse Réponse 3:"
+        elif self.language == "en":
+            fake_answer_prompt_3 = "Fake Answer 3:"
+
+        for i, fa_2 in enumerate(fake_answers_2):
+            conversations[i] += [
+                {"role": "assistant", "content": fa_2},
+                {"role": "user", "content": fake_answer_prompt_3},
+            ]
+        fake_answers_3 = self.api_connector.custom_multi_requests(
+            [self.get_custom_prompt(conv) for conv in conversations],
+            progress_desc="Generating fake answers 3",
+        )
+        fake_answers_3 = [fake_answer + "." for fake_answer in fake_answers_3]
+
+        if self.language == "fr":
+            explanation = "Explication:"
+        elif self.language == "en":
+            explanation = "Explanation:"
+        for i, fa_3 in enumerate(fake_answers_3):
+            conversations[i] += [
+                {"role": "assistant", "content": fa_3},
+                {"role": "user", "content": explanation},
+            ]
+        explanations = self.api_connector.custom_multi_requests(
+            [self.get_custom_prompt(conv) for conv in conversations],
+            progress_desc="Generating explanations",
+        )
+        return [
+            MultipleAnswerQuiz(
+                question=question,
+                answer=answer,
+                fake_answer_1=fake_answer_1,
+                fake_answer_2=fake_answer_2,
+                fake_answer_3=fake_answer_3,
+                explanation=explanation,
+                quiz_type=quiz_type,
+                quiz_origin_text=reformulation,
             )
-        return ma_quizzes
+            for (
+                question,
+                answer,
+                fake_answer_1,
+                fake_answer_2,
+                fake_answer_3,
+                explanation,
+                reformulation,
+            ) in zip(
+                questions,
+                answers,
+                fake_answers_1,
+                fake_answers_2,
+                fake_answers_3,
+                explanations,
+                extracts,
+            )
+        ]
 
     def evaluate_quiz(
         self,
@@ -374,11 +454,13 @@ class QuizGenerator:
                 .replace("[ANSWERS]", answers)
                 .replace("[FAKE ANSWERS]", fake_answers)
             )
-            prompt = Prompt(
+            prompt = CustomPrompt(
                 text=prompts_texts[eval_name],
-                model_name=self.model_name,
-                max_tokens=10,
-                temperature=0,
+                parameters=CustomPromptParameters(
+                    model_name=self.model_name,
+                    max_tokens=10,
+                    temperature=0,
+                ),
             )
             result_str_1 = self.api_connector.generate(prompt).strip().lower()
             if self.language == "fr":
@@ -407,16 +489,116 @@ class QuizGenerator:
         quizzes: List[MultipleAnswerQuiz],
         batch_size: int = BATCH_SIZE,
     ) -> List[QuizEvaluation]:
-        with ThreadPoolExecutor(max_workers=batch_size) as executor:
-            # Send requests in batches
-            quiz_evaluations = list(
-                tqdm(
-                    executor.map(self.evaluate_quiz, quizzes),
-                    total=len(quizzes),
-                    desc="Generating evaluations",
+        prompts_texts = {
+            "is_related": self.is_related_prompt,
+            "is_self_contained": self.is_self_contained_prompt,
+            "is_question": self.is_question_prompt,
+            "language_is_clear": self.language_is_clear_prompt,
+            "non_undefined_symbols_in_question": (
+                self.non_undefined_symbols_in_question_prompt
+            ),
+            "answers_are_all_different": self.answers_are_all_different_prompt,
+            "fake_answers_are_not_obvious": self.fake_answers_are_not_obvious_prompt,
+        }
+        all_eval_results = [{} for _ in quizzes]
+        for eval_name, prompt_template in prompts_texts.items():
+            all_answers = [
+                "\n".join(
+                    [
+                        "- " + fake_answer
+                        for fake_answer in [
+                            quiz.answer,
+                            quiz.fake_answer_1,
+                            quiz.fake_answer_2,
+                            quiz.fake_answer_3,
+                        ]
+                    ]
                 )
+                for quiz in quizzes
+            ]
+            all_fake_answers = [
+                "\n".join(
+                    [
+                        "- " + fake_answer
+                        for fake_answer in [
+                            quiz.fake_answer_1,
+                            quiz.fake_answer_2,
+                            quiz.fake_answer_3,
+                        ]
+                    ]
+                )
+                for quiz in quizzes
+            ]
+            if "[TITLE]" not in prompt_template:
+                raise ValueError("Title prompt must contain [TITLE]")
+            if "[DESCRIPTION]" not in prompt_template:
+                raise ValueError("Title prompt must contain [DESCRIPTION]")
+            if "[QUESTION]" not in prompt_template:
+                raise ValueError("Title prompt must contain [QUESTION]")
+            prompts_texts[eval_name] = [
+                (
+                    prompt_template.replace("[TITLE]", self.course_metadata.title)
+                    .replace("[DESCRIPTION]", self.course_metadata.description)
+                    .replace("[QUESTION]", quiz.question)
+                    .replace("[ANSWER]", quiz.answer)
+                    .replace("[ANSWERS]", answers)
+                    .replace("[FAKE ANSWERS]", fake_answers)
+                )
+                for quiz, answers, fake_answers in zip(
+                    quizzes, all_answers, all_fake_answers
+                )
+            ]
+            prompts = [
+                CustomPrompt(
+                    text=text,
+                    parameters=CustomPromptParameters(
+                        model_name=self.model_name,
+                        max_tokens=10,
+                        temperature=0,
+                    ),
+                )
+                for text in prompts_texts[eval_name]
+            ]
+            result_strs = self.api_connector.custom_multi_requests(
+                prompts, progress_desc=f"Generating {eval_name}"
             )
-        return quiz_evaluations
+            result_strs = [result_str.strip().lower() for result_str in result_strs]
+            results = []
+            for result_str in result_strs:
+                if self.language == "fr":
+                    if "non" in result_str:
+                        result = False
+                    elif "oui" in result_str:
+                        result = True
+                    else:
+                        result = False
+                elif self.language == "en":
+                    if "no" in result_str:
+                        result = False
+                    elif "yes" in result_str:
+                        result = True
+                    else:
+                        result = False
+                else:
+                    raise ValueError("Language must be 'en' or 'fr'")
+                results.append(result)
+            for i, result in enumerate(results):
+                all_eval_results[i][eval_name] = result
+        for i, eval_results in enumerate(all_eval_results):
+            int_values = [int(x) for x in eval_results.values()]
+            all_eval_results[i]["score"] = sum(int_values)
+        return [QuizEvaluation(**eval_results) for eval_results in all_eval_results]
+
+        # with ThreadPoolExecutor(max_workers=batch_size) as executor:
+        #     # Send requests in batches
+        #     quiz_evaluations = list(
+        #         tqdm(
+        #             executor.map(self.evaluate_quiz, quizzes),
+        #             total=len(quizzes),
+        #             desc="Generating evaluations",
+        #         )
+        #     )
+        # return quiz_evaluations
 
     def full_generation(
         self,

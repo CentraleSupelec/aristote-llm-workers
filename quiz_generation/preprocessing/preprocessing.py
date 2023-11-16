@@ -1,10 +1,18 @@
 import json
 import re
 import warnings
-from typing import List
+from typing import List, Union
 
 from nltk import sent_tokenize
+from tiktoken import Encoding, encoding_for_model
 from transformers import AutoTokenizer
+
+
+def get_tokenizer(model_name: str) -> Union[AutoTokenizer, Encoding]:
+    if "gpt-4" in model_name or "gpt-3.5" in model_name:
+        return encoding_for_model(model_name)
+    else:
+        return AutoTokenizer.from_pretrained(model_name)
 
 
 def load_txt(path: str) -> List[str]:
@@ -31,7 +39,7 @@ def load_file(path: str) -> List[str]:
         raise ValueError("File format not supported")
 
 
-def get_token_nb(text: str, tokenizer: AutoTokenizer) -> int:
+def get_token_nb(text: str, tokenizer: Union[AutoTokenizer, Encoding]) -> int:
     token_nb = len(tokenizer.encode(text))
     return token_nb
 
@@ -110,11 +118,14 @@ def get_splits(
 
 def get_templated_script(text: str, tokenizer: AutoTokenizer) -> str:
     conversation = [{"role": "user", "content": text}]
-    templated_transcript = str(
-        tokenizer.apply_chat_template(
-            conversation, tokenize=False, add_generation_prompt=True
+    if isinstance(tokenizer, Encoding):
+        templated_transcript = text
+    else:
+        templated_transcript = str(
+            tokenizer.apply_chat_template(
+                conversation, tokenize=False, add_generation_prompt=True
+            )
         )
-    )
     return templated_transcript
 
 
