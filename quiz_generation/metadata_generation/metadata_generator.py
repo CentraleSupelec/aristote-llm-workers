@@ -58,6 +58,9 @@ class MetadataGenerator:
         transcripts: List[str],
     ) -> List[str]:
         # Generate summaries of reformulations
+        replaced_texts = []
+        if "[TRANSCRIPT]" not in self.summary_prompt:
+            raise ValueError("Summary prompt must contain [TRANSCRIPT]")
         replaced_texts = [
             self.summary_prompt.replace("[TRANSCRIPT]", transcript)
             for transcript in transcripts
@@ -86,6 +89,8 @@ class MetadataGenerator:
         summaries: List[str],
     ) -> Tuple[str, str]:
         full_summary = "\n".join(summaries)
+        if "[SUMMARIES]" not in self.description_prompt:
+            raise ValueError("Prompt must contain [SUMMARIES]")
         description_instruction = self.description_prompt.replace(
             "[SUMMARIES]", full_summary
         )
@@ -97,6 +102,8 @@ class MetadataGenerator:
                 temperature=0.1,
             ),
         )
+        if "[SUMMARIES]" not in self.title_prompt:
+            raise ValueError("Title prompt must contain [SUMMARIES]")
         title_instruction = self.title_prompt.replace("[SUMMARIES]", full_summary)
         title = self.api_connector.generate(
             Prompt(

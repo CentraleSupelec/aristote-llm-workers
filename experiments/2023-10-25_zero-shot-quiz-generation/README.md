@@ -12,13 +12,20 @@ Here are some template sections that you can fill or delete as you wish. For eac
 - [Objectives](#objectives)
 - [Bibliography](#bibliography)
 - [Studied methods](#studied-methods)
+  - [First experiment](#first-experiment)
+  - [Second experiment](#second-experiment)
 - [Results](#results)
-  - [Generate Vigostral Quizzes](#generate-vigostral-quizzes)
-- [Link to slides](#link-to-slides)
+  - [First experiment](#first-experiment-1)
+    - [Feedback on the experiment](#feedback-on-the-experiment)
+  - [Second experiment](#second-experiment-1)
+    - [Qualitative analysis](#qualitative-analysis-1)
+    - [Next steps](#next-steps)
+- [Slides](#slides)
 - [Steps to reproduce experiments](#steps-to-reproduce-experiments)
   - [Generate GPT-4 Quizzes](#generate-gpt-4-quizzes)
   - [Generate GPT-3.5-turbo Quizzes](#generate-gpt-35-turbo-quizzes)
-  - [Generate Vigostral Quizzes](#generate-vigostral-quizzes-1)
+  - [Generate Vigostral Quizzes](#generate-vigostral-quizzes)
+  - [Generate English Quizzes with Zephyr](#generate-english-quizzes-with-zephyr)
 - [Conclusion/TLDR](#conclusiontldr)
 
 ## Objectives
@@ -36,19 +43,71 @@ State some references that are related to the experiment. Summarize the main kno
 ## Studied methods
 
 <!-- Can be used to answer the section "Contribution scientifique, technique ou technologique"; "Description de la démarche suivie et des travaux réalisés" of the CIR -->
-Try using GPT-4 to generate a quiz in a zero-shot setting.
+### First experiment
+
+Compare ChatGPT, GPT-4 and Vigostral to generate a quiz in a zero-shot setting.
+
+**Pipeline**
+
+Generate the quizzes:
+- Split the transcript in N chunks of size 1000 tokens
+- Ask the model to reformulate each chunk.
+- Generate a quiz from the reformulation of each chunk.
+
+### Second experiment
+
+Use a simple open-source model with a more complex pipeline to generate the summaries.
+
+**Pipeline**
+
+Generate the metadata of the course:
+- Split the transcript in N chunks of size 1000 tokens
+- Ask the model to describe each chunk.
+- Ask the model to summarize each described chunk
+- Output the summary of the summaries and the title of the course
+
+Generate the quizzes:
+- Split the transcript in N chunks of size 1000 tokens and chunks of size 2000 to have local and more global contexts.
+- Ask the model to describe each chunk.
+- Generate a quiz from the description of each chunk.
+- Evaluate the quiz with yes/no questions given the title and the description and choose the quizzes depending on different criteria:
+  - Question is related to the course 
+  - Question is self contained 
+  - Question is a question 
+  - Language is clear 
+  - Are there non undefined symbols in the question? 
+  - Answers are all different 
+  - Fake answers are not obvious
 
 ## Results
 
-<!-- Delete this line -->
-Detail the results that were obtained for each method and how they can prove or disprove the hypothesis. Comment and compare the results.
-<!-- Can be used to answer the section "Contribution scientifique, technique ou technologique"; "Description de la démarche suivie et des travaux réalisés" of the CIR -->
+### First experiment
 
-### Generate Vigostral Quizzes
+#### Feedback on the experiment
 
-Good reformulation but generation is very slow now.
+##### Feedback on the pipeline
 
-## Link to slides
+Generation is very slow now. The use of vLLM + request batching is really good. It accelerates the rquests a lot.
+
+##### Qualitative analysis
+
+The quizzes are not always very relevant. The quizzes use specific details of the transcript with no context. A post-hoc method is needed to filter the scripts that are not relevant.
+
+### Second experiment
+
+#### Qualitative analysis
+
+Title and description generation can be improved. Sometimes the description is a bit too long.
+
+The evaluation is not very relevant for now. I am not sure that it realy understands the evaluation task.
+
+#### Next steps
+
+- Make title/description generation more robust
+- Use an evaluation model? --> Maybe generate quizzes in English to take profit of better evaluation models
+- Try ChatGPT, GPT-4 and Zephyr Beta on the second pipeline --> Vigostral is quite limited compared to ChatGPT and GPT-4
+
+## Slides
 
 <!-- Delete this line -->
 Link to reference slides where you might keep the update of the project results.
@@ -74,7 +133,7 @@ python generate_quiz_openai.py --model_name gpt-3.5-turbo --transcript_path ../.
 Launch the vLLM server with skypilot:
 
 ```bash
-sky launch -c zero-shot-a100 --gpus A100:1 experiments/2023-10-25_zero-shot-quiz-generation/vigostral/skypilot_config.yml
+sky launch -c zero-shot-a100 --gpus A100:1 experiments/2023-10-25_zero-shot-quiz-generation/configs/skypilot/{MODEL_NAME_CONFIG}
 ```
 
 Connect API in machine to local machine:
@@ -86,7 +145,17 @@ gcloud compute ssh {VM_NAME} --ssh-flag "-L 8000:localhost:8000"
 Then make requests to the API:
 
 ```bash
-python experiments/2023-10-25_zero-shot-quiz-generation/vigostral/generate_quizes.py --transcript_path data/cs_videos_transcripts/transcript_rl.json --output_path experiments/2023-10-25_zero-shot-quiz-generation/results/vigostral_ri_quiz.md
+python experiments/2023-10-25_zero-shot-quiz-generation/vigostral/generate_quizes.py --transcript_path data/cs_videos_transcripts/transcript_ri.json --output_path experiments/2023-10-25_zero-shot-quiz-generation/results/vigostral_ri_quiz.md
+```
+
+### Generate English Quizzes with Zephyr
+
+```bash
+quizgen generate-metadata configs/metadata_generation.yml
+```
+
+```bash
+quizgen generate-quiz configs/quiz_generation.yml
 ```
 
 ## Conclusion/TLDR

@@ -210,6 +210,8 @@ def main(transcript_path, output_path):
             file.write(f"# Transcript {i+1}\n\n")
 
             print("Generating reformulation...")
+            if "[TRANSCRIPT]" not in PROMPT_REFORMULATION:
+                raise ValueError("Reformulation prompt must contain [TRANSCRIPT]")
             initial_text = PROMPT_REFORMULATION.replace("[TRANSCRIPT]", new_transcript)
 
             file.write("## Prompt\n\n")

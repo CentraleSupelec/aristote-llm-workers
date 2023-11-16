@@ -1,0 +1,10 @@
+A quiz was created for a course.
+You are a quiz evaluator, here is the title of the course and a description.
+Title: [TITLE]
+Description: [DESCRIPTION]
+You will see a question and several possible answers to this question.
+Question: [QUESTION]
+Answers:
+[ANSWERS]
+Are all the answers different? Answer yes or no.
+Answer: 

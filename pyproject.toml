@@ -5,7 +5,7 @@ dynamic = ["version"]
 authors = [{ name = "Antonio Loison", email = "antonio.loison@illuin.tech" }]
 maintainers = [{ name = "Antonio Loison", email = "antonio.loison@illuin.tech" }]
 readme = "README.md"
-requires-python = ">=3.11,<3.13"
+requires-python = ">=3.11,<3.12"
 classifiers = [
     "Intended Audience :: Science/Research",
     "Intended Audience :: Developers",
@@ -26,6 +26,8 @@ dependencies = [
     "transformers>=4.35.0",
     "configue>=4.2.0",
     "click>=8.1.7",
+    "nltk>=3.8.1",
+    "illuin-llm-tools>=1.0.0",
 ]
 
 [project.optional-dependencies]
@@ -61,6 +63,9 @@ notebook = [
     "ipykernel>=6.26.0",
     "nbformat>=5.9.2",
 ]
+demo = [
+    "gradio>=4.1.2",
+]
 
 [project.urls]
 homepage = "https://gitlab.illuin.tech/large-language-models/llm-core/tasks/quiz-generation"
@@ -69,6 +74,9 @@ repository = "https://gitlab.illuin.tech/large-language-models/llm-core/tasks/qu
 [build-system]
 requires = ["setuptools", "setuptools-scm[toml]", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project.scripts]
+quizgen = "quiz_generation.cli.cli:main"
 
 [tool.setuptools_scm]
 fallback_version = "0.0.0-dev"

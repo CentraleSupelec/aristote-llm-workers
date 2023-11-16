@@ -1,0 +1,8 @@
+You're a university professor, looking to summarize a course.
+Here are a few topics or themes that might qualify this course:
+- 0: Very relevant topic.
+[TOPICS]
+You need to select the [N_TOPICS] most relevant topics. Together, these topics should give a good idea of the important and educational content of the course.
+Return the list of selected topic numbers, in the following list format: [1, 4, 5]
+MOST RELEVANT TOPICS:
+[0, 

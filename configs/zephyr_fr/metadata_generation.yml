@@ -1,0 +1,15 @@
+model_name: gpt-3.5-turbo-1106
+transcript_path: data/cs_videos_transcripts/transcript_sociologie.json
+language: fr
+output_path: experiments/2023-10-25_zero-shot-quiz-generation/results/metadata/metadata_gpt-35_fr_cs_socio.json
+connector:
+  (): "quiz_generation.connectors.APIConnector"
+  api_url: http://0.0.0.0:8000/generate
+  cache_path: .cache_zephyr
+prompts_config:
+  (): "quiz_generation.metadata_generation.metadata_generator.MetadataPromptsConfig"
+  summary_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/summary_prompt.txt
+  title_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/title_prompt.txt
+  description_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/description_prompt.txt
+  generate_topics_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/generate_topics_prompt.txt
+  combine_topics_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/combine_topics_prompt.txt

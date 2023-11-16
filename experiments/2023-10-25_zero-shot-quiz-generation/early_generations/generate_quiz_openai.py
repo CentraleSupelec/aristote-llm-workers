@@ -83,6 +83,10 @@ class MultipleAnswerQuiz(BaseModel):
 
 
 def generate_quiz(excerpt, model):
+    if "[EXTRACT]" not in QUIZ_PROMPT:
+        raise ValueError("QUIZ_PROMPT must contain [EXTRACT]")
+    if "[TEMPERATURE]" not in QUIZ_PROMPT:
+        raise ValueError("QUIZ_PROMPT must contain [TEMPERATURE]")
     quiz_prompt = QUIZ_PROMPT.replace("[EXTRACT]", excerpt)
     quiz_prompt = quiz_prompt.replace("[TEMPERATURE]", str(0))
     print(quiz_prompt)
@@ -150,6 +154,8 @@ def main(model_name, transcript_path, output_path):
                 cache_path=".cache",
             )
             print("Generating reformulation...")
+            if "[TRANSCRIPT]" not in PROMPT_REFORMULATION:
+                raise ValueError("Reformulation prompt must contain [TRANSCRIPT]")
             prompt = Prompt(
                 id=0, text=PROMPT_REFORMULATION.replace("[TRANSCRIPT]", new_transcript)
             )

@@ -1,6 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
 from enum import Enum
-from typing import List, Tuple
+from typing import List, Literal, Tuple
 
 from pydantic import BaseModel
 from tqdm import tqdm
@@ -75,12 +75,14 @@ class QuizGenerator:
         course_metadata: MetaData,
         tokenizer: AutoTokenizer,
         api_connector: APIConnector,
+        language: Literal["fr", "en"],
         prompts_config: QuizPromptsConfig,
     ) -> None:
         self.model_name = model_name
         self.course_metadata = course_metadata
         self.tokenizer = tokenizer
         self.api_connector = api_connector
+        self.language = language
 
         with open(prompts_config.quiz_generation_prompt, "r", encoding="utf-8") as file:
             self.quiz_generation_prompt = file.read()
@@ -129,11 +131,13 @@ class QuizGenerator:
             self.fake_answers_are_not_obvious_prompt = file.read()
 
     def generate_quiz(self, reformulation: str, quiz_type: QuizType) -> str:
+        if "[EXTRACT]" not in self.quiz_generation_prompt:
+            raise ValueError("Title prompt must contain [EXTRACT]")
         conv = [
             {
                 "role": "user",
                 "content": self.quiz_generation_prompt.replace(
-                    "[EXTRAIT]", reformulation
+                    "[EXTRACT]", reformulation
                 ),
             }
         ]
@@ -151,9 +155,15 @@ class QuizGenerator:
         if "?" in question:
             question = question.split("?")[0]
             question += "?"
+
+        if self.language == "fr":
+            answer_prompt = "Réponse:"
+        elif self.language == "en":
+            answer_prompt = "Answer:"
+
         conv += [
             {"role": "assistant", "content": question},
-            {"role": "user", "content": "Réponse:"},
+            {"role": "user", "content": answer_prompt},
         ]
         text = self.tokenizer.apply_chat_template(
             conversation=conv, tokenize=False, add_generation_prompt=True
@@ -168,9 +178,15 @@ class QuizGenerator:
             )
         )
         answer += "."
+
+        if self.language == "fr":
+            fake_answer_prompt_1 = "Fausse Réponse 1:"
+        elif self.language == "en":
+            fake_answer_prompt_1 = "Fake Answer 1:"
+
         conv += [
             {"role": "assistant", "content": answer},
-            {"role": "user", "content": "Fausse Réponse 1:"},
+            {"role": "user", "content": fake_answer_prompt_1},
         ]
         text = self.tokenizer.apply_chat_template(
             conversation=conv, tokenize=False, add_generation_prompt=True
@@ -185,9 +201,15 @@ class QuizGenerator:
             )
         )
         fake_answer_1 += "."
+
+        if self.language == "fr":
+            fake_answer_prompt_2 = "Fausse Réponse 2:"
+        elif self.language == "en":
+            fake_answer_prompt_2 = "Fake Answer 2:"
+
         conv += [
             {"role": "assistant", "content": fake_answer_1},
-            {"role": "user", "content": "Fausse Réponse 2:"},
+            {"role": "user", "content": fake_answer_prompt_2},
         ]
         text = self.tokenizer.apply_chat_template(
             conversation=conv, tokenize=False, add_generation_prompt=True
@@ -202,9 +224,14 @@ class QuizGenerator:
             )
         )
         fake_answer_2 += "."
+
+        if self.language == "fr":
+            fake_answer_prompt_3 = "Fausse Réponse 3:"
+        elif self.language == "en":
+            fake_answer_prompt_3 = "Fake Answer 3:"
         conv += [
             {"role": "assistant", "content": fake_answer_2},
-            {"role": "user", "content": "Fausse Réponse 3:"},
+            {"role": "user", "content": fake_answer_prompt_3},
         ]
         text = self.tokenizer.apply_chat_template(
             conversation=conv, tokenize=False, add_generation_prompt=True
@@ -219,9 +246,14 @@ class QuizGenerator:
             )
         )
         fake_answer_3 += "."
+
+        if self.language == "fr":
+            explanation = "Explication:"
+        elif self.language == "en":
+            explanation = "Explanation:"
         conv += [
             {"role": "assistant", "content": fake_answer_3},
-            {"role": "user", "content": "Explication:"},
+            {"role": "user", "content": explanation},
         ]
         text = self.tokenizer.apply_chat_template(
             conversation=conv, tokenize=False, add_generation_prompt=True
@@ -234,12 +266,6 @@ class QuizGenerator:
                 temperature=0.1,
             )
         )
-        # print("---------------------------------------------")
-        # print("question")
-        # print(question)
-        # print("---------------------------------------------")
-        # print("question")
-        # print(explanation)
         return MultipleAnswerQuiz(
             question=question,
             answer=answer,
@@ -259,13 +285,21 @@ class QuizGenerator:
             transcripts, tokenizer=self.tokenizer, max_length=1000
         )
         short_reformulations = create_reformulations(
-            short_transcripts, self.model_name, self.tokenizer, self.api_connector
+            short_transcripts,
+            self.model_name,
+            self.tokenizer,
+            self.api_connector,
+            self.language,
         )
         long_transcripts = get_splits(
             transcripts, tokenizer=self.tokenizer, max_length=2000
         )
         long_reformulations = create_reformulations(
-            long_transcripts, self.model_name, self.tokenizer, self.api_connector
+            long_transcripts,
+            self.model_name,
+            self.tokenizer,
+            self.api_connector,
+            self.language,
         )
         return short_reformulations, long_reformulations
 
@@ -326,6 +360,12 @@ class QuizGenerator:
                     ]
                 ]
             )
+            if "[TITLE]" not in prompt_template:
+                raise ValueError("Title prompt must contain [TITLE]")
+            if "[DESCRIPTION]" not in prompt_template:
+                raise ValueError("Title prompt must contain [DESCRIPTION]")
+            if "[QUESTION]" not in prompt_template:
+                raise ValueError("Title prompt must contain [QUESTION]")
             prompts_texts[eval_name] = (
                 prompt_template.replace("[TITLE]", self.course_metadata.title)
                 .replace("[DESCRIPTION]", self.course_metadata.description)
@@ -341,12 +381,22 @@ class QuizGenerator:
                 temperature=0,
             )
             result_str_1 = self.api_connector.generate(prompt).strip().lower()
-            if "non" in result_str_1:
-                result = False
-            elif "oui" in result_str_1:
-                result = True
+            if self.language == "fr":
+                if "non" in result_str_1:
+                    result = False
+                elif "oui" in result_str_1:
+                    result = True
+                else:
+                    result = False
+            elif self.language == "en":
+                if "no" in result_str_1:
+                    result = False
+                elif "yes" in result_str_1:
+                    result = True
+                else:
+                    result = False
             else:
-                result = False
+                raise ValueError("Language must be 'en' or 'fr'")
             eval_results[eval_name] = result
         int_values = [int(x) for x in eval_results.values()]
         eval_results["score"] = sum(int_values)

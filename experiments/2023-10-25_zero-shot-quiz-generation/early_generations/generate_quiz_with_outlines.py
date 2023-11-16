@@ -46,6 +46,8 @@ class Reformulation(BaseModel):
 
 def generate_reformulation(transcript, model):
     generator = generate.json(model, Reformulation, max_tokens=100)
+    if "[TRANSCRIPT]" not in PROMPT_REFORMULATION:
+        raise ValueError("Reformulation prompt must contain [TRANSCRIPT]")
     sequence = generator(PROMPT_REFORMULATION.replace("[TRANSCRIPT]", transcript))
     return sequence.reformulation
 

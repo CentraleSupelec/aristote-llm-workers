@@ -5,20 +5,14 @@ envs:
     MODEL_NAME: HuggingFaceH4/zephyr-7b-beta
     TOKENIZER: HuggingFaceH4/zephyr-7b-beta
 
-setup: |
-    conda create -n vllm python=3.9 -y
-    conda activate vllm
+run: |
     git clone https://github.com/vllm-project/vllm.git
     cd vllm
-    pip install .
-    pip install gradio
-
-run: |
-    conda activate vllm
-    echo 'Starting vllm api server...'
-    python -u -m vllm.entrypoints.api_server \
-                    --model $MODEL_NAME \
-                    --tensor-parallel-size $SKYPILOT_NUM_GPUS_PER_NODE \
-                    --tokenizer $TOKENIZER 2>&1 | tee api_server.log &
-    echo 'Waiting for vllm api server to start...'
-    while ! `cat api_server.log | grep -q 'Uvicorn running on'`; do sleep 1; done
+    DOCKER_BUILDKIT=1 docker build . --target vllm --tag vllm --build-arg max_jobs=8
+    docker run --runtime nvidia --gpus all \
+        -v ~/.cache/huggingface:/root/.cache/huggingface \
+        -p 8000:8000 \
+        vllm \
+        --model $MODEL_NAME \
+        --tensor-parallel-size $SKYPILOT_NUM_GPUS_PER_NODE \
+        --tokenizer $TOKENIZER

@@ -1,0 +1,5 @@
+You're a university professor looking for a title for one of your courses.
+Here are the different parts of the course: 
+[SUMMARIES]
+Give me a relevant title that covers everything you think is important.
+Global title:

@@ -1,0 +1,10 @@
+Tu es un évaluateur de quiz de cours, voici le titre du cours et une description.
+Titre: [TITLE]
+Desctiption: [DESCRIPTION]
+Tu vas voir une question et la réponse à cette question et les réponses fausses.
+Question: [QUESTION]
+Réponse: [ANSWER]
+Fausses réponses:
+[FAKE ANSWERS]
+Est-ce que les réponses fausses sont trop faciles à reconnaître? Réponds par oui ou par non.
+Réponse: 
