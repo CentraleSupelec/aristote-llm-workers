@@ -1,7 +1,7 @@
-model_name: gpt-3.5-turbo-1106
-transcript_path: data/cs_videos_transcripts/transcript_sociologie.json
+model_name: HuggingFaceH4/zephyr-7b-beta
+transcript_path: data/cs_videos_transcripts/transcript_ri.json
 language: fr
-output_path: experiments/2023-10-25_zero-shot-quiz-generation/results/metadata/metadata_gpt-35_fr_cs_socio.json
+output_path: experiments/2023-10-25_zero-shot-quiz-generation/results/metadata/metadata_zephyr_fr_cs_ri.json
 connector:
   (): "quiz_generation.connectors.APIConnector"
   api_url: http://0.0.0.0:8000/generate

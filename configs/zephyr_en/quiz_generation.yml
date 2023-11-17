@@ -18,4 +18,4 @@ prompts_config:
     non_undefined_symbols_in_question_prompt: quiz_generation/quiz_generation/prompts/english/quiz_evaluation_prompts/question_defines_symbols_prompt.txt
     answers_are_all_different_prompt: quiz_generation/quiz_generation/prompts/english/quiz_evaluation_prompts/answers_are_all_different_prompt.txt
     fake_answers_are_not_obvious_prompt: quiz_generation/quiz_generation/prompts/english/quiz_evaluation_prompts/fake_answers_are_not_obvious_prompt.txt
-output_path: experiments/2023-10-25_zero-shot-quiz-generation/results/quizzes/quizzes_zephyr_en_philosophy.jsonl
+output_path: experiments/2023-10-25_zero-shot-quiz-generation/results/quizzes/quizzes_zephyr_en_mit_clustering.jsonl
