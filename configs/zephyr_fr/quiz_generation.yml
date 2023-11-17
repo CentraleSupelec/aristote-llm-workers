@@ -1,10 +1,10 @@
 model_name: HuggingFaceH4/zephyr-7b-beta
 connector:
-  (): "quiz_generation.connectors.APIConnector"
+  (): "quiz_generation.connectors.connectors.APIConnector"
   api_url: http://0.0.0.0:8000/generate
   cache_path: .cache_zephyr
-metadata_path: experiments/2023-10-25_zero-shot-quiz-generation/results/metadata/metadata_zephyr_fr_cs_socio.json
-transcript_path: data/cs_videos_transcripts/transcript_sociologie.json
+metadata_path: experiments/2023-10-25_zero-shot-quiz-generation/results/metadata/metadata_zephyr_fr_cs_ri.json
+transcript_path: data/cs_videos_transcripts/transcript_ri.json
 language: fr
 prompts_config:
   (): "quiz_generation.quiz_generation.quiz_generator.QuizPromptsConfig"

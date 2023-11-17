@@ -1,10 +1,10 @@
 model_name: HuggingFaceH4/zephyr-7b-beta
-metadata_path: experiments/2023-10-25_zero-shot-quiz-generation/results/metadata/metadata_zephyr_en_philosophy.json
+metadata_path: experiments/2023-10-25_zero-shot-quiz-generation/results/metadata/metadata_zephyr_en_mit_clustering.json
 connector:
-  (): "quiz_generation.connectors.APIConnector"
+  (): "quiz_generation.connectors.connectors.APIConnector"
   api_url: http://0.0.0.0:8000/generate
   cache_path: .cache_zephyr
-transcript_path: data/harvard_transcript/philosophy_lecture.txt
+transcript_path: data/mit_videos_transcripts/transcript_clustering.txt
 language: en
 prompts_config:
   (): "quiz_generation.quiz_generation.quiz_generator.QuizPromptsConfig"

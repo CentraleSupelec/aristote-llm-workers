@@ -1,7 +1,12 @@
-model_name: HuggingFaceH4/zephyr-7b-beta
-cache_path: .cache_test_zephyr
-metadata_path: experiments/2023-10-25_zero-shot-quiz-generation/results/metadata/metadata_zephyr_fr_cs_socio.json
-transcript_path: data/cs_videos_transcripts/transcript_sociologie.json
+model_name: gpt-3.5-turbo-1106
+transcript_path: data/cs_videos_transcripts/transcript_ri.json
+connector:
+  (): "quiz_generation.connectors.connectors.CustomOpenAIConnector"
+  cache_path: .cache_gpt-35
+  max_requests_per_second: 30
+  backoff_max_time: 3
+  request_timeout: 5
+metadata_path: experiments/2023-10-25_zero-shot-quiz-generation/results/metadata/metadata_gpt-35_fr_cs_ri.json
 language: fr
 prompts_config:
   (): "quiz_generation.quiz_generation.quiz_generator.QuizPromptsConfig"
@@ -15,4 +20,4 @@ prompts_config:
     non_undefined_symbols_in_question_prompt: quiz_generation/quiz_generation/prompts/zephyr/quiz_evaluation_prompts/question_defines_symbols_prompt.txt
     answers_are_all_different_prompt: quiz_generation/quiz_generation/prompts/zephyr/quiz_evaluation_prompts/answers_are_all_different_prompt.txt
     fake_answers_are_not_obvious_prompt: quiz_generation/quiz_generation/prompts/zephyr/quiz_evaluation_prompts/fake_answers_are_not_obvious_prompt.txt
-output_path: experiments/2023-10-25_zero-shot-quiz-generation/results/quizzes/quizzes_zephyr_fr_cs_socio.jsonl
+output_path: experiments/2023-10-25_zero-shot-quiz-generation/results/quizzes/quizzes_gpt-35_fr_cs_ri.jsonl
