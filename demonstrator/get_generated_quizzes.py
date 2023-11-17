@@ -19,6 +19,7 @@ def postprocess_answer(answer):
         return new_answer + "."
     return answer
 
+
 def post_process(text, text_type):
     new_text = text.strip()
     splitted_text = new_text.split(":")

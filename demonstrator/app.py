@@ -24,7 +24,13 @@ TRANSCRIPT_PATHS = [
 ]
 
 
-def generate_html(chunks, metadata, quizzes, show_original_text=False, show_reformulation: bool = False):
+def generate_html(
+    chunks,
+    metadata,
+    quizzes,
+    show_original_text=False,
+    show_reformulation: bool = False,
+):
     html = ""
     html += f"<h2>Title: {metadata['title']}</h2>\n"
     html += "<h3>Desctiption: </h3>\n"
@@ -48,23 +54,41 @@ def generate_html(chunks, metadata, quizzes, show_original_text=False, show_refo
         for choice in [answer, fake_answer_1, fake_answer_2, fake_answer_3]:
             html += f"<li>{choice}</li>\n"
         html += "</ul>\n"
-        html += f"<h4>Evaluation:</h4>\n"
+        html += "<h4>Evaluation:</h4>\n"
         html += "<ul>\n"
         for key in quiz["evaluation"]:
             html += f"<li>{key}: {quiz['evaluation'][key]}</li>\n"
         html += "</ul>\n"
-        html += f"<h4>Explanation:</h4>\n"
+        html += "<h4>Explanation:</h4>\n"
         html += f"<p>{explanation}</p>\n"
         html += "<p>------------------------------------------</p>\n"
     return html
 
 
-def main(live_mode: bool, language_input: str, model: str, transcript_path: str, order: bool, show_original_text: bool = False, show_reformulation: bool = False):
+def main(
+    live_mode: bool,
+    language_input: str,
+    model: str,
+    transcript_path: str,
+    order: bool,
+    show_original_text: bool = False,
+    show_reformulation: bool = False,
+):
     if live_mode:
-        chunks, metadata, quizzes = generate_data_live(language_input, model, transcript_path, order)
+        chunks, metadata, quizzes = generate_data_live(
+            language_input, model, transcript_path, order
+        )
     else:
-        chunks, metadata, quizzes = get_generated_data(language_input, model, transcript_path, order)
-    return generate_html(chunks, metadata, quizzes, show_original_text=show_original_text, show_reformulation=show_reformulation)
+        chunks, metadata, quizzes = get_generated_data(
+            language_input, model, transcript_path, order
+        )
+    return generate_html(
+        chunks,
+        metadata,
+        quizzes,
+        show_original_text=show_original_text,
+        show_reformulation=show_reformulation,
+    )
 
 
 with gr.Blocks(css="demonstrator/style.css") as demo:
@@ -90,7 +114,17 @@ with gr.Blocks(css="demonstrator/style.css") as demo:
         btn = gr.Button("Run")
         out = gr.HTML()
     btn.click(
-        fn=main, inputs=[live_mode, language_input, model, transcript_path, order, show_original_text, show_reformulated_text], outputs=out
+        fn=main,
+        inputs=[
+            live_mode,
+            language_input,
+            model,
+            transcript_path,
+            order,
+            show_original_text,
+            show_reformulated_text,
+        ],
+        outputs=out,
     )
 
 if __name__ == "__main__":
