@@ -35,9 +35,9 @@ refresh-lockfiles:
     set -euxo pipefail
     export LOCAL_TORCH_INDEX_URL=$(pdm config pypi.torch.url)
     pdm config --local pypi.torch.url https://download.pytorch.org/whl/cu117
-    pdm update --update-reuse --no-sync -L lockfiles/gpu.lock
+    pdm update --update-reuse --no-sync -L lockfiles/gpu.lock -G :all
     pdm config --local pypi.torch.url https://download.pytorch.org/whl/cpu
-    pdm update --update-reuse --no-sync -L lockfiles/cpu.lock
+    pdm update --update-reuse --no-sync -L lockfiles/cpu.lock -G :all
     pdm config --local pypi.torch.url $LOCAL_TORCH_INDEX_URL
     if [ "$LOCAL_TORCH_INDEX_URL" == "https://download.pytorch.org/whl/cpu" ]; then \
         just install-cpu; \

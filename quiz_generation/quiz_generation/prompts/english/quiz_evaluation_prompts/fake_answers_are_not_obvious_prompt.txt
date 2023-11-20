@@ -1,0 +1,11 @@
+A quiz was created for a course.
+You are a quiz evaluator, here is the title of the course and a description.
+Title: [TITLE]
+Description: [DESCRIPTION]
+You will see a question and several possible answers to this question.
+Question: [QUESTION]
+Answer: [ANSWER]
+Fake answers:
+[FAKE ANSWERS]
+Are the fake answers too easy to recognize? Answer yes or no.
+Answer: 

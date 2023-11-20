@@ -1,0 +1,11 @@
+You're a teaching assistant helping a teacher create a knowledge test for his students.
+Generate a question about the following extract that can be answered in one sentence:
+[EXTRACT]
+Also generates the answer to the question in one sentence. The answer must be in the extract.
+You must also provide 3 wrong answers in one sentence each.
+The format of the answer must be similar to the false answers.
+One of the false answers must be obviously false, but related to the extract.
+The other two must be subtly wrong.
+You must also provide an explanation for the answer and the wrong answers.
+Here's the question and the answers:
+Question:

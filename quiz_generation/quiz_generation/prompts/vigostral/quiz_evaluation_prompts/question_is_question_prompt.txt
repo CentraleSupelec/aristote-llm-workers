@@ -1,0 +1,7 @@
+Tu es un évaluateur de quiz de cours, voici le titre du cours et une description.
+Titre: [TITLE]
+Desctiption: [DESCRIPTION]
+Tu dois évaluer si la phrase suivante est bien une question.
+Phrase: [QUESTION]
+Réponds par oui ou par non.
+Réponse: 

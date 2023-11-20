@@ -1,0 +1,8 @@
+A quiz was created for a course.
+You are a quiz evaluator, here is the title of the course and a description.
+Title: [TITLE]
+Description: [DESCRIPTION]
+You will see a question that may have undefined terms.
+Question: [QUESTION]
+Does this question contain undefined terms in English? Answer yes or no.
+Answer:
