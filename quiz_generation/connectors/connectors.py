@@ -181,8 +181,8 @@ class APIConnector(AbstractConnector):
     def custom_multi_requests(
         self,
         prompts: List[CustomPrompt],
-        batch_size: int = 16,
         progress_desc: Optional[str] = None,
+        batch_size: int = 16,
     ) -> List[str]:
         # Create a thread pool to parallelize requests
         with ThreadPoolExecutor(max_workers=batch_size) as executor:

@@ -15,11 +15,10 @@ Here are some template sections that you can fill or delete as you wish. For eac
   - [First experiment](#first-experiment)
   - [Second experiment](#second-experiment)
 - [Results](#results)
-  - [First experiment](#first-experiment-1)
-    - [Feedback on the experiment](#feedback-on-the-experiment)
-  - [Second experiment](#second-experiment-1)
-    - [Qualitative analysis](#qualitative-analysis-1)
-    - [Next steps](#next-steps)
+  - [Quiz generation pipeline](#quiz-generation-pipeline)
+    - [Résultats obtenus sur des transcripts de cours en Recherche d’Informations et Clustering](#résultats-obtenus-sur-des-transcripts-de-cours-en-recherche-dinformations-et-clustering)
+  - [Filtering](#filtering)
+    - [Analyse des 5 premiers quizzes obtenus après filtrage](#analyse-des-5-premiers-quizzes-obtenus-après-filtrage)
 - [Slides](#slides)
 - [Steps to reproduce experiments](#steps-to-reproduce-experiments)
   - [Generate GPT-4 Quizzes](#generate-gpt-4-quizzes)
@@ -81,31 +80,57 @@ Generate the quizzes:
 
 ## Results
 
-### First experiment
+### Quiz generation pipeline
 
-#### Feedback on the experiment
+Evaluation qualitative par rapport à 5 critères qualitatifs:
 
-##### Feedback on the pipeline
+- Pertinence des questions
+- Fluidité et cohérence de la langue
+- Respect du format attendu
+- Questions nécessitent des connaissances mal explicitées 
+- Difficulté/Pertinence des mauvaises réponses
 
-Generation is very slow now. The use of vLLM + request batching is really good. It accelerates the rquests a lot.
+3 modèles: Vigostral, Zéphyr 7B et GPT-4
 
-##### Qualitative analysis
+2 transcripts: 1 français sur de la recherche d’information et 1 anglais sur du clustering
 
-The quizzes are not always very relevant. The quizzes use specific details of the transcript with no context. A post-hoc method is needed to filter the scripts that are not relevant.
+#### Résultats obtenus sur des transcripts de cours en Recherche d’Informations et Clustering
 
-### Second experiment
+Modèles | Pertinence des questions | Fluidité et cohérence de la langue | Respect du format attendu | Questions nécessitent des connaissances mal explicitées | Difficulté/Pertinence des mauvaises réponses
+---------|-------------------------|-----------------------------------|----------------------|-----------------------------|---------------------------------------------------------
+Vigostral | Souvent Bon (~70%) | Très bon | Encourageant, ne finit pas des réponses parfois | Parfois | Mauvais: les fausses sont trop proches parfois
+Zephyr 7b | en français | Inégal: dépend du transcript et de la compréhension du transcript par le modèle, questions trop compliquées (~40%) | Bon, à tendance à trop parler et on perd le sens de la question/réponse | Bon, répète trop la question | Parfois | Mauvaise: fausses réponses trop proches de la vraie réponse ou complètement évidente
+Zéphyr 7b en anglais | Souvent bonne (~80%) | Très bon | Bon, répète trop la question | Pas trop mais le cours a moins de notations mathématiques | Acceptable: quelques mauvaises réponses sont trop évidentes
+GPT-4 | Bonne: dépend du transcript et pas de GPT4 (~90%) | Très bon | Bon: génération en trop | Parfois: Il faudrait faire un effort de prompting pour mieux préciser les notations | Acceptable
 
-#### Qualitative analysis
+**Conclusion:** Par rapport à GPT4, les meilleurs modèles OS français ont tendance à proposer des questions/réponses d’une qualité inégale. Il est essentiel de les filtrer pour sélectionner les plus pertinentes!
 
-Title and description generation can be improved. Sometimes the description is a bit too long.
+### Filtering
 
-The evaluation is not very relevant for now. I am not sure that it realy understands the evaluation task.
+Evaluation par rapport à 7 critères pour ranker les quizzes selon leur qualité:
 
-#### Next steps
+- La question doit être:
+  - Pertinente par rapport au cours
+  - Auto-porteuse
+  - Formattée telle une question
+  - Claire et cohérente sémantiquement
+  - (Mathématiques):  Ne doit pas contenir de symboles non définis préalablement
+- Les multiples réponses proposées doivent être:
+  - Toutes différentes
+  - Les réponses fausses sont non triviales
 
-- Make title/description generation more robust
-- Use an evaluation model? --> Maybe generate quizzes in English to take profit of better evaluation models
-- Try ChatGPT, GPT-4 and Zephyr Beta on the second pipeline --> Vigostral is quite limited compared to ChatGPT and GPT-4
+Grâce à cette liste de critères, on utilise les LLMs pour auto-évaluer chaque question/réponses pour filtrer les questions moins pertinentes.
+
+#### Analyse des 5 premiers quizzes obtenus après filtrage
+
+Modèles | Pertinence des questions | Fluidité et cohérence de la langue | Respect du format attendu | Questions nécessitent des connaissances mal explicitées  | Difficulté/Pertinence des mauvaises réponses
+---------|-------------------------|-----------------------------------|----------------------|-----------------------------|---------------------------------------------------------
+Vigostral | Remontée biaisée de questions plus longues, les meilleures questions ne sont pas bien remontées | Toujours bon | Même qualité que la moyenne | Mieux: Sélection de questions compréhensibles sans le transcript  | Pas mieux que la plupart des quiz
+Zephyr 7b | en français | ~80% de questions pertinentes sur les 5 1ères | Toujours bon, mais réponses toujours trop longues | Toujours bon | Pas besoin de connaissances préalables | Pas mieux que la plupart des quiz
+Zephyr 7b | en anglais | ~80% de questions pertinentes sur les 5 1ères | Toujours bon | Toujours bon | Toujours bon | Le reranking final ne fait pas ressortir les questions qui respectent le mieux ce critère, mais l’évaluation sur ce critère est pertinente
+GPT-4 | Même pertinence | Toujours bon | Toujours bon | Le reranking final ne fait pas ressortir les questions qui respectent le mieux ce critère, mais l’évaluation sur ce critère est pertinente | Le reranking final ne fait pas ressortir les questions qui respectent le mieux ce critère, mais l’évaluation sur ce critère est pertinente
+
+Les modèles open-source ne sont pas très adaptés à l’évaluation des quizzes et la méthode ranking peu être affinée. Avec GPT-4, l’étape de filtrage permet de réduire le nombre de questions non pertinentes.
 
 ## Slides
 
@@ -160,5 +185,4 @@ quizgen generate-quiz configs/quiz_generation.yml
 
 ## Conclusion/TLDR
 
-<!-- Delete this line -->
-Conclude on the experiment and the results. State the answer to the hypothesis.
+Les modèles open-source Vigostral et Zéphyr 7B ne sont pas suffisamment bons en français pour générer des quizzes toujours pertinents. Il faut filtrer les quizzes générés pour ne garder que les meilleurs. Les modèles open-source ne sont pas très adaptés à l’évaluation des quizzes et la méthode ranking peu être affinée. GPT-4 agit comme un meilleur filtre.
