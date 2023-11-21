@@ -1,0 +1,17 @@
+resources:
+    accelerators: T4:2
+
+envs:
+    MODEL_NAME: HuggingFaceH4/zephyr-7b-beta
+    TOKENIZER: HuggingFaceH4/zephyr-7b-beta
+
+run: |
+    git clone https://github.com/vllm-project/vllm.git
+    cd vllm
+    pip install .
+    cd ..
+    python -m vllm.entrypoints.api_server \
+        --model $MODEL_NAME \
+        --tensor-parallel-size 2 \
+        --tokenizer $TOKENIZER \
+        --dtype float16

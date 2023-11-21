@@ -3,6 +3,7 @@ from typing import Callable
 import click
 import configue
 
+from quiz_generation.evaluation.main import main as evaluation_main
 from quiz_generation.metadata_generation.main import main as metadata_main
 from quiz_generation.quiz_generation.main import main as quiz_main
 
@@ -29,3 +30,9 @@ def generate_metadata(config_path: str) -> None:
 @click.argument("config_path", type=str)
 def generate_quizzes(config_path: str) -> None:
     base_command(config_path, quiz_main)
+
+
+@main.command()
+@click.argument("config_path", type=str)
+def evaluate(config_path: str) -> None:
+    base_command(config_path, evaluation_main)

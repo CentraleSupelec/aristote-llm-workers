@@ -31,7 +31,7 @@ class CustomPrompt(BaseModel):
 
 
 class AbstractConnector:
-    def __init__(self, cache_path: str) -> None:
+    def __init__(self, cache_path: Optional[str] = None) -> None:
         self.cache_path = cache_path
 
     @abstractmethod
@@ -41,22 +41,23 @@ class AbstractConnector:
     @abstractmethod
     def custom_multi_requests(
         self, prompts: List[CustomPrompt], progress_desc: str
-    ) -> str:
+    ) -> List[str]:
         pass
 
 
 class CustomOpenAIConnector(OpenAIConnector, AbstractConnector):
     def __init__(
         self,
-        api_key: str | None = None,
-        organization: str | None = None,
+        api_key: Optional[str] = None,
+        organization: Optional[str] = None,
         backoff_max_time: int = 30,
-        request_timeout: int | None = None,
-        cache_path: str | None = None,
+        request_timeout: Optional[int] = None,
+        cache_path: Optional[str] = None,
         verbosity: int = 1,
         max_requests_per_second: float = 1.0,
     ):
-        super().__init__(
+        OpenAIConnector.__init__(
+            self,
             api_key,
             organization,
             backoff_max_time,
@@ -64,16 +65,7 @@ class CustomOpenAIConnector(OpenAIConnector, AbstractConnector):
             cache_path,
             verbosity,
         )
-
-        # def __init__(self,
-        #              api_key: Optional[str] = None,
-        #             organization: Optional[str] = None,
-        #             backoff_max_time: int = 30,
-        #             request_timeout: Optional[int] = None,
-        #             cache_path: Optional[str] = None,
-        #             verbosity: int = 0,
-        #              cache_path: str, max_requests_per_second: float) -> None:
-        #     super().__init__(cache_path)
+        AbstractConnector.__init__(self, cache_path=cache_path)
         self.max_requests_per_second = max_requests_per_second
 
     def generate(self, prompt: CustomPrompt) -> str:
@@ -90,9 +82,12 @@ class CustomOpenAIConnector(OpenAIConnector, AbstractConnector):
             )
         )
         if isinstance(text_generation, TextGeneration):
-            return text_generation.text
+            if isinstance(text_generation.text, str):
+                return text_generation.text
+            else:
+                raise ValueError("Text generation failed")
         else:
-            raise ValueError("Wring generation type")
+            raise ValueError("Wrong generation type")
 
     def custom_multi_requests(
         self, prompts: List[CustomPrompt], progress_desc: str

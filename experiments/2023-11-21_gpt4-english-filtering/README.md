@@ -62,7 +62,11 @@ Link to reference slides where you might keep the update of the project results.
 ## Steps to reproduce experiments
 
 <!-- Delete this line -->
-Commands/Code that is needed to reproduce the experiments.
+```bash
+quizgen generate-metadata experiments/2023-11-21_gpt4-english-filtering/configs/zephyr_en_metadata_gen.yml
+quizgen generate-quizzes experiments/2023-11-21_gpt4-english-filtering/configs/zephyr_en_quiz_gen.yml
+quizgen evaluate experiments/2023-11-21_gpt4-english-filtering/configs/gpt4_en_eval.yml
+```
 
 **Example:**
 

@@ -5,10 +5,10 @@ from typing import List, Union
 
 from nltk import sent_tokenize
 from tiktoken import Encoding, encoding_for_model
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, PreTrainedTokenizerBase
 
 
-def get_tokenizer(model_name: str) -> Union[AutoTokenizer, Encoding]:
+def get_tokenizer(model_name: str) -> Union[PreTrainedTokenizerBase, Encoding]:
     if "gpt-4" in model_name or "gpt-3.5" in model_name:
         return encoding_for_model(model_name)
     else:

@@ -15,7 +15,6 @@ from quiz_generation.quiz_generation.quiz_generator import (
 def main(
     model_name: str,
     connector: AbstractConnector,
-    metadata_path: str,
     transcript_path: str,
     language: Literal["en", "fr"],
     prompts_config: QuizPromptsConfig,
@@ -25,12 +24,8 @@ def main(
 
     transcripts = load_file(transcript_path)
 
-    with open(metadata_path, "r", encoding="utf-8") as file:
-        course_metadata = json.load(file)
-
     quiz_generator = QuizGenerator(
         model_name=model_name,
-        course_metadata=MetaData(**course_metadata),
         tokenizer=tokenizer,
         api_connector=connector,
         language=language,
