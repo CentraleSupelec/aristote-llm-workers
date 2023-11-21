@@ -22,7 +22,7 @@ where `{DEVICE}` is the type of device you are using. You can choose between `cp
 
 ### Load the data
 
-To download the data, you need `dvc`. Check the install procedure [here](https://dvc.org/doc/install). 
+To download the data, you need `dvc`. Check the install procedure [here](https://dvc.org/doc/install).
 
 Make sure that you have access to the `gs://quiz-generation` bucket in the `llm-testing` project. Then, you can download the data with:
 
