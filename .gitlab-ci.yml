@@ -58,4 +58,4 @@ test:
 stages:
   - download_deps
   - lint
-  # - test
+  - test
