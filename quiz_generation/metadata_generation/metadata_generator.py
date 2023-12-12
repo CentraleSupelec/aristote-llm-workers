@@ -35,10 +35,12 @@ class MetadataGenerator:
         tokenizer: AutoTokenizer,
         api_connector: AbstractConnector,
         prompts_config: MetadataPromptsConfig,
+        debug: bool = False,
     ) -> None:
         self.model_name = model_name
         self.tokenizer = tokenizer
         self.api_connector = api_connector
+        self.debug = debug
 
         with open(prompts_config.summary_prompt_path, "r", encoding="utf-8") as file:
             self.summary_prompt = file.read()
@@ -78,7 +80,10 @@ class MetadataGenerator:
                     text=templated_transcript,
                     parameters=CustomPromptParameters(
                         model_name=self.model_name,
-                        max_tokens=get_token_nb(templated_transcript, self.tokenizer),
+                        max_tokens=min(
+                            3500 // len(templated_transcripts),
+                            get_token_nb(templated_transcript, self.tokenizer),
+                        ),
                         temperature=0.1,
                         stop=["\n"],
                     ),
@@ -100,9 +105,16 @@ class MetadataGenerator:
         description_instruction = self.description_prompt.replace(
             "[SUMMARIES]", full_summary
         )
+        description_prompt = get_templated_script(
+            description_instruction, self.tokenizer
+        )
+        if self.debug:
+            print("Description prompt: ", description_prompt)
+            print("Desc Tokens: ", get_token_nb(description_prompt, self.tokenizer))
+            print("============================================================")
         description = self.api_connector.generate(
             CustomPrompt(
-                text=get_templated_script(description_instruction, self.tokenizer),
+                text=description_prompt,
                 parameters=CustomPromptParameters(
                     model_name=self.model_name,
                     max_tokens=500,
@@ -110,20 +122,31 @@ class MetadataGenerator:
                 ),
             ),
         )
+        if self.debug:
+            print("Description:", description)
+            print("============================================================")
         if "[SUMMARIES]" not in self.title_prompt:
             raise ValueError("Title prompt must contain [SUMMARIES]")
         title_instruction = self.title_prompt.replace("[SUMMARIES]", full_summary)
+        title_prompt = get_templated_script(title_instruction, self.tokenizer)
+        if self.debug:
+            print("Title prompt:", title_prompt)
+            print("Title Tokens: ", get_token_nb(title_prompt, self.tokenizer))
+            print("============================================================")
         title = self.api_connector.generate(
             CustomPrompt(
-                text=get_templated_script(title_instruction, self.tokenizer),
+                text=title_prompt,
                 parameters=CustomPromptParameters(
                     model_name=self.model_name,
-                    max_tokens=30,
-                    temperature=0,
+                    max_tokens=100,
+                    temperature=0.1,
                     stop=["\n", "."],
                 ),
             ),
         )
+        if self.debug:
+            print("Title:", title)
+            print("============================================================")
         return description, title
 
     def generate_main_topics(self, transcripts: List[str]) -> List[str]:
@@ -135,6 +158,9 @@ class MetadataGenerator:
     ) -> MetaData:
         # Generate summaries
         summaries = self.generate_summaries(transcripts)
+        if self.debug:
+            print("Summaries:", summaries)
+            print("============================================================")
 
         # Generate description
         description, title = self.generate_description_and_title(summaries)

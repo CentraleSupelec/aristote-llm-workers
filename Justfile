@@ -6,8 +6,8 @@ default:
     @just --list
 
 # Scaffold a new experiment
-new-exp +COPIER_OPTIONS="":
-    copier copy --trust "$@" experiment_template/ experiments/
+new-exp:
+    copier copy --trust experiment_template/ experiments/
 
 # Set up a new development environment
 init:

@@ -1,0 +1,57 @@
+task_configs:
+  # - (): "quiz_generation.pipeline.configs.TaskConfig"
+  #   transcript_path: data/fr/cs_videos_transcripts/transcript_ri.json
+  #   result_directory: experiments/2023-11-21_gpt4-english-filtering/results/zephyr_ri
+  #   language: fr
+  #   chunks_path: experiments/2023-11-21_gpt4-english-filtering/results/zephyr-chunks/ri.jsonl
+  - (): "quiz_generation.pipeline.configs.TaskConfig"
+    transcript_path: data/fr/cs_videos_transcripts/transcript_sociologie.json
+    result_directory: experiments/2023-11-21_gpt4-english-filtering/results/zephyr_sociologie
+    language: fr
+    chunks_path: experiments/2023-11-21_gpt4-english-filtering/results/zephyr-chunks/sociologie.jsonl
+
+metadata_generation_config: 
+  (): "quiz_generation.pipeline.configs.MetadataGenerationConfig"
+  model_name: HuggingFaceH4/zephyr-7b-beta
+  connector: 
+    (): "quiz_generation.connectors.connectors.APIConnector"
+    api_url: http://0.0.0.0:8001/generate
+    cache_path: .cache_zephyr_2
+  # language: fr
+  debug: false
+  prompts_config:
+    (): "quiz_generation.metadata_generation.metadata_generator.MetadataPromptsConfig"
+    summary_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/summary_prompt.txt
+    title_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/title_prompt.txt
+    description_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/description_prompt.txt
+    generate_topics_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/generate_topics_prompt.txt
+    combine_topics_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/combine_topics_prompt.txt
+
+quiz_generation_config:
+  (): "quiz_generation.pipeline.configs.QuizGenerationConfig"
+  model_name: HuggingFaceH4/zephyr-7b-beta
+  connector: 
+    (): "quiz_generation.connectors.connectors.APIConnector"
+    api_url: http://0.0.0.0:8001/generate
+    cache_path: .cache_zephyr
+  prompts_config:
+    (): "quiz_generation.quiz_generation.quiz_generator.QuizPromptsConfig"
+    quiz_generation_prompt: quiz_generation/quiz_generation/prompts/zephyr/quiz_generation_prompt.txt
+
+evaluation_config: 
+  (): "quiz_generation.pipeline.configs.EvaluationConfig"
+  model_name: gpt-4-1106-preview
+  connector:
+    (): "quiz_generation.connectors.connectors.CustomOpenAIConnector"
+    cache_path: .cache_gpt-4
+    max_requests_per_second: 30
+  prompts_config:
+    (): "quiz_generation.evaluation.evaluator.EvaluationPromptsConfig"
+    is_related_prompt: quiz_generation/evaluation/prompts/zephyr/question_is_related_prompt.txt
+    is_self_contained_prompt: quiz_generation/evaluation/prompts/zephyr/question_is_self_contained_prompt.txt
+    is_question_prompt: quiz_generation/evaluation/prompts/zephyr/question_is_question_prompt.txt
+    language_is_clear_prompt: quiz_generation/evaluation/prompts/zephyr/question_has_clear_language_prompt.txt
+    answers_are_all_different_prompt: quiz_generation/evaluation/prompts/zephyr/answers_are_all_different_prompt.txt
+    fake_answers_are_not_obvious_prompt: quiz_generation/evaluation/prompts/zephyr/fake_answers_are_not_obvious_prompt.txt
+    answers_are_related: quiz_generation/evaluation/prompts/zephyr/answers_are_related_prompt.txt
+    quiz_about_concept: quiz_generation/evaluation/prompts/zephyr/quiz_about_concept_prompt.txt

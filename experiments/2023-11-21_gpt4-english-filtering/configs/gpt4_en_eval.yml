@@ -1,0 +1,17 @@
+model_name: gpt-4-1106-preview
+metadata_path: experiments/2023-11-21_gpt4-english-filtering/results/metadata_zephyr_en_philosophy.json
+quizzes_path: experiments/2023-11-21_gpt4-english-filtering/results/quizzes_zephyr_en_philosophy.jsonl
+connector:
+  (): "quiz_generation.connectors.connectors.APIConnector"
+  api_url: http://0.0.0.0:8000/generate
+  cache_path: .cache_zephyr
+language: en
+prompts_config:
+  (): "quiz_generation.evaluation.evaluator.EvaluationPromptsConfig"
+  is_related_prompt: quiz_generation/evaluation/prompts/english/question_is_related_prompt.txt
+  is_self_contained_prompt: quiz_generation/evaluation/prompts/english/question_is_self_contained_prompt.txt
+  is_question_prompt: quiz_generation/evaluation/prompts/english/question_is_question_prompt.txt
+  language_is_clear_prompt: quiz_generation/evaluation/prompts/english/question_has_clear_language_prompt.txt
+  answers_are_all_different_prompt: quiz_generation/evaluation/prompts/english/answers_are_all_different_prompt.txt
+  fake_answers_are_not_obvious_prompt: quiz_generation/evaluation/prompts/english/fake_answers_are_not_obvious_prompt.txt
+output_path: experiments/2023-11-21_gpt4-english-filtering/results/evaluated_quizzes_zephyr_en_philosophy.jsonl

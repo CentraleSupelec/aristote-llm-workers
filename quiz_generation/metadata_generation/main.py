@@ -23,12 +23,23 @@ def main(
     language: Literal["en", "fr"],
     prompts_config: MetadataPromptsConfig,
     output_path: str,
+    debug: bool = False,
 ) -> None:
     tokenizer = get_tokenizer(model_name)
 
     transcripts = load_file(transcript_path)
 
     new_transcripts = get_splits(transcripts, tokenizer=tokenizer)
+    if len(new_transcripts) > 20:
+        new_transcripts = get_splits(transcripts, tokenizer=tokenizer, max_length=3000)
+    if len(new_transcripts) > 20:
+        raise ValueError(f"Too many splits {len(new_transcripts)}")
+
+    print("Number of splits:", len(new_transcripts))
+
+    if debug:
+        print(new_transcripts)
+        print("=======================================================")
 
     reformulations = create_reformulations(
         new_transcripts, model_name, tokenizer, connector, language
@@ -39,6 +50,7 @@ def main(
         tokenizer=tokenizer,
         api_connector=connector,
         prompts_config=prompts_config,
+        debug=debug,
     )
     metadata = metadata_generator.generate_metadata(reformulations)
 

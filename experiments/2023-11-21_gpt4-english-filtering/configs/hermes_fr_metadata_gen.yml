@@ -1,0 +1,16 @@
+model_name: teknium/OpenHermes-2.5-Mistral-7B
+transcript_path: data/fr/cs_videos_transcripts/transcript_sociologie.json
+output_path: experiments/2023-11-21_gpt4-english-filtering/results/hermes_sociologie/metadata_2.json
+connector:
+  (): "quiz_generation.connectors.connectors.APIConnector"
+  api_url: http://0.0.0.0:8000/generate
+  cache_path: .cache_hermes_2
+language: fr
+debug: true
+prompts_config:
+  (): "quiz_generation.metadata_generation.metadata_generator.MetadataPromptsConfig"
+  summary_prompt_path: quiz_generation/metadata_generation/prompts/hermes/summary_prompt.txt
+  title_prompt_path: quiz_generation/metadata_generation/prompts/hermes/title_prompt.txt
+  description_prompt_path: quiz_generation/metadata_generation/prompts/hermes/description_prompt.txt
+  generate_topics_prompt_path: quiz_generation/metadata_generation/prompts/hermes/generate_topics_prompt.txt
+  combine_topics_prompt_path: quiz_generation/metadata_generation/prompts/hermes/combine_topics_prompt.txt

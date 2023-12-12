@@ -36,7 +36,6 @@ def main(input_file, output_file):
         transcripts = " ".join(transcripts)
         transcripts = transcripts.split("\n")
         transcripts = [t.strip() for t in transcripts]
-        print(transcripts[0])
     with open(output_file, "w") as f:
         json.dump({"transcripts": transcripts}, f, indent=4)
 

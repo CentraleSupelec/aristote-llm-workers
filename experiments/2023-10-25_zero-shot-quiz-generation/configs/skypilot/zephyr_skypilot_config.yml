@@ -1,4 +1,5 @@
 resources:
+    any_of:
     accelerators: A100:1
 
 envs:

@@ -13,6 +13,5 @@ prompts_config:
     is_self_contained_prompt: quiz_generation/quiz_generation/prompts/quiz_evaluation_prompts/question_is_self_contained_prompt.txt
     is_question_prompt: quiz_generation/quiz_generation/prompts/quiz_evaluation_prompts/question_is_question_prompt.txt
     language_is_clear_prompt: quiz_generation/quiz_generation/prompts/quiz_evaluation_prompts/question_has_clear_language_prompt.txt
-    non_undefined_symbols_in_question_prompt: quiz_generation/quiz_generation/prompts/quiz_evaluation_prompts/question_defines_symbols_prompt.txt
     answers_are_all_different_prompt: quiz_generation/quiz_generation/prompts/quiz_evaluation_prompts/answers_are_all_different_prompt.txt
     fake_answers_are_not_obvious_prompt: quiz_generation/quiz_generation/prompts/quiz_evaluation_prompts/fake_answers_are_not_obvious_prompt.txt

@@ -1,0 +1,10 @@
+Un quiz a été créé pour un cours.
+Tu es un évaluateur de quiz de cours, voici le titre du cours et une description.
+Titre: [TITLE]
+Desctiption: [DESCRIPTION]
+Tu dois dire si ka question et les réponses mentionnent des concepts importants du cours. Si la question ou une réponse mentionne des exemples de cours, réponds non.
+Question: [QUESTION]
+Réponses:
+[ANSWERS]
+Réponds par oui ou non.
+Réponse: 

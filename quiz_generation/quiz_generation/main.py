@@ -1,10 +1,8 @@
-import json
-from typing import Literal
+from typing import Literal, Optional
 
 import jsonlines
 
 from quiz_generation.connectors.connectors import AbstractConnector
-from quiz_generation.metadata_generation.metadata_generator import MetaData
 from quiz_generation.preprocessing.preprocessing import get_tokenizer, load_file
 from quiz_generation.quiz_generation.quiz_generator import (
     QuizGenerator,
@@ -15,26 +13,23 @@ from quiz_generation.quiz_generation.quiz_generator import (
 def main(
     model_name: str,
     connector: AbstractConnector,
-    metadata_path: str,
     transcript_path: str,
     language: Literal["en", "fr"],
     prompts_config: QuizPromptsConfig,
     output_path: str,
+    chunks_path: Optional[str] = None,
 ) -> None:
     tokenizer = get_tokenizer(model_name)
 
     transcripts = load_file(transcript_path)
 
-    with open(metadata_path, "r", encoding="utf-8") as file:
-        course_metadata = json.load(file)
-
     quiz_generator = QuizGenerator(
         model_name=model_name,
-        course_metadata=MetaData(**course_metadata),
         tokenizer=tokenizer,
         api_connector=connector,
         language=language,
         prompts_config=prompts_config,
+        chunks_path=chunks_path,
     )
     quizzes = quiz_generator.full_generation(transcripts)
 

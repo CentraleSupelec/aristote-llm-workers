@@ -53,7 +53,6 @@ def create_reformulations(
     templated_transcripts = [
         get_templated_script(text, tokenizer) for text in replaced_texts
     ]
-    # print(templated_transcripts)
     reformulations = api_connector.custom_multi_requests(
         prompts=[
             CustomPrompt(

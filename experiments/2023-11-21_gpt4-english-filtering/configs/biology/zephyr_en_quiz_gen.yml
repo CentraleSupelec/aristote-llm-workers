@@ -1,0 +1,11 @@
+model_name: HuggingFaceH4/zephyr-7b-beta
+connector:
+  (): "quiz_generation.connectors.connectors.APIConnector"
+  api_url: http://0.0.0.0:8000/generate
+  cache_path: .cache_zephyr
+transcript_path: data/en/biology_high_school_class/transcript.txt
+language: en
+prompts_config:
+  (): "quiz_generation.quiz_generation.quiz_generator.QuizPromptsConfig"
+  quiz_generation_prompt: quiz_generation/quiz_generation/prompts/english/quiz_generation_prompt.txt
+output_path: experiments/2023-11-21_gpt4-english-filtering/results/quizzes_zephyr_en_biology.jsonl

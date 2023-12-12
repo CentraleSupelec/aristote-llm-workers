@@ -1,0 +1,16 @@
+model_name: HuggingFaceH4/zephyr-7b-beta
+transcript_path: data/fr/cs_videos_transcripts/transcript_sociologie.json
+output_path: experiments/2023-11-21_gpt4-english-filtering/results/zephyr_sociologie/metadata_2.json
+connector:
+  (): "quiz_generation.connectors.connectors.APIConnector"
+  api_url: http://0.0.0.0:8001/generate
+  cache_path: .cache_zephyr_2
+language: fr
+debug: true
+prompts_config:
+  (): "quiz_generation.metadata_generation.metadata_generator.MetadataPromptsConfig"
+  summary_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/summary_prompt.txt
+  title_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/title_prompt.txt
+  description_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/description_prompt.txt
+  generate_topics_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/generate_topics_prompt.txt
+  combine_topics_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/combine_topics_prompt.txt
