@@ -1,28 +1,21 @@
-from enum import Enum
-from typing import List, Literal, Tuple, Union
+import warnings
+from typing import List, Literal, Optional, Union
 
+import jsonlines
 from illuin_llm_tools import Message
 from pydantic import BaseModel
-from transformers import PreTrainedTokenizerBase
 from tiktoken import Encoding
+from transformers import PreTrainedTokenizerBase
 
 from quiz_generation.connectors.connectors import (
     AbstractConnector,
     CustomPrompt,
     CustomPromptParameters,
 )
-from quiz_generation.metadata_generation.metadata_generator import MetaData
-from quiz_generation.preprocessing.preprocessing import (
-    get_splits,
-)
+from quiz_generation.preprocessing.preprocessing import get_splits, get_token_nb
 from quiz_generation.reformulation.reformulation import create_reformulations
 
 BATCH_SIZE = 4
-
-
-class QuizType(str, Enum):
-    LOCAL = "local"
-    GLOBAL = "global"
 
 
 class MultipleAnswerQuiz(BaseModel):
@@ -32,27 +25,8 @@ class MultipleAnswerQuiz(BaseModel):
     fake_answer_2: str  # = Field(min_length=1)
     fake_answer_3: str  # = Field(min_length=1)
     explanation: str  # = Field(min_length=1)
-    quiz_type: QuizType
+    max_origin_length: int
     quiz_origin_text: str
-
-
-class QuizEvaluation(BaseModel):
-    # Question
-    is_related: bool
-    is_self_contained: bool
-    is_question: bool
-    language_is_clear: bool
-    non_undefined_symbols_in_question: bool
-    # Answers
-    answers_are_all_different: bool
-    fake_answers_are_not_obvious: bool
-    # Sum of checked criteria
-    score: int
-
-
-class EvaluatedQuiz(BaseModel):
-    quiz: MultipleAnswerQuiz
-    evaluation: QuizEvaluation
 
 
 class QuizPromptsConfig(BaseModel):
@@ -67,11 +41,13 @@ class QuizGenerator:
         api_connector: AbstractConnector,
         language: Literal["fr", "en"],
         prompts_config: QuizPromptsConfig,
+        chunks_path: Optional[str] = None,
     ) -> None:
         self.model_name = model_name
         self.tokenizer = tokenizer
         self.api_connector = api_connector
         self.language = language
+        self.chunks_path = chunks_path
 
         with open(prompts_config.quiz_generation_prompt, "r", encoding="utf-8") as file:
             self.quiz_generation_prompt = file.read()
@@ -86,7 +62,7 @@ class QuizGenerator:
                 parameters=CustomPromptParameters(
                     model_name=self.model_name,
                     max_tokens=100,
-                    temperature=0,
+                    temperature=0.3,
                 ),
             )
         else:
@@ -103,47 +79,52 @@ class QuizGenerator:
     def generate_reformulations(
         self,
         transcripts: List[str],
-    ) -> Tuple[List[str], List[str]]:
-        short_transcripts = get_splits(
-            transcripts, tokenizer=self.tokenizer, max_length=1000
-        )
-        short_reformulations = create_reformulations(
-            short_transcripts,
+        max_lengths: List[int],
+        # offsets: Optional[List[int]] = None,
+    ) -> List[str]:
+        all_transcripts = []
+        for max_length in max_lengths:
+            if len(all_transcripts) < 50:
+                all_transcripts += get_splits(
+                    transcripts,
+                    tokenizer=self.tokenizer,
+                    max_length=max_length,
+                )
+            else:
+                warnings.warn(
+                    f"Too many splits, skipping some from max length {max_length}"
+                )
+                break
+        if self.chunks_path is not None:
+            with jsonlines.open(self.chunks_path, "w") as writer:
+                for chunk in all_transcripts:
+                    writer.write({"chunk": chunk})
+            raise ValueError
+        all_reformulations = create_reformulations(
+            all_transcripts,
             self.model_name,
             self.tokenizer,
             self.api_connector,
             self.language,
         )
-        long_transcripts = get_splits(
-            transcripts, tokenizer=self.tokenizer, max_length=2000
-        )
-        long_reformulations = create_reformulations(
-            long_transcripts,
-            self.model_name,
-            self.tokenizer,
-            self.api_connector,
-            self.language,
-        )
-        return short_reformulations, long_reformulations
+        return all_reformulations
 
     def generate_quizzes(
         self,
-        extracts: List[str],
-        quiz_type: QuizType,
+        reformulations: List[str],
     ) -> List[MultipleAnswerQuiz]:
         # Get Questions
         if "[EXTRACT]" not in self.quiz_generation_prompt:
             raise ValueError("Title prompt must contain [EXTRACT]")
+        question_prompt = self.quiz_generation_prompt.split("{QUESTION}")[0]
         conversations = [
             [
                 {
                     "role": "user",
-                    "content": self.quiz_generation_prompt.replace(
-                        "[EXTRACT]", extract
-                    ),
+                    "content": question_prompt.replace("[EXTRACT]", reformulation),
                 }
             ]
-            for extract in extracts
+            for reformulation in reformulations
         ]
         questions = self.api_connector.custom_multi_requests(
             [self.get_custom_prompt(conv) for conv in conversations],
@@ -154,78 +135,95 @@ class QuizGenerator:
                 questions[i] = question.split("?")[0]
                 questions[i] += "?"
 
-        if self.language == "fr":
-            answer_prompt = "Réponse:"
-        elif self.language == "en":
-            answer_prompt = "Answer:"
-
         for i, question in enumerate(questions):
             conversations[i] += [
                 {"role": "assistant", "content": question},
-                {"role": "user", "content": answer_prompt},
+                {
+                    "role": "user",
+                    "content": self.quiz_generation_prompt.split("{ANSWER}")[0].split(
+                        "{QUESTION}\n"
+                    )[1],
+                },
             ]
         answers = self.api_connector.custom_multi_requests(
             [self.get_custom_prompt(conv) for conv in conversations],
             progress_desc="Generating answers",
         )
         answers = [answer + "." for answer in answers]
-
-        if self.language == "fr":
-            fake_answer_prompt_1 = "Fausse Réponse 1:"
-        elif self.language == "en":
-            fake_answer_prompt_1 = "Fake Answer 1:"
+        for i, answer in enumerate(answers):
+            if "." in answer:
+                answers[i] = answer.split(".")[0]
+                answers[i] += "."
 
         for i, answer in enumerate(answers):
             conversations[i] += [
                 {"role": "assistant", "content": answer},
-                {"role": "user", "content": fake_answer_prompt_1},
+                {
+                    "role": "user",
+                    "content": self.quiz_generation_prompt.split("{FAKE ANSWER 1}")[
+                        0
+                    ].split("{ANSWER}\n")[1],
+                },
             ]
         fake_answers_1 = self.api_connector.custom_multi_requests(
             [self.get_custom_prompt(conv) for conv in conversations],
             progress_desc="Generating fake answers 1",
         )
-        fake_answers_1 = [fake_answer + "." for fake_answer in fake_answers_1]
-
-        if self.language == "fr":
-            fake_answer_prompt_2 = "Fausse Réponse 2:"
-        elif self.language == "en":
-            fake_answer_prompt_2 = "Fake Answer 2:"
+        fake_answers_1 = [answer + "." for answer in fake_answers_1]
+        for i, answer in enumerate(fake_answers_1):
+            if "." in answer:
+                fake_answers_1[i] = answer.split(".")[0]
+                fake_answers_1[i] += "."
 
         for i, fa_1 in enumerate(fake_answers_1):
             conversations[i] += [
                 {"role": "assistant", "content": fa_1},
-                {"role": "user", "content": fake_answer_prompt_2},
+                {
+                    "role": "user",
+                    "content": self.quiz_generation_prompt.split("{FAKE ANSWER 2}")[
+                        0
+                    ].split("{FAKE ANSWER 1}\n")[1],
+                },
             ]
         fake_answers_2 = self.api_connector.custom_multi_requests(
             [self.get_custom_prompt(conv) for conv in conversations],
             progress_desc="Generating fake answers 2",
         )
-        fake_answers_2 = [fake_answer + "." for fake_answer in fake_answers_2]
-
-        if self.language == "fr":
-            fake_answer_prompt_3 = "Fausse Réponse 3:"
-        elif self.language == "en":
-            fake_answer_prompt_3 = "Fake Answer 3:"
+        fake_answers_2 = [answer + "." for answer in fake_answers_2]
+        for i, answer in enumerate(fake_answers_2):
+            if "." in answer:
+                fake_answers_2[i] = answer.split(".")[0]
+                fake_answers_2[i] += "."
 
         for i, fa_2 in enumerate(fake_answers_2):
             conversations[i] += [
                 {"role": "assistant", "content": fa_2},
-                {"role": "user", "content": fake_answer_prompt_3},
+                {
+                    "role": "user",
+                    "content": self.quiz_generation_prompt.split("{FAKE ANSWER 3}")[
+                        0
+                    ].split("{FAKE ANSWER 2}\n")[1],
+                },
             ]
         fake_answers_3 = self.api_connector.custom_multi_requests(
             [self.get_custom_prompt(conv) for conv in conversations],
             progress_desc="Generating fake answers 3",
         )
-        fake_answers_3 = [fake_answer + "." for fake_answer in fake_answers_3]
+        fake_answers_3 = [answer + "." for answer in fake_answers_3]
+        for i, answer in enumerate(fake_answers_3):
+            if "." in answer:
+                fake_answers_3[i] = answer.split(".")[0]
+                fake_answers_3[i] += "."
 
-        if self.language == "fr":
-            explanation = "Explication:"
-        elif self.language == "en":
-            explanation = "Explanation:"
         for i, fa_3 in enumerate(fake_answers_3):
             conversations[i] += [
                 {"role": "assistant", "content": fa_3},
-                {"role": "user", "content": explanation},
+                {
+                    "role": "user",
+                    "content": self.quiz_generation_prompt.split("{EXPLANATION}")[
+                        0
+                    ].split("{FAKE ANSWER 3}\n")[1],
+                },
             ]
         explanations = self.api_connector.custom_multi_requests(
             [self.get_custom_prompt(conv) for conv in conversations],
@@ -239,7 +237,7 @@ class QuizGenerator:
                 fake_answer_2=fake_answer_2,
                 fake_answer_3=fake_answer_3,
                 explanation=explanation,
-                quiz_type=quiz_type,
+                max_origin_length=get_token_nb(reformulation, self.tokenizer),
                 quiz_origin_text=reformulation,
             )
             for (
@@ -257,7 +255,7 @@ class QuizGenerator:
                 fake_answers_2,
                 fake_answers_3,
                 explanations,
-                extracts,
+                reformulations,
             )
         ]
 
@@ -265,9 +263,11 @@ class QuizGenerator:
         self,
         transcripts: List[str],
     ) -> List[MultipleAnswerQuiz]:
-        short_reformulations, long_reformulations = self.generate_reformulations(
-            transcripts
+        max_lengths = [2000, 1000, 500, 250]
+        all_reformulations = self.generate_reformulations(
+            transcripts,
+            max_lengths,
+            # offsets=[max_length // 2 for max_length in max_lengths],
         )
-        local_quizzes = self.generate_quizzes(short_reformulations, QuizType.LOCAL)
-        global_quizzes = self.generate_quizzes(long_reformulations, QuizType.GLOBAL)
-        return local_quizzes + global_quizzes
+        quizzes = self.generate_quizzes(all_reformulations)
+        return quizzes

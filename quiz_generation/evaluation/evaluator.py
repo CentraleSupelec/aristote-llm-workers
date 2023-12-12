@@ -18,10 +18,12 @@ class QuizEvaluation(BaseModel):
     is_self_contained: bool
     is_question: bool
     language_is_clear: bool
-    non_undefined_symbols_in_question: bool
     # Answers
     answers_are_all_different: bool
     fake_answers_are_not_obvious: bool
+    answers_are_related: bool
+    # Quiz
+    quiz_about_concept: bool
     # Sum of checked criteria
     score: int
 
@@ -37,10 +39,12 @@ class EvaluationPromptsConfig(BaseModel):
     is_self_contained_prompt: str
     is_question_prompt: str
     language_is_clear_prompt: str
-    non_undefined_symbols_in_question_prompt: str
     # Answers
     answers_are_all_different_prompt: str
     fake_answers_are_not_obvious_prompt: str
+    answers_are_related: str
+    # Quiz
+    quiz_about_concept: str
 
 
 class Evaluator:
@@ -59,6 +63,8 @@ class Evaluator:
         self.connector = connector
         self.language = language
 
+        # self.evaluation_prompts =
+        # for prompt_path in prompt_paths:
         with open(
             prompts_config.is_related_prompt,
             "r",
@@ -84,12 +90,6 @@ class Evaluator:
         ) as file:
             self.language_is_clear_prompt = file.read()
         with open(
-            prompts_config.non_undefined_symbols_in_question_prompt,
-            "r",
-            encoding="utf-8",
-        ) as file:
-            self.non_undefined_symbols_in_question_prompt = file.read()
-        with open(
             prompts_config.answers_are_all_different_prompt,
             "r",
             encoding="utf-8",
@@ -101,6 +101,16 @@ class Evaluator:
             encoding="utf-8",
         ) as file:
             self.fake_answers_are_not_obvious_prompt = file.read()
+        with open(
+            prompts_config.fake_answers_are_not_obvious_prompt,
+            "r",
+            encoding="utf-8",
+        ) as file:
+            self.fake_answers_are_not_obvious_prompt = file.read()
+        with open(prompts_config.answers_are_related, "r", encoding="utf-8") as file:
+            self.answers_are_related = file.read()
+        with open(prompts_config.quiz_about_concept, "r", encoding="utf-8") as file:
+            self.quiz_about_concept = file.read()
 
     def evaluate_quizzes(
         self,
@@ -111,11 +121,10 @@ class Evaluator:
             "is_self_contained": self.is_self_contained_prompt,
             "is_question": self.is_question_prompt,
             "language_is_clear": self.language_is_clear_prompt,
-            "non_undefined_symbols_in_question": (
-                self.non_undefined_symbols_in_question_prompt
-            ),
             "answers_are_all_different": self.answers_are_all_different_prompt,
             "fake_answers_are_not_obvious": self.fake_answers_are_not_obvious_prompt,
+            "answers_are_related": self.answers_are_related,
+            "quiz_about_concept": self.quiz_about_concept,
         }
         all_eval_results: List[Dict[str, Any]] = [{} for _ in quizzes]
         for eval_name, prompt_template in prompts_texts.items():

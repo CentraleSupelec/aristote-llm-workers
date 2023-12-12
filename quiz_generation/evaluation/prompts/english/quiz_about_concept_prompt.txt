@@ -1,0 +1,10 @@
+A quiz was created for a course.
+You are a quiz evaluator, here is the title of the course and a description.
+Title: [TITLE]
+Description: [DESCRIPTION]
+You must assess whether the question and the answers are mentioning an important concept of the course. If the question or answer mention examples given by the teacher, say no.
+Question: [QUESTION]
+Answers:
+[ANSWERS]
+Answer yes or no.
+Answer: 

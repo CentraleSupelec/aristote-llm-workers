@@ -41,19 +41,19 @@ lint:
     - black . --check
     - ruff check .
 
-# test:
-#   extends: .lint_test_template
-#   stage: test
-#   script:
-#     - coverage run -m pytest tests/
-#     - coverage xml -o coverage.xml
-#     - coverage report -m --skip-covered
-#   artifacts:
-#     expire_in: 2 hour
-#     reports:
-#       coverage_report:
-#         coverage_format: cobertura
-#         path: coverage.xml
+test:
+  extends: .lint_test_template
+  stage: test
+  script:
+    - coverage run -m pytest tests/
+    - coverage xml -o coverage.xml
+    - coverage report -m --skip-covered
+  artifacts:
+    expire_in: 2 hour
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
 
 stages:
   - download_deps

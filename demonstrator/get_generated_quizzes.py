@@ -1,15 +1,82 @@
 import json
-import os
-from typing import Literal
+from typing import Dict, Literal, Optional
 
 import jsonlines
 from unidecode import unidecode
 
 transcript_name2path = {
-    "mit_clustering": "data/mit_videos_transcripts/transcript_clustering.txt",
-    "philosophy": "data/harvard_transcript/philosophy_lecture.txt",
-    "cs_ri": "data/cs_videos_transcripts/transcript_ri.json",
-    "cs_socio": "data/cs_videos_transcripts/transcript_sociologie.json",
+    "clustering": {
+        "transcript_path": "data/mit_videos_transcripts/transcript_clustering.txt",
+        "chunks_path": (
+            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr-chunks/clustering.jsonl"
+        ),
+        "metadata_path": (
+            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_clustering/metadata.json"
+        ),
+        "quizzes_path": (
+            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_clustering/evaluated_quizzes.jsonl"
+        ),
+    },
+    "philosophy": {
+        "transcript_path": "data/harvard_transcript/philosophy_lecture.txt",
+        "chunks_path": (
+            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr-chunks/philosophy.jsonl"
+        ),
+        "metadata_path": (
+            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_philosophy/metadata.json"
+        ),
+        "quizzes_path": (
+            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_philosophy/evaluated_quizzes.jsonl"
+        ),
+    },
+    "biology": {
+        "transcript_path": "data/en/biology_high_school_class/transcript.txt",
+        "chunks_path": (
+            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr-chunks/biology.jsonl"
+        ),
+        "metadata_path": (
+            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_biology/metadata.json"
+        ),
+        "quizzes_path": (
+            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_biology/evaluated_quizzes.jsonl"
+        ),
+    },
+    "literature": {
+        "transcript_path": "data/en/literature_class/transcript.txt",
+        "chunks_path": (
+            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr-chunks/literature.jsonl"
+        ),
+        "metadata_path": (
+            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_literature/metadata.json"
+        ),
+        "quizzes_path": (
+            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_literature/evaluated_quizzes.jsonl"
+        ),
+    },
+    "cs_ri": {
+        "transcript_path": "data/cs_videos_transcripts/transcript_ri.json",
+        "chunks_path": (
+            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr-chunks/ri.jsonl"
+        ),
+        "metadata_path": (
+            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_ri/metadata.json"
+        ),
+        "quizzes_path": (
+            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_ri/evaluated_quizzes.jsonl"
+        ),
+    },
+    "sociologie": {
+        "transcript_path": "data/cs_videos_transcripts/transcript_sociologie.json",
+        "chunks_path": (
+            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr-chunks/sociologie.jsonl"
+        ),
+        "metadata_path": (
+            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_sociologie/metadata.json"
+        ),
+        "quizzes_path": (
+            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_sociologie/evaluated_quizzes.jsonl"
+        ),
+    },
 }
 
 
@@ -31,6 +98,10 @@ def post_process(text, text_type):
             first_text = unidecode(splitted_text[0].strip()).lower()
             if text_type == "question" and "quest" in first_text.lower():
                 return ablated_text
+            elif text_type == "title" and "title" in first_text.lower():
+                return ablated_text
+            elif text_type == "description" and "description" in first_text.lower():
+                return ablated_text
             elif text_type == "answer" and (
                 "reponse" in first_text.lower() or "answer" in first_text.lower()
             ):
@@ -47,7 +118,11 @@ def post_process(text, text_type):
 
 
 def get_generated_data(
-    language_input: Literal["fr", "en"], model: str, transcript: str, order: bool
+    language_input: Literal["fr", "en"],
+    model: str,
+    transcript: str,
+    order: bool,
+    filters: Optional[Dict[str, bool]] = None,
 ):
     quizzes = []
 
@@ -55,38 +130,33 @@ def get_generated_data(
         model_name = "vigostral"
     elif model == "HuggingFaceH4/zephyr-7b-beta":
         model_name = "zephyr"
+    elif model == "teknium/OpenHermes-2.5-Mistral-7B":
+        model_name = "hermes"
     elif model == "gpt-4-1106-preview":
-        model_name = "gpt-4"
+        model_name = "gpt4"
     elif model == "gpt-3.5-turbo-1106":
         model_name = "gpt-35"
     else:
         raise ValueError("Model not recognized")
 
-    main_path = "experiments/2023-10-25_zero-shot-quiz-generation/"
-    if "ri" in transcript:
-        chunks_path = os.path.join(
-            main_path,
-            "results/chunks/transcript_ri.jsonl",
-        )
-    else:
-        chunks_path = os.path.join(
-            main_path,
-            "results/chunks/transcript_mit_clustering.jsonl",
-        )
-    metadata_filename = f"metadata_{model_name}_{language_input}_{transcript}.json"
-    metadata_path = os.path.join(
-        main_path,
-        f"results/metadata/{metadata_filename}",
+    chunks_path = transcript_name2path[transcript]["chunks_path"].replace(
+        "zephyr", model_name
     )
-    quizzes_filename = f"quizzes_{model_name}_{language_input}_{transcript}.jsonl"
-    quizzes_path = os.path.join(
-        main_path,
-        f"results/quizzes/{quizzes_filename}",
+    metadata_path = transcript_name2path[transcript]["metadata_path"].replace(
+        "zephyr", model_name
     )
+    quizzes_path = transcript_name2path[transcript]["quizzes_path"].replace(
+        "zephyr", model_name
+    )
+
     with jsonlines.open(chunks_path) as reader:
         chunks = list(reader)
-    with open(metadata_path) as file:
+
+    with open(metadata_path, "r") as file:
         metadata = json.load(file)
+        metadata["title"] = post_process(metadata["title"], "title")
+        metadata["description"] = post_process(metadata["description"], "description")
+
     with jsonlines.open(quizzes_path) as reader:
         for quiz in reader:
             new_quiz = quiz.copy()
@@ -107,7 +177,77 @@ def get_generated_data(
                 quiz["quiz"]["explanation"], "explanation"
             )
             quizzes.append(new_quiz)
+    if filters is not None:
+        kept_indexes = []
+        kept_quizzes = []
+        for i, quiz in enumerate(quizzes):
+            if (
+                (
+                    not filters["is_related"]
+                    or (filters["is_related"] and quiz["evaluation"]["is_related"])
+                )
+                and (
+                    not filters["is_self_contained"]
+                    or (
+                        filters["is_self_contained"]
+                        and quiz["evaluation"]["is_self_contained"]
+                    )
+                )
+                and (
+                    not filters["is_question"]
+                    or (filters["is_question"] and quiz["evaluation"]["is_question"])
+                )
+                and (
+                    not filters["language_is_clear"]
+                    or (
+                        filters["language_is_clear"]
+                        and quiz["evaluation"]["language_is_clear"]
+                    )
+                )
+                and (
+                    not filters["answers_are_all_different"]
+                    or (
+                        filters["answers_are_all_different"]
+                        and quiz["evaluation"]["answers_are_all_different"]
+                    )
+                )
+                and (
+                    not filters["fake_answers_are_not_obvious"]
+                    or (
+                        filters["fake_answers_are_not_obvious"]
+                        and quiz["evaluation"]["fake_answers_are_not_obvious"]
+                    )
+                )
+                and (
+                    not filters["answers_are_related"]
+                    or (
+                        filters["answers_are_related"]
+                        and quiz["evaluation"]["answers_are_related"]
+                    )
+                )
+                and (
+                    not filters["quiz_about_concept"]
+                    or (
+                        filters["quiz_about_concept"]
+                        and quiz["evaluation"]["quiz_about_concept"]
+                    )
+                )
+            ):
+                kept_indexes.append(i)
+                kept_quizzes.append(quiz)
+    else:
+        kept_indexes = list(range(len(quizzes)))
+        kept_quizzes = quizzes
     if order:
-        quizzes = sorted(quizzes, key=lambda x: x["evaluation"]["score"], reverse=True)
+        ordered_quizzes = sorted(
+            list(enumerate(kept_quizzes)),
+            key=lambda x: x[1]["evaluation"]["score"],
+            reverse=True,
+        )
 
-    return chunks, metadata, quizzes
+        kept_quizzes = [quiz[1] for quiz in ordered_quizzes]
+        kept_chunks = [chunks[kept_indexes[quiz[0]]] for quiz in ordered_quizzes]
+    else:
+        kept_chunks = [chunks[kept_indexes[i]] for i in range(len(kept_indexes))]
+
+    return kept_chunks, metadata, kept_quizzes

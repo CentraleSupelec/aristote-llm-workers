@@ -1,0 +1,10 @@
+resources:
+    accelerators: T4:2
+
+envs:
+    export MODEL_NAME=HuggingFaceH4/zephyr-7b-beta
+    export TOKENIZER=HuggingFaceH4/zephyr-7b-beta
+
+run: |
+    pip install vllm
+    python -m vllm.entrypoints.api_server --model $MODEL_NAME  --tensor-parallel-size $SKYPILOT_NUM_GPUS_PER_NODE  --tokenizer $TOKENIZER --dtype float16

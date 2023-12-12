@@ -2,8 +2,8 @@ resources:
     accelerators: T4:2
 
 envs:
-    MODEL_NAME: HuggingFaceH4/zephyr-7b-beta
-    TOKENIZER: HuggingFaceH4/zephyr-7b-beta
+    MODEL_NAME: teknium/OpenHermes-2.5-Mistral-7B
+    TOKENIZER: teknium/OpenHermes-2.5-Mistral-7B
 
 run: |
     git clone https://github.com/vllm-project/vllm.git

@@ -1,6 +1,6 @@
 model_name: HuggingFaceH4/zephyr-7b-beta
-transcript_path: data/en/harvard_transcript/philosophy_lecture.txt
-output_path: experiments/2023-11-21_gpt4-english-filtering/results/metadata_zephyr_en_philosophy.json
+transcript_path: data/en/mit_videos_transcripts/clustering_transcript.txt
+output_path: experiments/2023-11-21_gpt4-english-filtering/results/metadata_zephyr_en_mit_clustering.json
 connector:
   (): "quiz_generation.connectors.connectors.APIConnector"
   api_url: http://0.0.0.0:8000/generate

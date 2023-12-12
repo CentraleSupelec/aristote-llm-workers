@@ -13,14 +13,9 @@ MODEL_NAMES = [
     "bofenghuang/vigogne-2-13b-instruct",
     "bofenghuang/vigostral-7b-instruct",
     "HuggingFaceH4/zephyr-7b-beta",
+    "teknium/OpenHermes-2.5-Mistral-7B",
     "gpt-3.5-turbo-1106",
     "gpt-4-1106-preview",
-]
-
-TRANSCRIPT_PATHS = [
-    "data/cs_videos_transcripts/transcript_ri.json",
-    "data/cs_videos_transcripts/transcript_sociologie.json",
-    "data/mit_videos_transcripts/transcript_clustering.txt",
 ]
 
 
@@ -35,6 +30,9 @@ def generate_html(
     html += f"<h2>Title: {metadata['title']}</h2>\n"
     html += "<h3>Desctiption: </h3>\n"
     html += f"<p>{metadata['description']}</p>\n"
+    html += "<p>============================================</p>\n"
+    html += f"<p>Number of chunks:{len(chunks)}</p>\n"
+    html += f"<p>Number of quizzes:{len(quizzes)}</p>\n"
     html += "<p>============================================</p>\n"
     for i, quiz in enumerate(quizzes):
         if show_original_text and i < len(chunks):
@@ -66,28 +64,46 @@ def generate_html(
 
 
 def main(
-    live_mode: bool,
-    language_input: str,
-    model: str,
-    transcript_path: str,
-    order: bool,
-    show_original_text: bool = False,
-    show_reformulation: bool = False,
+    live_mode_: bool,
+    language_input_: str,
+    model_: str,
+    transcript_path_: str,
+    order_: bool,
+    show_original_text_: bool,
+    show_reformulation_: bool,
+    is_related_: bool,
+    is_self_contained_: bool,
+    is_question_: bool,
+    language_is_clear_: bool,
+    answers_are_all_different_: bool,
+    fake_answers_are_not_obvious_: bool,
+    answers_are_related_: bool,
+    quiz_about_concept_: bool,
 ):
-    if live_mode:
+    filters = {
+        "is_related": is_related_,
+        "is_self_contained": is_self_contained_,
+        "is_question": is_question_,
+        "language_is_clear": language_is_clear_,
+        "answers_are_all_different": answers_are_all_different_,
+        "fake_answers_are_not_obvious": fake_answers_are_not_obvious_,
+        "answers_are_related": answers_are_related_,
+        "quiz_about_concept": quiz_about_concept_,
+    }
+    if live_mode_:
         chunks, metadata, quizzes = generate_data_live(
-            language_input, model, transcript_path, order
+            language_input_, model_, transcript_path_, order_
         )
     else:
         chunks, metadata, quizzes = get_generated_data(
-            language_input, model, transcript_path, order
+            language_input_, model_, transcript_path_, order_, filters
         )
     return generate_html(
         chunks,
         metadata,
         quizzes,
-        show_original_text=show_original_text,
-        show_reformulation=show_reformulation,
+        show_original_text=show_original_text_,
+        show_reformulation=show_reformulation_,
     )
 
 
@@ -101,7 +117,7 @@ with gr.Blocks(css="demonstrator/style.css") as demo:
         model = gr.Dropdown(
             choices=MODEL_NAMES,
             label="Model Choice",
-            value="bofenghuang/vigostral-7b-instruct",
+            value="teknium/OpenHermes-2.5-Mistral-7B",
         )
         transcript_path = gr.Dropdown(
             choices=list(transcript_name2path.keys()),
@@ -111,6 +127,17 @@ with gr.Blocks(css="demonstrator/style.css") as demo:
         order = gr.Checkbox(label="Order by Score")
         show_original_text = gr.Checkbox(label="Show Original Text")
         show_reformulated_text = gr.Checkbox(label="Show Reformulated Text")
+        with gr.Row():
+            is_related = gr.Checkbox(label="Is Related")
+            is_self_contained = gr.Checkbox(label="Is Self Contained")
+            is_question = gr.Checkbox(label="Is Question")
+            language_is_clear = gr.Checkbox(label="Language is Clear")
+            answers_are_all_different = gr.Checkbox(label="Answers are all different")
+            fake_answers_are_not_obvious = gr.Checkbox(
+                label="Fake Answers are not Obvious"
+            )
+            answers_are_related = gr.Checkbox(label="Answers are Related")
+            quiz_about_concept = gr.Checkbox(label="Quiz about Concept")
         btn = gr.Button("Run")
         out = gr.HTML()
     btn.click(
@@ -123,6 +150,14 @@ with gr.Blocks(css="demonstrator/style.css") as demo:
             order,
             show_original_text,
             show_reformulated_text,
+            is_related,
+            is_self_contained,
+            is_question,
+            language_is_clear,
+            answers_are_all_different,
+            fake_answers_are_not_obvious,
+            answers_are_related,
+            quiz_about_concept,
         ],
         outputs=out,
     )
