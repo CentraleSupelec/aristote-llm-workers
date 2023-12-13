@@ -1,0 +1,17 @@
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    runtime: nvidia
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    ports:
+      - 8000:8000
+    ipc: host
+    command: --model teknium/OpenHermes-2.5-Mistral-7B --dtype float16 --tensor-parallel-size 2
+  quizgenerator:
+    build: .
+    volumes:
+      - ~/.llm_cache/:/root/.llm_cache/
+    ports:
+     - 8080:8080
+    

@@ -1,5 +1,7 @@
 import json
-from typing import Literal
+from typing import List, Literal
+
+from transformers import PreTrainedTokenizerBase
 
 from quiz_generation.connectors.connectors import AbstractConnector
 from quiz_generation.metadata_generation.metadata_generator import (
@@ -16,19 +18,16 @@ from quiz_generation.reformulation.reformulation import create_reformulations
 API_URL = "http://0.0.0.0:8000/generate"
 
 
-def main(
-    model_name: str,
-    connector: AbstractConnector,
-    transcript_path: str,
+def metadata_generation(
+    transcripts: List[str],
     language: Literal["en", "fr"],
+    model_name: str,
+    tokenizer: PreTrainedTokenizerBase,
+    connector: AbstractConnector,
     prompts_config: MetadataPromptsConfig,
-    output_path: str,
     debug: bool = False,
-) -> None:
-    tokenizer = get_tokenizer(model_name)
-
-    transcripts = load_file(transcript_path)
-
+    disciplines: List[str] = None,
+):
     new_transcripts = get_splits(transcripts, tokenizer=tokenizer)
     if len(new_transcripts) > 20:
         new_transcripts = get_splits(transcripts, tokenizer=tokenizer, max_length=3000)
@@ -53,6 +52,25 @@ def main(
         debug=debug,
     )
     metadata = metadata_generator.generate_metadata(reformulations)
+    return metadata
 
-    with open(output_path, "w", encoding="utf-8") as file:
-        json.dump(metadata.model_dump(mode="json"), file)
+
+def main(
+    model_name: str,
+    connector: AbstractConnector,
+    transcript_path: str,
+    language: Literal["en", "fr"],
+    prompts_config: MetadataPromptsConfig,
+    output_path: str = None,
+    debug: bool = False,
+) -> None:
+    tokenizer = get_tokenizer(model_name)
+    transcripts = load_file(transcript_path)
+
+    metadata = metadata_generation(
+        transcripts, language, model_name, tokenizer, connector, prompts_config, debug
+    )
+
+    if output_path is not None:
+        with open(output_path, "w", encoding="utf-8") as file:
+            json.dump(metadata.model_dump(mode="json"), file)

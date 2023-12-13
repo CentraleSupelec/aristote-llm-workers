@@ -123,7 +123,10 @@ def get_splits(
             current_transcript = next_transcript
         else:
             current_transcript = future_transcript
-    if get_token_nb(current_transcript, tokenizer) < max_length_tenth:
+    if (
+        len(splits) > 0
+        and get_token_nb(current_transcript, tokenizer) < max_length_tenth
+    ):
         splits[-1] += " " + current_transcript
     else:
         splits.append(current_transcript)

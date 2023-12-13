@@ -1,80 +1,24 @@
-# Which accelerator to target. Can be "cpu" or "gpu"
-ARG DEVICE="cpu"
+FROM python:3.10
+LABEL maintainer="contact@illuin.tech"
 
-# Flags to pass to the `pdm sync` command
-# Useful to build images that can be used for internal testing and development
-ARG PDM_SYNC_FLAGS="--prod"
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | \
+    tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
+    apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && \
+    apt-get update -y && apt-get upgrade -y && \
+    apt-get install -y gnupg2 curl unzip libportaudio2 git ffmpeg google-cloud-sdk
 
-# Nexus credential necessary to install internal packages
-ARG NEXUS_PYPI_PULL_URL
+WORKDIR /server_app/
 
-# PDM version to use
-ARG PDM_VERSION="2.9.2"
+RUN ln -snf /usr/share/zoneinfo/Europe/Paris /etc/localtime && echo Europe/Paris > /etc/timezone
+RUN mkdir -p /server_app/secrets
 
+RUN python -m pip install --upgrade pip
 
-#######################################################################################################################
-#
-# GPU RUNNER STAGE
-#
-#######################################################################################################################
+COPY pyproject.toml lockfiles/server.lock ./
+RUN pdm install --no-self -L server.lock
 
-FROM pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime as gpu-runner
-RUN apt-get update --yes --quiet \
-    && DEBIAN_FRONTEND=noninteractive apt-get install --yes --quiet --no-install-recommends \
-        curl \
-    && rm -rf /var/lib/apt/lists/*
-ARG PDM_VERSION
-RUN curl -sSL https://pdm.fming.dev/install-pdm.py | python - --version v${PDM_VERSION}
-ENV PATH="/root/.local/bin:$PATH"
-RUN pdm config venv.backend conda && pdm use -f /opt/conda
-ENV CUDART_PATH="/opt/conda/lib/"
+COPY ./quiz_generation /server_app/quiz_generation
+COPY ./docker-entrypoint.sh /server_app/docker-entrypoint.sh
 
-
-#######################################################################################################################
-#
-# CPU RUNNER STAGE
-#
-#######################################################################################################################
-
-FROM python:3.10.11-slim as cpu-runner
-RUN apt-get update --yes --quiet \
-    && DEBIAN_FRONTEND=noninteractive apt-get install --yes --quiet --no-install-recommends \
-        curl \
-    && rm -rf /var/lib/apt/lists/*
-ARG PDM_VERSION
-RUN curl -sSL https://pdm.fming.dev/install-pdm.py | python - --version v${PDM_VERSION}
-ENV PATH="/root/.local/bin:$PATH"
-RUN python -m venv /opt/.venv && pdm use -f /opt/.venv
-RUN . /opt/.venv/bin/activate && \
-    pip install --no-cache-dir torch==2.0.1 --index-url https://download.pytorch.org/whl/cpu
-ENV PATH="/opt/.venv/bin:$PATH"
-
-
-#######################################################################################################################
-#
-# DEVELOPMENT STAGE
-#
-# This stage serves as a runner during development to accelerate the build time. The project's root should be mounted
-# inside /workspace using the flag: -v $(pwd):/workspace/
-#
-#######################################################################################################################
-
-
-FROM ${DEVICE}-runner as dev-stage
-ENV PYTHONUNBUFFERED=1
-ENV BITSANDBYTES_NOWELCOME="1"
-ENV TOKENIZERS_PARALLELISM="false"
-ENV TRANSFORMERS_NO_ADVISORY_WARNINGS="true"
-ENV HF_DATASETS_CACHE="/root/.cache/huggingface/datasets"
-RUN apt-get update --yes --quiet \
-    && DEBIAN_FRONTEND=noninteractive apt-get install --yes --quiet --no-install-recommends \
-        git \
-    && rm -rf /var/lib/apt/lists/*
-ARG DEVICE
-COPY pyproject.toml lockfiles/pdm-${DEVICE}.lock ./
-ARG NEXUS_PYPI_PULL_URL
-RUN pdm config pypi.extra.url "$NEXUS_PYPI_PULL_URL"
-ARG PDM_SYNC_FLAGS
-RUN pdm install --no-self -L pdm-${DEVICE}.lock ${PDM_SYNC_FLAGS}
-WORKDIR /workspace
-CMD [ "python", "--version" ]
+CMD ["/bin/bash", "/server_app/docker-entrypoint.sh"]
