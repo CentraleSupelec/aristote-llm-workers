@@ -49,3 +49,9 @@ Then launch the following command with your config file path:
 ```bash
 quizgen generate-quizzes {QUIZ_GEN_YML_CONFIG_PATH}
 ```
+
+## Launch Docker
+
+```bash
+docker build -f server/Dockerfile --env-file=server/.env -t quizgen .
+```

@@ -14,22 +14,22 @@ from quiz_generation.preprocessing.preprocessing import (
 )
 
 PROMPT_REFORMULATION_EN = (
-    "You will receive the transcript of a course."
-    "Generate an exhaustive description of the following transcript:\n"
-    "[TRANSCRIPT]\n"
-    "The description should contain all the essential information of the course "
+    "You will receive the transcript of a course. "
+    "Rewrite the following transcript without the noise of the transcription as if it "
+    "was on a textbook:\n[TRANSCRIPT]\n"
+    "The final text should contain all the essential information of the course "
     "and no repetitions.\n"
-    "Description:\n"
+    "Text:\n"
 )
 
 PROMPT_REFORMULATION_FR = (
-    "Tu vas recevoir le transcript d'un cours."
-    "Génère une description exhaustive du transcript suivant:\n"
-    "[TRANSCRIPT]\n"
-    "La description doit contenir tous les points essentiels du cours et "
+    "Tu vas recevoir le transcript d'un cours. "
+    "Reformule le transcript suivant sans le bruit de la transcription comme si "
+    "c'était dans un livre de cours:\n[TRANSCRIPT]\n"
+    "La reformulation doit contenir tous les points essentiels du cours et "
     "pas de répétitions.\n"
     "Réponds en français.\n"
-    "Description:\n"
+    "Texte:\n"
 )
 
 
@@ -50,20 +50,20 @@ def create_reformulations(
     replaced_texts = [
         base_prompt.replace("[TRANSCRIPT]", transcript) for transcript in transcripts
     ]
-    templated_transcripts = [
-        get_templated_script(text, tokenizer) for text in replaced_texts
-    ]
+    # templated_transcripts = [
+    #     get_templated_script(text, tokenizer) for text in replaced_texts
+    # ]
     reformulations = api_connector.custom_multi_requests(
         prompts=[
             CustomPrompt(
-                text=templated_transcript,
+                text=text,
                 parameters=CustomPromptParameters(
                     model_name=model_name,
-                    max_tokens=get_token_nb(templated_transcript, tokenizer),
+                    max_tokens=get_token_nb(text, tokenizer),
                     temperature=0.1,
                 ),
             )
-            for templated_transcript in templated_transcripts
+            for text in replaced_texts
         ],
         progress_desc="Generating reformulations",
     )

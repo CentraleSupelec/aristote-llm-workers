@@ -134,13 +134,16 @@ def get_splits(
 
 
 def get_templated_script(text: str, tokenizer: AutoTokenizer) -> str:
-    conversation = [{"role": "user", "content": text}]
-    if isinstance(tokenizer, Encoding):
-        templated_transcript = text
-    else:
-        templated_transcript = str(
-            tokenizer.apply_chat_template(
-                conversation, tokenize=False, add_generation_prompt=True
-            )
-        )
+    templated_transcript = text
+    # TODO Renvoyer string ou conversation ?
+
+    # if isinstance(tokenizer, Encoding):
+    #     templated_transcript = text
+    # else:
+    #     conversation = [{"role": "user", "content": text}]
+    #     templated_transcript = str(
+    #         tokenizer.apply_chat_template(
+    #             conversation, tokenize=False, add_generation_prompt=True
+    #         )
+    #     )
     return templated_transcript

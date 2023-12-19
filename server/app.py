@@ -1,4 +1,5 @@
 from typing import List
+import os
 
 import uvicorn
 from dotenv import load_dotenv
@@ -24,36 +25,16 @@ from server.dtos import (
 
 load_dotenv("envs/.env-server")
 
-# LANGUAGE = os.environ.get("LANGUAGE")
-# HF_TOKEN = os.environ.get("HF_KEY")
-# MODEL_PATH = os.environ.get("MODEL_PATH")
-# PRETRAINED_MODEL = os.environ.get("PRETRAINED_MODEL")
-# OPENAI_KEY = os.environ.get("OPENAI_KEY")
-MODEL_NAME = "teknium/OpenHermes-2.5-Mistral-7B"
-VLLM_API_URL = "http://localhost:8000/generate"
-VLLM_CACHE_PATH = ".llm_cache"
-SUMMARY_PROMPT_PATH = (
-    "quiz_generation/quiz_generation/prompts/zephyr/summary_prompt.txt"
-)
-TITLE_PROMPT_PATH = "quiz_generation/quiz_generation/prompts/zephyr/title_prompt.txt"
-DESCRIPTION_PROMPT_PATH = (
-    "quiz_generation/quiz_generation/prompts/zephyr/description_prompt.txt"
-)
-GENERATE_TOPICS_PROMPT_PATH = (
-    "quiz_generation/quiz_generation/prompts/zephyr/generate_topics_prompt.txt"
-)
-COMBINE_TOPICS_PROMPT_PATH = (
-    "quiz_generation/quiz_generation/prompts/zephyr/combine_topics_prompt.txt"
-)
-DISCIPLINE_PROMPT_PATH = (
-    "quiz_generation/quiz_generation/prompts/zephyr/discipline_prompt.txt"
-)
-MEDIA_TYPE_PROMPT_PATH = (
-    "quiz_generation/quiz_generation/prompts/zephyr/media_type_prompt.txt"
-)
-QUIZ_GENERATION_PROMPT_PATH = (
-    "quiz_generation/quiz_generation/prompts/zephyr/quiz_generation_prompt.txt"
-)
+MODEL_NAME = os.environ.get("MODEL_NAME")
+VLLM_API_URL = os.environ.get("VLLM_API_URL")
+VLLM_CACHE_PATH = os.environ.get("VLLM_CACHE_PATH")
+SUMMARY_PROMPT_PATH = os.environ.get("SUMMARY_PROMPT_PATH")
+TITLE_PROMPT_PATH = os.environ.get("TITLE_PROMPT_PATH")
+DESCRIPTION_PROMPT_PATH = os.environ.get("DESCRIPTION_PROMPT_PATH")
+GENERATE_TOPICS_PROMPT_PATH = os.environ.get("GENERATE_TOPICS_PROMPT_PATH")
+COMBINE_TOPICS_PROMPT_PATH = os.environ.get("COMBINE_TOPICS_PROMPT_PATH")
+DISCIPLINE_PROMPT_PATH = os.environ.get("DISCIPLINE_PROMPT_PATH")
+QUIZ_GENERATION_PROMPT_PATH = os.environ.get("QUIZ_GENERATION_PROMPT_PATH")
 
 app = FastAPI(
     title="Quiz Generation API",
@@ -64,7 +45,7 @@ app = FastAPI(
 
 @app.get("/")
 def root():
-    return {"message": "Welcome to the sentiment analyser api."}
+    return {"message": "Welcome to the quiz generation API."}
 
 
 @app.get("/health", tags=["health"])
@@ -89,8 +70,8 @@ def server_pipeline(
         generate_topics_prompt_path=GENERATE_TOPICS_PROMPT_PATH,
         combine_topics_prompt_path=COMBINE_TOPICS_PROMPT_PATH,
         discipline_prompt_path=DISCIPLINE_PROMPT_PATH,
-        media_type_prompt_path=MEDIA_TYPE_PROMPT_PATH,
     )
+    print("coucou")
     metadata = metadata_generation(
         transcripts=sentences,
         language=language,
@@ -119,10 +100,10 @@ def server_pipeline(
             question=quiz.question,
             explanation=quiz.explanation,
             choices=[
-                Choice(optionText=quiz.answer, correctAnswer=True),
-                Choice(optionText=quiz.fake_answer_1, correctAnswer=False),
-                Choice(optionText=quiz.fake_answer_2, correctAnswer=False),
-                Choice(optionText=quiz.fake_answer_3, correctAnswer=False),
+                Choice(option_text=quiz.answer, correct_answer=True),
+                Choice(option_text=quiz.fake_answer_1, correct_answer=False),
+                Choice(option_text=quiz.fake_answer_2, correct_answer=False),
+                Choice(option_text=quiz.fake_answer_3, correct_answer=False),
             ],
         )
         for quiz in quizzes
@@ -130,14 +111,14 @@ def server_pipeline(
     # TODO: Generate evaluation
 
     return QuizzesWrapper(
-        enrichmentVersionMetadata=EnrichmentVersionMetadata(
+        enrichment_version_metadata=EnrichmentVersionMetadata(
             title=metadata.title,
             description=metadata.description,
             topics=metadata.main_topics,
             discipline=metadata.discipline,
-            mediaType=metadata.media_type,
+            media_type=metadata.media_type,
         ),
-        multipleChoiceQuestions=formatted_quizzes,
+        multiple_choice_questions=formatted_quizzes,
     )
 
 
@@ -148,6 +129,5 @@ def generate(transcript: TranscriptWrapper):
     print(sentences)
     return server_pipeline(transcript.transcript.language, disciplines, sentences)
 
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+# if __name__ == "__main__":
+#     uvicorn.run(app, host="0.0.0.0", port=8080)

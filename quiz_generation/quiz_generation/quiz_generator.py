@@ -53,27 +53,27 @@ class QuizGenerator:
             self.quiz_generation_prompt = file.read()
 
     def get_custom_prompt(self, conv: List[dict]) -> CustomPrompt:
-        if isinstance(self.tokenizer, PreTrainedTokenizerBase):
-            text = self.tokenizer.apply_chat_template(
-                conversation=conv, tokenize=False, add_generation_prompt=True
-            )
-            prompt_input = CustomPrompt(
-                text=text,
-                parameters=CustomPromptParameters(
-                    model_name=self.model_name,
-                    max_tokens=100,
-                    temperature=0.3,
-                ),
-            )
-        else:
-            prompt_input = CustomPrompt(
-                messages=[Message(**message) for message in conv],
-                parameters=CustomPromptParameters(
-                    model_name=self.model_name,
-                    max_tokens=100,
-                    temperature=0,
-                ),
-            )
+        # if isinstance(self.tokenizer, PreTrainedTokenizerBase):
+        #     text = self.tokenizer.apply_chat_template(
+        #         conversation=conv, tokenize=False, add_generation_prompt=True
+        #     )
+        #     prompt_input = CustomPrompt(
+        #         text=text,
+        #         parameters=CustomPromptParameters(
+        #             model_name=self.model_name,
+        #             max_tokens=100,
+        #             temperature=0.3,
+        #         ),
+        #     )
+        # else:
+        prompt_input = CustomPrompt(
+            messages=[Message(**message) for message in conv],
+            parameters=CustomPromptParameters(
+                model_name=self.model_name,
+                max_tokens=100,
+                temperature=0,
+            ),
+        )
         return prompt_input
 
     def generate_reformulations(

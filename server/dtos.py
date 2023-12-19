@@ -4,10 +4,10 @@ from pydantic import BaseModel
 
 
 class Sentence(BaseModel):
-    id: int
-    is_transient: Optional[bool]
+    id: Optional[int] = None
+    is_transient: Optional[bool] = None
     no_speech_prob: float
-    no_caption_prob: Optional[float]
+    no_caption_prob: Optional[float] = None
     start: float
     end: float
     text: str
@@ -31,8 +31,8 @@ class EnrichmentVersionMetadata(BaseModel):
     title: str
     description: str
     topics: List[str]
-    discipline: str
-    media_type: str
+    discipline: Optional[str] = None
+    media_type: Optional[str] = None
 
 
 class Choice(BaseModel):
@@ -49,6 +49,6 @@ class MultipleChoiceQuestion(BaseModel):
 class QuizzesWrapper(BaseModel):
     enrichment_version_metadata: EnrichmentVersionMetadata
     multiple_choice_questions: List[MultipleChoiceQuestion]
-    task_id: str
-    failure_cause: str
-    status: str
+    task_id: Optional[str] = None
+    failure_cause: Optional[str] = None
+    status: Optional[str] = None

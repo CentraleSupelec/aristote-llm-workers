@@ -18,6 +18,7 @@ class MetaData(BaseModel):
     title: str
     description: str
     discipline: Optional[str] = None
+    media_type: Optional[str] = None
     main_topics: Optional[List[str]] = None
 
 
@@ -27,8 +28,8 @@ class MetadataPromptsConfig(BaseModel):
     description_prompt_path: str
     generate_topics_prompt_path: str
     combine_topics_prompt_path: str
-    discipline_prompt_path: Optional[str]
-    media_type_prompt_path: Optional[str]
+    discipline_prompt_path: Optional[str] = None
+    media_type_prompt_path: Optional[str] = None
 
 
 class MetadataGenerator:

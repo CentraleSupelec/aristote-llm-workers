@@ -1,0 +1,15 @@
+jsonlines==4.0.0
+requests==2.31.0
+diskcache==5.6.3
+pydantic==2.0.3
+tqdm==4.66.1
+transformers==4.35.0
+configue==4.2.0
+click==8.1.7
+nltk==3.8.1
+uvicorn==0.24.0.post1
+fastapi==0.105.
+illuin-llm-tools==1.0.2
+python-dotenv==1.0.0
+sentencepiece==0.1.99
+protobuf==4.24.4
