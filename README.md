@@ -52,6 +52,14 @@ quizgen generate-quizzes {QUIZ_GEN_YML_CONFIG_PATH}
 
 ## Launch Docker
 
+To launch the quiz generation API, you can use the following command by replacing `{NEXUS_PYPI_PULL_URL}` with your URL of the Nexus PyPI repository:
+
 ```bash
-docker build -f server/Dockerfile --env-file=server/.env -t quizgen .
+NEXUS_PYPI_PULL_URL={NEXUS_PYPI_PULL_URL} docker compose up
 ```
+
+To get the documentation of the API, you can go to the `docs` route of the API.
+
+### VM Specs to launch the service
+
+You will need at least 32 GB of GPU VRAM to launch the service.
