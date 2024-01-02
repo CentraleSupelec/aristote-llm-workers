@@ -1,8 +1,12 @@
 Tu es un professeur d'université, cherchant à résumer un de ses cours.
 Voici un extrait de ce cours:
-[EXTRACT]
-Donne moi entre 1 et 3 sujets résumant les éléments importants et fondamentaux de cet extrait.
+[SUMMARIES]
+Donne moi une liste des sujets couverts dans ce cours. Ne donne pas plus de 10 sujets.
 Ensemble, ces sujets doivent donner une bonne idée du contenu de l'extrait. Chaque sujet ne doit faire que 4 ou 5 mots. Ne renvoie rien d'autre !
-Réponds en français.
+Réponds en français et sépare chaque sujet par un saut de ligne "\n", comme ceci:
 SUJETS:
-- 
+- Sujet 1
+- Sujet 2
+- Sujet 3
+SUJETS:
+-

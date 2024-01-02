@@ -50,6 +50,7 @@ def metadata_generation(
         api_connector=connector,
         prompts_config=prompts_config,
         debug=debug,
+        disciplines=disciplines,
     )
     metadata = metadata_generator.generate_metadata(reformulations)
     return metadata
@@ -63,12 +64,20 @@ def main(
     prompts_config: MetadataPromptsConfig,
     output_path: str = None,
     debug: bool = False,
+    disciplines: List[str] = None,
 ) -> None:
     tokenizer = get_tokenizer(model_name)
     transcripts = load_file(transcript_path)
 
     metadata = metadata_generation(
-        transcripts, language, model_name, tokenizer, connector, prompts_config, debug
+        transcripts,
+        language,
+        model_name,
+        tokenizer,
+        connector,
+        prompts_config,
+        debug,
+        disciplines,
     )
 
     if output_path is not None:

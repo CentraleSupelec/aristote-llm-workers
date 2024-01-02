@@ -107,6 +107,7 @@ def server_pipeline(
         )
         for quiz in quizzes
     ]
+
     # TODO: Generate evaluation
 
     return QuizzesWrapper(
