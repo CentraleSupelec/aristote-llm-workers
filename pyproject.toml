@@ -92,10 +92,13 @@ zip-safe = false
 platforms = ["any"]
 
 [tool.setuptools.packages.find]
-include = ["quiz_generation", "quiz_generation.*", "experiment_template", "experiment_template.*"]
+include = ["quiz_generation", "quiz_generation.*", "server", "server.*", "experiment_template", "experiment_template.*"]
 
 [tool.setuptools.package-data]
 quiz_generation = ["py.typed"]
+
+[tool.deptry]
+extend_exclude = ["experiment_template"]
 
 [tool.deptry.per_rule_ignores]
 DEP001 = [
@@ -103,6 +106,9 @@ DEP001 = [
     "vllm", # exp dependency
 ]
 DEP002 = [
+    "Jinja2",
+    "GitPython",
+    "python-slugify",
     "protobuf", # exp dependency
     "redis", # exp dependency
     "redis-om", # exp dependency
@@ -166,11 +172,14 @@ line-length = 88
 [tool.ruff]
 select = ["E", "F", "W", "I", "N"]
 line-length = 88
+exclude = [
+    "experiments/2023-10-25_zero-shot-quiz-generation/vigostral/app.py",
+]
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
 "server/dtos.py" = ["N815"]
-# "experiments/2023-10-25_zero-shot-quiz-generation/vigostral/app.py" = ["I001"]
+"test_api.py" = ["E501"]
 
 [tool.pytest.ini_options]
 addopts = ["-ra", "--strict-markers"]
