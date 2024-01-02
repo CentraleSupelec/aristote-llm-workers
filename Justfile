@@ -127,11 +127,6 @@ check-lockfiles:
     pdm lock --check -L lockfiles/cpu.lock
     pdm lock --check -L lockfiles/gpu.lock
 
-# Fix most linting and formatting issues automatically
-reformat:
-    black --preview .
-    ruff --fix .
-
 # Print a coverage report
 print-cov-report:
     coverage report -m --skip-covered

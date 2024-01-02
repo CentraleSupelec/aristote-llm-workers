@@ -62,7 +62,6 @@ def server_pipeline(
         cache_path=VLLM_CACHE_PATH,
     )
 
-    # TODO: Generate discipline
     metadata_prompt_config = MetadataPromptsConfig(
         summary_prompt_path=SUMMARY_PROMPT_PATH,
         title_prompt_path=TITLE_PROMPT_PATH,
@@ -81,7 +80,6 @@ def server_pipeline(
         disciplines=disciplines,
     )
 
-    # TODO: Generate Quizzes
     prompts_config = QuizPromptsConfig(
         quiz_generation_prompt=QUIZ_GENERATION_PROMPT_PATH,
     )

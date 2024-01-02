@@ -129,26 +129,30 @@ class Evaluator:
         all_eval_results: List[Dict[str, Any]] = [{} for _ in quizzes]
         for eval_name, prompt_template in prompts_texts.items():
             all_answers = [
-                "\n".join([
-                    "- " + fake_answer
-                    for fake_answer in [
-                        quiz.answer,
-                        quiz.fake_answer_1,
-                        quiz.fake_answer_2,
-                        quiz.fake_answer_3,
+                "\n".join(
+                    [
+                        "- " + fake_answer
+                        for fake_answer in [
+                            quiz.answer,
+                            quiz.fake_answer_1,
+                            quiz.fake_answer_2,
+                            quiz.fake_answer_3,
+                        ]
                     ]
-                ])
+                )
                 for quiz in quizzes
             ]
             all_fake_answers = [
-                "\n".join([
-                    "- " + fake_answer
-                    for fake_answer in [
-                        quiz.fake_answer_1,
-                        quiz.fake_answer_2,
-                        quiz.fake_answer_3,
+                "\n".join(
+                    [
+                        "- " + fake_answer
+                        for fake_answer in [
+                            quiz.fake_answer_1,
+                            quiz.fake_answer_2,
+                            quiz.fake_answer_3,
+                        ]
                     ]
-                ])
+                )
                 for quiz in quizzes
             ]
             if "[TITLE]" not in prompt_template:

@@ -118,10 +118,12 @@ class QuizGenerator:
             raise ValueError("Title prompt must contain [EXTRACT]")
         question_prompt = self.quiz_generation_prompt.split("{QUESTION}")[0]
         conversations = [
-            [{
-                "role": "user",
-                "content": question_prompt.replace("[EXTRACT]", reformulation),
-            }]
+            [
+                {
+                    "role": "user",
+                    "content": question_prompt.replace("[EXTRACT]", reformulation),
+                }
+            ]
             for reformulation in reformulations
         ]
         questions = self.api_connector.custom_multi_requests(

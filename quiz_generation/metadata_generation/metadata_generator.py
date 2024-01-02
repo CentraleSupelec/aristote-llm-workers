@@ -116,7 +116,8 @@ class MetadataGenerator:
         self,
         summaries: List[str],
     ) -> Dict[str, str]:
-        """Generate description, title and discipline category from title and description
+        """Generate description, title and discipline category
+        from title and description.
 
         Args:
             summaries (List[str]): Summaries of different transcripts
