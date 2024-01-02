@@ -9,7 +9,6 @@ from quiz_generation.connectors.connectors import (
     CustomPromptParameters,
 )
 from quiz_generation.preprocessing.preprocessing import (
-    get_templated_script,
     get_token_nb,
 )
 

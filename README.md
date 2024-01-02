@@ -50,9 +50,11 @@ Then launch the following command with your config file path:
 quizgen generate-quizzes {QUIZ_GEN_YML_CONFIG_PATH}
 ```
 
-## Launch Docker
+## Launch Quiz Generation API with Docker 
 
-To launch the quiz generation API, you can use the following command by replacing `{NEXUS_PYPI_PULL_URL}` with your URL of the Nexus PyPI repository:
+First set up your `.env` file based on the `.env.dist` file.
+
+Then you can launch the quiz generation API. You can use the following command by replacing `{NEXUS_PYPI_PULL_URL}` with your URL of the Nexus PyPI repository:
 
 ```bash
 NEXUS_PYPI_PULL_URL={NEXUS_PYPI_PULL_URL} docker compose up
@@ -63,3 +65,26 @@ To get the documentation of the API, you can go to the `docs` route of the API.
 ### VM Specs to launch the service
 
 You will need at least 32 GB of GPU VRAM to launch the service.
+
+### Launch seperatly
+
+You can launch the VLLM API and the Quiz Generation API seperatly.
+
+#### VLLM API
+
+```bash
+docker run --runtime nvidia --gpus all \
+    -v ~/.cache/huggingface:/root/.cache/huggingface \
+    -p 8000:8000 \
+    --ipc=host \
+    vllm/vllm-openai:v0.2.4 \
+    --model teknium/OpenHermes-2.5-Mistral-7B \
+    --dtype float16 \
+    --tensor-parallel-size 2
+```
+
+#### Quiz Generation API
+
+```bash
+docker build --build-arg="NEXUS_PYPI_PULL_URL={NEXUS_PYPI_PULL_URL}" -t quizgen -f server/Dockerfile . && docker run --env-file .env --network="host" -p 3000:3000 quizgen
+```

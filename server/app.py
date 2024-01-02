@@ -1,5 +1,5 @@
-from typing import List
 import os
+from typing import List
 
 import uvicorn
 from dotenv import load_dotenv
@@ -126,6 +126,7 @@ def generate(transcript: TranscriptWrapper):
     disciplines = transcript.disciplines
     sentences = [sentence.text for sentence in transcript.transcript.sentences]
     return server_pipeline(transcript.transcript.language, disciplines, sentences)
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)

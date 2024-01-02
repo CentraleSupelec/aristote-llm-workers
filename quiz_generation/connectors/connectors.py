@@ -211,6 +211,7 @@ class APIConnector(AbstractConnector):
             )
         return responses
 
+
 class APIConnectorWithOpenAIFormat(AbstractConnector):
     def __init__(self, api_url: str, cache_path: Optional[str] = None) -> None:
         self.api_url = api_url
@@ -223,7 +224,6 @@ class APIConnectorWithOpenAIFormat(AbstractConnector):
         self,
         prompt: CustomPrompt,
     ) -> str:
-
         cache_key = get_cache_key(prompt)
         if self.cache is not None:
             cached_text = self.cache.get(cache_key)
@@ -234,9 +234,7 @@ class APIConnectorWithOpenAIFormat(AbstractConnector):
         else:
             try:
                 if prompt.text is not None:
-                    messages_ = [
-                        {"role": "user", "content": prompt.text}
-                    ]
+                    messages_ = [{"role": "user", "content": prompt.text}]
                 elif prompt.messages is not None:
                     messages_ = [
                         message.model_dump(mode="json") for message in prompt.messages
