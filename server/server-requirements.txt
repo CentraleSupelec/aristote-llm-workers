@@ -8,7 +8,7 @@ configue==4.2.0
 click==8.1.7
 nltk==3.8.1
 uvicorn==0.24.0.post1
-fastapi==0.105.
+fastapi==0.105.0
 illuin-llm-tools==1.0.2
 python-dotenv==1.0.0
 sentencepiece==0.1.99

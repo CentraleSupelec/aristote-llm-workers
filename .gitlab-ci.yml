@@ -16,7 +16,7 @@ download_deps:
     - export PATH="/root/.local/bin:$PATH"
     - rm -f .pdm.toml
     - pdm config pypi.extra.url "$NEXUS_PYPI_PULL_URL"
-    - pdm sync --dev -G :all -L lockfiles/cpu.lock
+    - pdm sync -G dev -L lockfiles/cpu.lock
   artifacts:
     paths:
       - "venv"

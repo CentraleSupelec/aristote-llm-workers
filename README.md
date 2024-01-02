@@ -68,7 +68,7 @@ You will need at least 32 GB of GPU VRAM to launch the service.
 
 ### Launch seperatly
 
-You can launch the VLLM API and the Quiz Generation API seperatly.
+You can launch the VLLM API and the Quiz Generation API separately.
 
 #### VLLM API
 
