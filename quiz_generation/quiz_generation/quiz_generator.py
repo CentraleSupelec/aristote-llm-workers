@@ -25,8 +25,8 @@ class MultipleAnswerQuiz(BaseModel):
     fake_answer_2: str  # = Field(min_length=1)
     fake_answer_3: str  # = Field(min_length=1)
     explanation: str  # = Field(min_length=1)
-    max_origin_length: int
-    quiz_origin_text: str
+    max_origin_length: Optional[int] = None
+    quiz_origin_text: Optional[str] = None
 
 
 class QuizPromptsConfig(BaseModel):

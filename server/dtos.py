@@ -2,6 +2,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
+from quiz_generation.evaluation.evaluator import EvaluatedQuiz
+
 
 class Sentence(BaseModel):
     id: Optional[int] = None
@@ -49,6 +51,13 @@ class MultipleChoiceQuestion(BaseModel):
 class QuizzesWrapper(BaseModel):
     enrichment_version_metadata: EnrichmentVersionMetadata
     multiple_choice_questions: List[MultipleChoiceQuestion]
+    task_id: Optional[str] = None
+    failure_cause: Optional[str] = None
+    status: Optional[str] = None
+
+
+class EvaluationsWrapper(BaseModel):
+    evaluations: List[EvaluatedQuiz]
     task_id: Optional[str] = None
     failure_cause: Optional[str] = None
     status: Optional[str] = None
