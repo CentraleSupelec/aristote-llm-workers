@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from transformers import AutoTokenizer
 
-from quiz_generation.connectors.connectors import APIConnector
+from quiz_generation.connectors.connectors import APIConnectorWithOpenAIFormat
 from quiz_generation.metadata_generation.main import metadata_generation
 from quiz_generation.metadata_generation.metadata_generator import (
     MetadataPromptsConfig,
@@ -57,12 +57,12 @@ def server_pipeline(
     language: str, disciplines: List[str], sentences: List[str]
 ) -> QuizzesWrapper:
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-    connector = APIConnector(
+    connector = APIConnectorWithOpenAIFormat(
         api_url=VLLM_API_URL,
         cache_path=VLLM_CACHE_PATH,
     )
 
-    # TODO: Generate metadata
+    # TODO: Generate discipline
     metadata_prompt_config = MetadataPromptsConfig(
         summary_prompt_path=SUMMARY_PROMPT_PATH,
         title_prompt_path=TITLE_PROMPT_PATH,
@@ -71,7 +71,6 @@ def server_pipeline(
         combine_topics_prompt_path=COMBINE_TOPICS_PROMPT_PATH,
         discipline_prompt_path=DISCIPLINE_PROMPT_PATH,
     )
-    print("coucou")
     metadata = metadata_generation(
         transcripts=sentences,
         language=language,
@@ -126,8 +125,7 @@ def server_pipeline(
 def generate(transcript: TranscriptWrapper):
     disciplines = transcript.disciplines
     sentences = [sentence.text for sentence in transcript.transcript.sentences]
-    print(sentences)
     return server_pipeline(transcript.transcript.language, disciplines, sentences)
 
-# if __name__ == "__main__":
-#     uvicorn.run(app, host="0.0.0.0", port=8080)
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8080)

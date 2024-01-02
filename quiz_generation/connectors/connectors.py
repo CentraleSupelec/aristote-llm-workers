@@ -151,18 +151,31 @@ class APIConnector(AbstractConnector):
             return cached_text
         else:
             try:
-                if prompt.text is None:
-                    raise ValueError("Prompt must contain text")
-                response = requests.post(
-                    self.api_url,
-                    json={
-                        "prompt": prompt.text,
-                        "max_tokens": prompt.parameters.max_tokens,
-                        "temperature": prompt.parameters.temperature,
-                        "stop": prompt.parameters.stop,
-                    },
-                    timeout=1000,
-                )
+                if prompt.text is None and prompt.messages is None:
+                    raise ValueError("Prompt must contain text or messages")
+                else:
+                    if prompt.messages is not None:
+                        json_load = {
+                            "messages": [
+                                message.model_dump(mode="json")
+                                for message in prompt.messages
+                            ],
+                            "max_tokens": prompt.parameters.max_tokens,
+                            "temperature": prompt.parameters.temperature,
+                            "stop": prompt.parameters.stop,
+                        }
+                    else:
+                        json_load = {
+                            "prompt": prompt.text,
+                            "max_tokens": prompt.parameters.max_tokens,
+                            "temperature": prompt.parameters.temperature,
+                            "stop": prompt.parameters.stop,
+                        }
+                    response = requests.post(
+                        self.api_url,
+                        json=json_load,
+                        timeout=1000,
+                    )
             except Exception as exception:
                 raise exception
             if response.status_code != 200:
@@ -196,12 +209,6 @@ class APIConnector(AbstractConnector):
                     desc=progress_desc,
                 )
             )
-        # for response in responses:
-        #     if response.status_code == 200:
-        #         print("Request was successful")
-        #         print(response.json())
-        #     else:
-        #         print("Request failed with status code:", response.status_code)
         return responses
 
 class APIConnectorWithOpenAIFormat(AbstractConnector):
