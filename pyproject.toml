@@ -50,7 +50,7 @@ exp = [
     "types-requests>=2.31.0.10",
     "pandas>=2.1.4",
     "numpy>=1.26.2",
-    "torch<2.1.0,>=2.0.0",
+    "torch>=2.1.1",
 ]
 dev = [
     "quiz-generation[exp]",
