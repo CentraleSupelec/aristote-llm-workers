@@ -1,17 +1,25 @@
 resources:
     accelerators: T4:2
+    any_of:
+        # GCP:
+        - region: europe-north1
+        - region: europe-west1
+        - region: europe-west2
+        - region: europe-west3
+        - region: europe-west6
+        - region: europe-west9
 
 envs:
     MODEL_NAME: teknium/OpenHermes-2.5-Mistral-7B
     TOKENIZER: teknium/OpenHermes-2.5-Mistral-7B
 
 run: |
-    git clone https://github.com/vllm-project/vllm.git
-    cd vllm
-    pip install .
-    cd ..
-    python -m vllm.entrypoints.api_server \
-        --model $MODEL_NAME \
-        --tensor-parallel-size 2 \
-        --tokenizer $TOKENIZER \
-        --dtype float16
+    docker run --runtime nvidia --gpus all \
+    -v ~/.cache/huggingface:/root/.cache/huggingface \
+    -p 8000:8000 \
+    --ipc=host \
+    vllm/vllm-openai:v0.2.4 \
+    --model {MODEL_NAME} \
+    --tokenizer {TOKENIZER} \
+    --dtype float16 \
+    --tensor-parallel-size 2

@@ -46,6 +46,8 @@ class MultipleChoiceQuestion(BaseModel):
     question: str
     explanation: str
     choices: List[Choice]
+    origin_start: Optional[float] = None
+    origin_end: Optional[float] = None
 
 
 class QuizzesWrapper(BaseModel):

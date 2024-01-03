@@ -4,12 +4,12 @@ from typing import Literal
 import jsonlines
 
 from quiz_generation.connectors.connectors import AbstractConnector
+from quiz_generation.dtos.dtos import MetaData
 from quiz_generation.evaluation.evaluator import (
     EvaluationPromptsConfig,
     Evaluator,
     MultipleAnswerQuiz,
 )
-from quiz_generation.metadata_generation.metadata_generator import MetaData
 from quiz_generation.preprocessing.preprocessing import get_tokenizer
 
 

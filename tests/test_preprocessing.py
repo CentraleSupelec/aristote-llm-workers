@@ -1,12 +1,12 @@
 import pytest
 from transformers import AutoTokenizer
 
+from quiz_generation.dtos.dtos import TranscribedText
 from quiz_generation.preprocessing.preprocessing import (
     get_splits,
     get_token_nb,
     load_txt,
 )
-from quiz_generation.dtos.dtos import TranscribedText
 
 
 @pytest.mark.parametrize(
@@ -79,7 +79,7 @@ def test_load_txt(path, expected_texts):
                     start=0.8,
                     end=1,
                 ),
-            ]
+            ],
         ],
         [
             [
@@ -96,18 +96,24 @@ def test_load_txt(path, expected_texts):
             "mistralai/Mistral-7B-v0.1",
             30,
             [
-                TranscribedText(text=(
-                    "[Music] okay today we are on the last section of chapter 9 "
-                    "section 9.3 we're still"
-                )),
-                TranscribedText(text=(
-                    "talking about energy but today we're not gonna talk about energy"
-                    " in plants we're gonna talk about cellular respiration"
-                )),
-                TranscribedText(text=(
-                    "we're gonna talk about how that process works and "
-                    "I talked about photosynthesis"
-                )),
+                TranscribedText(
+                    text=(
+                        "[Music] okay today we are on the last section of chapter 9 "
+                        "section 9.3 we're still"
+                    )
+                ),
+                TranscribedText(
+                    text=(
+                        "talking about energy but today we're not gonna talk about "
+                        "energy in plants we're gonna talk about cellular respiration"
+                    )
+                ),
+                TranscribedText(
+                    text=(
+                        "we're gonna talk about how that process works and "
+                        "I talked about photosynthesis"
+                    )
+                ),
                 TranscribedText(text="we're talking about cellular respiration"),
             ],
         ],
@@ -116,6 +122,7 @@ def test_load_txt(path, expected_texts):
 def test_get_splits(transcripts, tokenizer_name, max_length, expected_splits):
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
     splits = get_splits(transcripts, tokenizer, max_length)
+    print(splits)
     assert isinstance(splits[0], TranscribedText)
     assert len(splits) == len(expected_splits)
     assert all([get_token_nb(split.text, tokenizer) <= max_length for split in splits])
@@ -127,7 +134,8 @@ def test_get_splits(transcripts, tokenizer_name, max_length, expected_splits):
     )
     assert all(
         [
-            split.start == expected_split.start and split.end == expected_split.end
+            split.start == pytest.approx(expected_split.start)
+            and split.end == pytest.approx(expected_split.end)
             for split, expected_split in zip(splits, expected_splits)
         ]
     )

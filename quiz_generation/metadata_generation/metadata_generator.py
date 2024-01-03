@@ -8,18 +8,11 @@ from quiz_generation.connectors.connectors import (
     CustomPrompt,
     CustomPromptParameters,
 )
+from quiz_generation.dtos.dtos import MetaData, Summary, TranscribedText
 from quiz_generation.preprocessing.preprocessing import (
     get_templated_script,
     get_token_nb,
 )
-
-
-class MetaData(BaseModel):
-    title: str
-    description: str
-    discipline: Optional[str] = None
-    media_type: Optional[str] = None
-    main_topics: Optional[List[str]] = None
 
 
 class MetadataPromptsConfig(BaseModel):
@@ -78,20 +71,20 @@ class MetadataGenerator:
 
     def generate_summaries(
         self,
-        transcripts: List[str],
-    ) -> List[str]:
+        transcripts: List[TranscribedText],
+    ) -> List[Summary]:
         # Generate summaries of reformulations
         replaced_texts = []
         if "[TRANSCRIPT]" not in self.summary_prompt:
             raise ValueError("Summary prompt must contain [TRANSCRIPT]")
         replaced_texts = [
-            self.summary_prompt.replace("[TRANSCRIPT]", transcript)
+            self.summary_prompt.replace("[TRANSCRIPT]", transcript.text)
             for transcript in transcripts
         ]
         templated_transcripts = [
             get_templated_script(text, self.tokenizer) for text in replaced_texts
         ]
-        summaries = self.api_connector.custom_multi_requests(
+        summary_texts = self.api_connector.custom_multi_requests(
             prompts=[
                 CustomPrompt(
                     text=templated_transcript,
@@ -109,12 +102,19 @@ class MetadataGenerator:
             ],
             progress_desc="Generating summaries",
         )
-        summaries = [summary.replace("\n\n", "\n") for summary in summaries]
+        summaries = [
+            Summary(
+                text=summary_text.replace("\n\n", "\n"),
+                start=transcript.start,
+                end=transcript.end,
+            )
+            for summary_text, transcript in zip(summary_texts, transcripts)
+        ]
         return summaries
 
     def generate_main_elements(
         self,
-        summaries: List[str],
+        summaries: List[Summary],
     ) -> Dict[str, str]:
         """Generate description, title and discipline category
         from title and description.
@@ -125,7 +125,7 @@ class MetadataGenerator:
         Returns:
             Dict[str, str]: _description_
         """
-        full_summary = "\n".join(summaries)
+        full_summary = "\n".join([summary.text for summary in summaries])
         if "[SUMMARIES]" not in self.description_prompt:
             raise ValueError("Prompt must contain [SUMMARIES]")
 
@@ -215,7 +215,7 @@ class MetadataGenerator:
 
     def generate_main_topics(self, summaries: List[str]) -> List[str]:
         # Topics generation
-        full_summary = "\n".join(summaries)
+        full_summary = "\n".join([summary.text for summary in summaries])
         if "[SUMMARIES]" not in self.generate_topics_prompt:
             raise ValueError("Topic generation prompt must contain [SUMMARIES]")
         topics_instruction = self.generate_topics_prompt.replace(
@@ -257,7 +257,7 @@ class MetadataGenerator:
 
     def generate_metadata(
         self,
-        transcripts: List[str],
+        transcripts: List[TranscribedText],
     ) -> MetaData:
         # Generate summaries
         summaries = self.generate_summaries(transcripts)

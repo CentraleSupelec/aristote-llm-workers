@@ -12,6 +12,7 @@ from quiz_generation.connectors.connectors import (
     CustomPrompt,
     CustomPromptParameters,
 )
+from quiz_generation.dtos import Reformulation, TranscribedText
 from quiz_generation.preprocessing.preprocessing import get_splits, get_token_nb
 from quiz_generation.reformulation.reformulation import create_reformulations
 
@@ -27,6 +28,8 @@ class MultipleAnswerQuiz(BaseModel):
     explanation: str  # = Field(min_length=1)
     max_origin_length: Optional[int] = None
     quiz_origin_text: Optional[str] = None
+    origin_start: Optional[float] = None
+    origin_end: Optional[float] = None
 
 
 class QuizPromptsConfig(BaseModel):
@@ -78,10 +81,10 @@ class QuizGenerator:
 
     def generate_reformulations(
         self,
-        transcripts: List[str],
+        transcripts: List[TranscribedText],
         max_lengths: List[int],
         # offsets: Optional[List[int]] = None,
-    ) -> List[str]:
+    ) -> List[Reformulation]:
         all_transcripts = []
         for max_length in max_lengths:
             if len(all_transcripts) < 50:
@@ -121,7 +124,7 @@ class QuizGenerator:
             [
                 {
                     "role": "user",
-                    "content": question_prompt.replace("[EXTRACT]", reformulation),
+                    "content": question_prompt.replace("[EXTRACT]", reformulation.text),
                 }
             ]
             for reformulation in reformulations
@@ -237,8 +240,10 @@ class QuizGenerator:
                 fake_answer_2=fake_answer_2,
                 fake_answer_3=fake_answer_3,
                 explanation=explanation,
-                max_origin_length=get_token_nb(reformulation, self.tokenizer),
-                quiz_origin_text=reformulation,
+                max_origin_length=get_token_nb(reformulation.text, self.tokenizer),
+                quiz_origin_text=reformulation.text,
+                origin_start=reformulation.start,
+                origin_end=reformulation.end,
             )
             for (
                 question,
@@ -261,9 +266,9 @@ class QuizGenerator:
 
     def full_generation(
         self,
-        transcripts: List[str],
+        transcripts: List[TranscribedText],
     ) -> List[MultipleAnswerQuiz]:
-        max_lengths = [2000, 1000, 500, 250]
+        max_lengths = [2000]  # , 1000, 500, 250]
         all_reformulations = self.generate_reformulations(
             transcripts,
             max_lengths,

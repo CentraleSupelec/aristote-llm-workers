@@ -8,6 +8,7 @@ from quiz_generation.connectors.connectors import (
     CustomPrompt,
     CustomPromptParameters,
 )
+from quiz_generation.dtos.dtos import Reformulation, TranscribedText
 from quiz_generation.preprocessing.preprocessing import (
     get_token_nb,
 )
@@ -33,12 +34,12 @@ PROMPT_REFORMULATION_FR = (
 
 
 def create_reformulations(
-    transcripts: List[str],
+    transcripts: List[TranscribedText],
     model_name: str,
     tokenizer: AutoTokenizer,
     api_connector: AbstractConnector,
     language: Literal["en", "fr"],
-) -> List[str]:
+) -> List[Reformulation]:
     if language == "en":
         base_prompt = PROMPT_REFORMULATION_EN
     elif language == "fr":
@@ -47,9 +48,10 @@ def create_reformulations(
         raise ValueError("Language must be 'en' or 'fr'")
 
     replaced_texts = [
-        base_prompt.replace("[TRANSCRIPT]", transcript) for transcript in transcripts
+        base_prompt.replace("[TRANSCRIPT]", transcript.text)
+        for transcript in transcripts
     ]
-    reformulations = api_connector.custom_multi_requests(
+    reformulation_texts = api_connector.custom_multi_requests(
         prompts=[
             CustomPrompt(
                 text=text,
@@ -61,20 +63,29 @@ def create_reformulations(
             )
             for text in replaced_texts
         ],
-        progress_desc="Generating reformulations",
+        progress_desc="Generating reformulation texts",
     )
-    reformulations = [
-        reformulation.replace("\n\n", "\n") for reformulation in reformulations
+    reformulation_texts = [
+        reformulation.replace("\n\n", "\n") for reformulation in reformulation_texts
     ]
-    reformulations = [
+    reformulation_texts = [
         re.sub("([\n\\s]*[.?][\n\\s]*)^", "", reformulation)
-        for reformulation in reformulations
+        for reformulation in reformulation_texts
     ]
-    new_reformulations = []
-    for reformulation in reformulations:
+    new_reformulation_texts = []
+    for reformulation in reformulation_texts:
         new_reformulation = reformulation
         matches = list(re.finditer("([\n\\s]*[.?][\n\\s]*)", reformulation))
         if matches and matches[0].start() == 0:
             new_reformulation = new_reformulation[matches[0].end() :]
-        new_reformulations.append(new_reformulation.strip())
-    return new_reformulations
+        new_reformulation_texts.append(new_reformulation.strip())
+
+    reformulations = [
+        Reformulation(
+            text=text,
+            start=transcript.start,
+            end=transcript.end,
+        )
+        for text, transcript in zip(new_reformulation_texts, transcripts)
+    ]
+    return reformulations

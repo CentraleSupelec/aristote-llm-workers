@@ -8,7 +8,7 @@ from quiz_generation.connectors.connectors import (
     CustomPrompt,
     CustomPromptParameters,
 )
-from quiz_generation.metadata_generation.metadata_generator import MetaData
+from quiz_generation.dtos.dtos import MetaData
 from quiz_generation.quiz_generation.quiz_generator import MultipleAnswerQuiz
 
 
