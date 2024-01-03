@@ -16,7 +16,8 @@ download_deps:
     - export PATH="/root/.local/bin:$PATH"
     - rm -f .pdm.toml
     - pdm config pypi.extra.url "$NEXUS_PYPI_PULL_URL"
-    - pdm sync -G dev -L lockfiles/cpu.lock
+    - pdm config --local pypi.torch.url https://download.pytorch.org/whl/cpu
+    - pdm sync --dev -G :all -L lockfiles/cpu.lock
   artifacts:
     paths:
       - "venv"
