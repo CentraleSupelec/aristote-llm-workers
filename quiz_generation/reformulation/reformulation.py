@@ -1,5 +1,5 @@
 import re
-from typing import List, Literal
+from typing import List
 
 from transformers import AutoTokenizer
 
@@ -38,14 +38,13 @@ def create_reformulations(
     model_name: str,
     tokenizer: AutoTokenizer,
     api_connector: AbstractConnector,
-    language: Literal["en", "fr"],
+    prompt_path: str,
 ) -> List[Reformulation]:
-    if language == "en":
-        base_prompt = PROMPT_REFORMULATION_EN
-    elif language == "fr":
-        base_prompt = PROMPT_REFORMULATION_FR
-    else:
-        raise ValueError("Language must be 'en' or 'fr'")
+    with open(prompt_path, "r", encoding="utf-8") as file:
+        base_prompt = file.read()
+
+    if "[TRANSCRIPT]" not in base_prompt:
+        raise ValueError("Prompt does not contain [TRANSCRIPT]")
 
     replaced_texts = [
         base_prompt.replace("[TRANSCRIPT]", transcript.text)

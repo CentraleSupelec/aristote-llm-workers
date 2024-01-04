@@ -5,7 +5,7 @@
 groups = ["default", "demo", "dev", "exp", "notebook"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:a81453565657a1a7fc8acabfae91f168ddd8c23907e1044ddb7dd2132c20adae"
+content_hash = "sha256:fa20bad3ab17c578ae50f8716cfb231c85da9c39c8121e3e89b4cd596851b55a"
 
 [[package]]
 name = "accelerate"
@@ -2592,6 +2592,15 @@ summary = "Typing stubs for python-dateutil"
 files = [
     {file = "types-python-dateutil-2.8.19.14.tar.gz", hash = "sha256:1f4f10ac98bb8b16ade9dbee3518d9ace017821d94b057a425b069f834737f4b"},
     {file = "types_python_dateutil-2.8.19.14-py3-none-any.whl", hash = "sha256:f977b8de27787639986b4e28963263fd0e5158942b3ecef91b9335c130cb1ce9"},
+]
+
+[[package]]
+name = "types-python-slugify"
+version = "8.0.0.3"
+summary = "Typing stubs for python-slugify"
+files = [
+    {file = "types-python-slugify-8.0.0.3.tar.gz", hash = "sha256:868e6610ab9a01c01b2ccc1b982363e694d6bbb4fcf32e0d82688c89dceb4e2c"},
+    {file = "types_python_slugify-8.0.0.3-py3-none-any.whl", hash = "sha256:2353c161c79ab6cce955b50720c6cd03586ec297558122236d130e4a19f21209"},
 ]
 
 [[package]]

@@ -1,3 +1,5 @@
+from typing import List
+
 import pytest
 from transformers import AutoTokenizer
 
@@ -28,7 +30,7 @@ from quiz_generation.preprocessing.preprocessing import (
         ]
     ],
 )
-def test_load_txt(path, expected_texts):
+def test_load_txt(path: str, expected_texts: List[str]) -> None:
     transcripts = load_txt(path)
     assert isinstance(transcripts[0], TranscribedText)
     assert len(transcripts) == len(expected_texts)
@@ -119,7 +121,12 @@ def test_load_txt(path, expected_texts):
         ],
     ],
 )
-def test_get_splits(transcripts, tokenizer_name, max_length, expected_splits):
+def test_get_splits(
+    transcripts: List[TranscribedText],
+    tokenizer_name: str,
+    max_length: int,
+    expected_splits: List[TranscribedText],
+) -> None:
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
     splits = get_splits(transcripts, tokenizer, max_length)
     print(splits)

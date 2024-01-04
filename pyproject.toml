@@ -60,6 +60,7 @@ dev = [
     "ruff>=0.1.9",
     "coverage>=7.2.0",
     "pytest>=7.4.0",
+    "types-python-slugify>=8.0.0.3",
 ]
 notebook = [
     "ipykernel>=6.26.0",
@@ -135,7 +136,7 @@ ignore_missing_imports = true
 check_untyped_defs = true
 disallow_untyped_defs = true
 enable_error_code = ["ignore-without-code"]
-exclude = ["docs/", "venv/", ".venv/"]
+exclude = ["docs/", "venv/", ".venv/", "experiments/", "demonstrator/"]
 mypy_path = "$MYPY_CONFIG_FILE_DIR/typings"
 no_implicit_optional = true
 show_error_codes = true

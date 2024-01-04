@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Literal
 
 import uvicorn
 from dotenv import load_dotenv
@@ -22,7 +22,7 @@ from quiz_generation.quiz_generation.quiz_generator import (
     QuizGenerator,
     QuizPromptsConfig,
 )
-from server.dtos import (
+from server.server_dtos import (
     Choice,
     EnrichmentVersionMetadata,
     EvaluationsWrapper,
@@ -33,35 +33,14 @@ from server.dtos import (
 
 load_dotenv(".env")
 
-MODEL_NAME = os.environ.get("MODEL_NAME")
-VLLM_API_URL = os.environ.get("VLLM_API_URL")
-VLLM_CACHE_PATH = os.environ.get("VLLM_CACHE_PATH")
-
-SUMMARY_PROMPT_PATH = os.environ.get("SUMMARY_PROMPT_PATH")
-TITLE_PROMPT_PATH = os.environ.get("TITLE_PROMPT_PATH")
-DESCRIPTION_PROMPT_PATH = os.environ.get("DESCRIPTION_PROMPT_PATH")
-GENERATE_TOPICS_PROMPT_PATH = os.environ.get("GENERATE_TOPICS_PROMPT_PATH")
-DISCIPLINE_PROMPT_PATH = os.environ.get("DISCIPLINE_PROMPT_PATH")
-
-QUIZ_GENERATION_PROMPT_PATH = os.environ.get("QUIZ_GENERATION_PROMPT_PATH")
+MODEL_NAME = os.environ["MODEL_NAME"]
+VLLM_API_URL = os.environ["VLLM_API_URL"]
+VLLM_CACHE_PATH = os.environ["VLLM_CACHE_PATH"]
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 OPENAI_ORG_ID = os.environ.get("OPENAI_ORG_ID")
-OPEN_AI_CACHE_PATH = os.environ.get("OPENAI_ORG_ID")
-EVALUATION_MODEL_NAME = os.environ.get("EVALUATION_MODEL_NAME")
-
-IS_RELATED_PROMPT_PATH = os.environ.get("IS_RELATED_PROMPT_PATH")
-IS_SELF_CONTAINED_PROMPT_PATH = os.environ.get("IS_SELF_CONTAINED_PROMPT_PATH")
-IS_QUESTION_PROMPT_PATH = os.environ.get("IS_QUESTION_PROMPT_PATH")
-LANGUAGE_IS_CLEAR_PROMPT_PATH = os.environ.get("LANGUAGE_IS_CLEAR_PROMPT_PATH")
-ANSWERS_ARE_ALL_DIFFERENT_PROMPT_PATH = os.environ.get(
-    "ANSWERS_ARE_ALL_DIFFERENT_PROMPT_PATH"
-)
-FAKE_ANSWERS_ARE_NOT_OBVIOUS_PROMPT_PATH = os.environ.get(
-    "FAKE_ANSWERS_ARE_NOT_OBVIOUS_PROMPT_PATH"
-)
-ANSWERS_ARE_RELATED_PROMPT_PATH = os.environ.get("ANSWERS_ARE_RELATED_PROMPT_PATH")
-QUIZ_ABOUT_CONCEPT_PROMPT_PATH = os.environ.get("QUIZ_ABOUT_CONCEPT_PROMPT_PATH")
+OPEN_AI_CACHE_PATH = os.environ.get("OPEN_AI_CACHE_PATH")
+EVALUATION_MODEL_NAME = os.environ["EVALUATION_MODEL_NAME"]
 
 app = FastAPI(
     title="Quiz Generation API",
@@ -76,46 +55,54 @@ connector = APIConnectorWithOpenAIFormat(
 openai_connector = CustomOpenAIConnector(
     api_key=OPENAI_API_KEY,
     organization=OPENAI_ORG_ID,
-    cache_path=OPEN_AI_CACHE_PATH,
-)
-metadata_prompt_config = MetadataPromptsConfig(
-    summary_prompt_path=SUMMARY_PROMPT_PATH,
-    title_prompt_path=TITLE_PROMPT_PATH,
-    description_prompt_path=DESCRIPTION_PROMPT_PATH,
-    generate_topics_prompt_path=GENERATE_TOPICS_PROMPT_PATH,
-    discipline_prompt_path=DISCIPLINE_PROMPT_PATH,
-)
-prompts_config = QuizPromptsConfig(
-    quiz_generation_prompt=QUIZ_GENERATION_PROMPT_PATH,
-)
-evaluation_prompts_config = EvaluationPromptsConfig(
-    is_related_prompt=IS_RELATED_PROMPT_PATH,
-    is_self_contained_prompt=IS_SELF_CONTAINED_PROMPT_PATH,
-    is_question_prompt=IS_QUESTION_PROMPT_PATH,
-    language_is_clear_prompt=LANGUAGE_IS_CLEAR_PROMPT_PATH,
-    answers_are_all_different_prompt=ANSWERS_ARE_ALL_DIFFERENT_PROMPT_PATH,
-    fake_answers_are_not_obvious_prompt=FAKE_ANSWERS_ARE_NOT_OBVIOUS_PROMPT_PATH,
-    answers_are_related=ANSWERS_ARE_RELATED_PROMPT_PATH,
-    quiz_about_concept=QUIZ_ABOUT_CONCEPT_PROMPT_PATH,
+    cache_path=os.environ["OPEN_AI_CACHE_PATH"],
 )
 
 
 @app.get("/")
-def root():
+def root() -> dict:
     return {"message": "Welcome to the quiz generation API."}
 
 
 @app.get("/health", tags=["health"])
-def health():
+def health() -> bool:
     return True
 
 
 def generate_quizzes(
     language: str, disciplines: List[str], transcripts: List[TranscribedText]
 ) -> QuizzesWrapper:
+    if language == "fr":
+        metadata_prompt_config = MetadataPromptsConfig(
+            reformulation_prompt_path=os.environ["REFORMULATION_PROMPT_PATH_FR"],
+            summary_prompt_path=os.environ["SUMMARY_PROMPT_PATH_FR"],
+            title_prompt_path=os.environ["TITLE_PROMPT_PATH_FR"],
+            description_prompt_path=os.environ["DESCRIPTION_PROMPT_PATH_FR"],
+            generate_topics_prompt_path=os.environ["GENERATE_TOPICS_PROMPT_PATH_FR"],
+            discipline_prompt_path=os.environ["DISCIPLINE_PROMPT_PATH_FR"],
+        )
+        prompts_config = QuizPromptsConfig(
+            quiz_generation_prompt=os.environ["QUIZ_GENERATION_PROMPT_PATH_FR"],
+            reformulation_prompt_path=os.environ["REFORMULATION_PROMPT_PATH_FR"],
+        )
+    elif language == "en":
+        metadata_prompt_config = MetadataPromptsConfig(
+            reformulation_prompt_path=os.environ["REFORMULATION_PROMPT_PATH_EN"],
+            summary_prompt_path=os.environ["SUMMARY_PROMPT_PATH_EN"],
+            title_prompt_path=os.environ["TITLE_PROMPT_PATH_EN"],
+            description_prompt_path=os.environ["DESCRIPTION_PROMPT_PATH_EN"],
+            generate_topics_prompt_path=os.environ["GENERATE_TOPICS_PROMPT_PATH_EN"],
+            discipline_prompt_path=os.environ["DISCIPLINE_PROMPT_PATH_EN"],
+        )
+        prompts_config = QuizPromptsConfig(
+            quiz_generation_prompt=os.environ["QUIZ_GENERATION_PROMPT_PATH_EN"],
+            reformulation_prompt_path=os.environ["REFORMULATION_PROMPT_PATH_EN"],
+        )
+    else:
+        raise ValueError(f"Language {language} not supported.")
+
     metadata = metadata_generation(
         transcripts=transcripts,
-        language=language,
         model_name=MODEL_NAME,
         tokenizer=tokenizer,
         connector=connector,
@@ -126,7 +113,6 @@ def generate_quizzes(
         model_name=MODEL_NAME,
         tokenizer=tokenizer,
         api_connector=connector,
-        language=language,
         prompts_config=prompts_config,
         chunks_path=None,
     )
@@ -157,7 +143,41 @@ def generate_quizzes(
 
 
 # TODO: Evaluate quizzes
-def evaluate_quizzes(quizzes: QuizzesWrapper, language: str = "fr"):
+def evaluate_quizzes(
+    quizzes: QuizzesWrapper, language: Literal["fr", "en"] = "fr"
+) -> EvaluationsWrapper:
+    if language == "fr":
+        evaluation_prompts_config = EvaluationPromptsConfig(
+            is_related_prompt=os.environ["IS_RELATED_PROMPT_PATH_FR"],
+            is_self_contained_prompt=os.environ["IS_SELF_CONTAINED_PROMPT_PATH_FR"],
+            is_question_prompt=os.environ["IS_QUESTION_PROMPT_PATH_FR"],
+            language_is_clear_prompt=os.environ["LANGUAGE_IS_CLEAR_PROMPT_PATH_FR"],
+            answers_are_all_different_prompt=os.environ[
+                "ANSWERS_ARE_ALL_DIFFERENT_PROMPT_PATH_FR"
+            ],
+            fake_answers_are_not_obvious_prompt=os.environ[
+                "FAKE_ANSWERS_ARE_NOT_OBVIOUS_PROMPT_PATH_FR"
+            ],
+            answers_are_related=os.environ["ANSWERS_ARE_RELATED_PROMPT_PATH_FR"],
+            quiz_about_concept=os.environ["QUIZ_ABOUT_CONCEPT_PROMPT_PATH_FR"],
+        )
+    elif language == "en":
+        evaluation_prompts_config = EvaluationPromptsConfig(
+            is_related_prompt=os.environ["IS_RELATED_PROMPT_PATH_EN"],
+            is_self_contained_prompt=os.environ["IS_SELF_CONTAINED_PROMPT_PATH_EN"],
+            is_question_prompt=os.environ["IS_QUESTION_PROMPT_PATH_EN"],
+            language_is_clear_prompt=os.environ["LANGUAGE_IS_CLEAR_PROMPT_PATH_EN"],
+            answers_are_all_different_prompt=os.environ[
+                "ANSWERS_ARE_ALL_DIFFERENT_PROMPT_PATH_EN"
+            ],
+            fake_answers_are_not_obvious_prompt=os.environ[
+                "FAKE_ANSWERS_ARE_NOT_OBVIOUS_PROMPT_PATH_EN"
+            ],
+            answers_are_related=os.environ["ANSWERS_ARE_RELATED_PROMPT_PATH_EN"],
+            quiz_about_concept=os.environ["QUIZ_ABOUT_CONCEPT_PROMPT_PATH_EN"],
+        )
+    else:
+        raise ValueError(f"Language {language} not supported.")
     title = quizzes.enrichment_version_metadata.title
     description = quizzes.enrichment_version_metadata.description
     evaluator = Evaluator(
@@ -187,7 +207,7 @@ def evaluate_quizzes(quizzes: QuizzesWrapper, language: str = "fr"):
 
 
 @app.post("/generate-quizzes", response_model=QuizzesWrapper)
-def generate(transcript: TranscriptWrapper):
+def generate(transcript: TranscriptWrapper) -> QuizzesWrapper:
     disciplines = transcript.disciplines
     transcribed_sentences = [
         TranscribedText(
@@ -203,7 +223,7 @@ def generate(transcript: TranscriptWrapper):
 
 
 @app.post("/evaluate-quizzes", response_model=EvaluationsWrapper)
-def evaluate(quizzes: QuizzesWrapper):
+def evaluate(quizzes: QuizzesWrapper) -> EvaluationsWrapper:
     return evaluate_quizzes(quizzes)
 
 

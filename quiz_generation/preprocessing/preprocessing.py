@@ -90,7 +90,10 @@ def get_token_nb(
     tokenizer: Union[AutoTokenizer, Encoding],
     add_special_tokens: bool = True,
 ) -> int:
-    token_nb = len(tokenizer.encode(text, add_special_tokens=add_special_tokens))
+    if isinstance(tokenizer, Encoding):
+        token_nb = len(tokenizer.encode(text))
+    else:
+        token_nb = len(tokenizer.encode(text, add_special_tokens=add_special_tokens))
     return token_nb
 
 
@@ -144,7 +147,11 @@ def get_splits(
                         word_length = get_token_nb(
                             word, tokenizer, add_special_tokens=False
                         )
-                        if transcript.start is None or transcript.end is None:
+                        if (
+                            start is None
+                            or transcript.end is None
+                            or audio_length is None
+                        ):
                             transcripts_to_process.append(
                                 TranscribedText(text=word, start=None, end=None)
                             )
@@ -157,7 +164,7 @@ def get_splits(
                             )
                             start = end
                 else:
-                    if transcript.start is None or transcript.end is None:
+                    if start is None or transcript.end is None or audio_length is None:
                         transcripts_to_process.append(
                             TranscribedText(text=sentence, start=None, end=None)
                         )

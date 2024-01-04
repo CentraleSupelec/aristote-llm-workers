@@ -1,5 +1,5 @@
 import warnings
-from typing import List, Literal, Optional, Union
+from typing import List, Optional, Union
 
 import jsonlines
 from illuin_llm_tools import Message
@@ -34,6 +34,7 @@ class MultipleAnswerQuiz(BaseModel):
 
 class QuizPromptsConfig(BaseModel):
     quiz_generation_prompt: str
+    reformulation_prompt_path: str
 
 
 class QuizGenerator:
@@ -42,14 +43,13 @@ class QuizGenerator:
         model_name: str,
         tokenizer: Union[PreTrainedTokenizerBase, Encoding],
         api_connector: AbstractConnector,
-        language: Literal["fr", "en"],
         prompts_config: QuizPromptsConfig,
         chunks_path: Optional[str] = None,
     ) -> None:
         self.model_name = model_name
         self.tokenizer = tokenizer
         self.api_connector = api_connector
-        self.language = language
+        self.prompts_config = prompts_config
         self.chunks_path = chunks_path
 
         with open(prompts_config.quiz_generation_prompt, "r", encoding="utf-8") as file:
@@ -107,13 +107,13 @@ class QuizGenerator:
             self.model_name,
             self.tokenizer,
             self.api_connector,
-            self.language,
+            self.prompts_config.reformulation_prompt_path,
         )
         return all_reformulations
 
     def generate_quizzes(
         self,
-        reformulations: List[str],
+        reformulations: List[Reformulation],
     ) -> List[MultipleAnswerQuiz]:
         # Get Questions
         if "[EXTRACT]" not in self.quiz_generation_prompt:
