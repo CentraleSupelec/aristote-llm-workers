@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional
+from typing import List, Optional
 
 import jsonlines
 
@@ -15,7 +15,6 @@ def main(
     model_name: str,
     connector: AbstractConnector,
     transcript_path: str,
-    language: Literal["en", "fr"],
     prompts_config: QuizPromptsConfig,
     output_path: str,
     chunks_path: Optional[str] = None,
@@ -28,7 +27,6 @@ def main(
         model_name=model_name,
         tokenizer=tokenizer,
         api_connector=connector,
-        language=language,
         prompts_config=prompts_config,
         chunks_path=chunks_path,
     )

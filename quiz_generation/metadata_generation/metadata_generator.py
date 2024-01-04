@@ -9,7 +9,7 @@ from quiz_generation.connectors.connectors import (
     CustomPrompt,
     CustomPromptParameters,
 )
-from quiz_generation.dtos.dtos import MetaData, Summary, TranscribedText
+from quiz_generation.dtos.dtos import MetaData, Reformulation, Summary
 from quiz_generation.preprocessing.preprocessing import (
     get_templated_script,
     get_token_nb,
@@ -17,6 +17,7 @@ from quiz_generation.preprocessing.preprocessing import (
 
 
 class MetadataPromptsConfig(BaseModel):
+    reformulation_prompt_path: str
     summary_prompt_path: str
     title_prompt_path: str
     description_prompt_path: str
@@ -75,7 +76,7 @@ class MetadataGenerator:
 
     def generate_summaries(
         self,
-        transcripts: List[TranscribedText],
+        transcripts: List[Reformulation],
     ) -> List[Summary]:
         # Generate summaries of reformulations
         replaced_texts = []
@@ -224,7 +225,7 @@ class MetadataGenerator:
             "discipline": discipline,
         }
 
-    def generate_main_topics(self, summaries: List[str]) -> List[str]:
+    def generate_main_topics(self, summaries: List[Summary]) -> List[str]:
         # Topics generation
         full_summary = "\n".join([summary.text for summary in summaries])
         if "[SUMMARIES]" not in self.generate_topics_prompt:
@@ -268,7 +269,7 @@ class MetadataGenerator:
 
     def generate_metadata(
         self,
-        transcripts: List[TranscribedText],
+        transcripts: List[Reformulation],
     ) -> MetaData:
         # Generate summaries
         summaries = self.generate_summaries(transcripts)

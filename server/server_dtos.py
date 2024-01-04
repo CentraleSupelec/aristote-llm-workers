@@ -32,7 +32,7 @@ class TranscriptWrapper(BaseModel):
 class EnrichmentVersionMetadata(BaseModel):
     title: str
     description: str
-    topics: List[str]
+    topics: Optional[List[str]] = None
     discipline: Optional[str] = None
     media_type: Optional[str] = None
 

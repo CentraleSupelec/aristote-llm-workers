@@ -60,6 +60,7 @@ dev = [
     "ruff>=0.1.9",
     "coverage>=7.2.0",
     "pytest>=7.4.0",
+    "types-python-slugify>=8.0.0.3",
 ]
 notebook = [
     "ipykernel>=6.26.0",
@@ -124,6 +125,7 @@ DEP002 = [
     "parameterized", # dev dependency
     "ruff", # dev dependency
     "jinja2-time", # dev dependency
+    "types-python-slugify", # dev dependency
     "quiz-generation", # project dependency
     "gradio", # demo dependency
     "ipykernel", # notebook dependency
@@ -135,7 +137,7 @@ ignore_missing_imports = true
 check_untyped_defs = true
 disallow_untyped_defs = true
 enable_error_code = ["ignore-without-code"]
-exclude = ["docs/", "venv/", ".venv/"]
+exclude = ["docs/", "venv/", ".venv/", "experiments/", "demonstrator/"]
 mypy_path = "$MYPY_CONFIG_FILE_DIR/typings"
 no_implicit_optional = true
 show_error_codes = true
@@ -170,7 +172,7 @@ line-length = 88
 select = ["E", "F", "W", "I", "N"]
 line-length = 88
 exclude = [
-    "experiments/2023-10-25_zero-shot-quiz-generation/vigostral/app.py",
+    "experiments/2023-10-25_zero-shot-quiz-generation/vigostral/server.py",
 ]
 
 [tool.ruff.per-file-ignores]
