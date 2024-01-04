@@ -13,14 +13,13 @@ from quiz_generation.preprocessing.preprocessing import (
     get_templated_script,
     get_token_nb,
 )
-
+import warnings
 
 class MetadataPromptsConfig(BaseModel):
     summary_prompt_path: str
     title_prompt_path: str
     description_prompt_path: str
     generate_topics_prompt_path: str
-    combine_topics_prompt_path: str
     discipline_prompt_path: Optional[str] = None
     media_type_prompt_path: Optional[str] = None
 
@@ -52,10 +51,6 @@ class MetadataGenerator:
             prompts_config.generate_topics_prompt_path, "r", encoding="utf-8"
         ) as file:
             self.generate_topics_prompt = file.read()
-        with open(
-            prompts_config.combine_topics_prompt_path, "r", encoding="utf-8"
-        ) as file:
-            self.combine_topics_prompt = file.read()
         if prompts_config.discipline_prompt_path is not None:
             with open(
                 prompts_config.discipline_prompt_path, "r", encoding="utf-8"
@@ -66,7 +61,15 @@ class MetadataGenerator:
                         "[DISCIPLINES]",
                         "\n".join([f"- {discipline}" for discipline in disciplines]),
                     )
+                else:
+                    warnings.warn("No disciplines provided, using empty string")
+                    self.discipline_prompt = self.discipline_prompt.replace(
+                        "[DISCIPLINES]", ""
+                    )
         else:
+            warnings.warn(
+                "No discipline_prompt provided, discipline will not be categorised"
+            )
             self.discipline_prompt = None
 
     def generate_summaries(
@@ -179,30 +182,33 @@ class MetadataGenerator:
             print("============================================================")
 
         # Discipline generation
-        if (
-            "[TITLE]" not in self.discipline_prompt
-            or "[DESCRIPTION]" not in self.discipline_prompt
-        ):
-            raise ValueError("Discipline prompt must contain [TITLE], [DESCRIPTION]")
-        discipline_instruction = self.discipline_prompt.replace(
-            "[TITLE]", title
-        ).replace("[DESCRIPTION]", description)
-        discipline_prompt = get_templated_script(discipline_instruction, self.tokenizer)
-        if self.debug:
-            print("Title prompt:", discipline_prompt)
-            print("Title Tokens: ", get_token_nb(discipline_prompt, self.tokenizer))
-            print("============================================================")
-        discipline = self.api_connector.generate(
-            CustomPrompt(
-                text=discipline_prompt,
-                parameters=CustomPromptParameters(
-                    model_name=self.model_name,
-                    max_tokens=100,
-                    temperature=0.1,
-                    stop=["\n", "."],
+        if self.discipline_prompt is None:
+            discipline = None
+        else:
+            if (
+                "[TITLE]" not in self.discipline_prompt
+                or "[DESCRIPTION]" not in self.discipline_prompt
+            ):
+                raise ValueError("Discipline prompt must contain [TITLE], [DESCRIPTION]")
+            discipline_instruction = self.discipline_prompt.replace(
+                "[TITLE]", title
+            ).replace("[DESCRIPTION]", description)
+            discipline_prompt = get_templated_script(discipline_instruction, self.tokenizer)
+            if self.debug:
+                print("Title prompt:", discipline_prompt)
+                print("Title Tokens: ", get_token_nb(discipline_prompt, self.tokenizer))
+                print("============================================================")
+            discipline = self.api_connector.generate(
+                CustomPrompt(
+                    text=discipline_prompt,
+                    parameters=CustomPromptParameters(
+                        model_name=self.model_name,
+                        max_tokens=100,
+                        temperature=0.1,
+                        stop=["\n", "."],
+                    ),
                 ),
-            ),
-        )
+            )
         if self.debug:
             print("Discipline:", discipline)
             print("============================================================")

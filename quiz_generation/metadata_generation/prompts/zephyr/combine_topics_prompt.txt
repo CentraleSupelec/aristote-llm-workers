@@ -1,8 +1,0 @@
-Tu es un professeur d'université, cherchant à résumer un cours.
-Voici quelques sujets ou thèmes qui pourraient qualifier ce cours:
-- 0: Sujet très pertinent.
-[TOPICS]
-Tu dois sélectionner les [N_TOPICS] sujets les plus pertinents. Ensemble, ces sujets doivent donner une bonne idée du contenu important et éducatif du cours.
-Renvoie la liste des numéros des sujets sélectionnés, au format JSON suivant: [1, 4, 5]
-SUJETS LES PLUS PERTINENTS:
-[0, 

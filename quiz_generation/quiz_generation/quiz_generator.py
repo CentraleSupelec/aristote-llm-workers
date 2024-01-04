@@ -85,7 +85,7 @@ class QuizGenerator:
         max_lengths: List[int],
         # offsets: Optional[List[int]] = None,
     ) -> List[Reformulation]:
-        all_transcripts = []
+        all_transcripts: List[TranscribedText] = []
         for max_length in max_lengths:
             if len(all_transcripts) < 50:
                 all_transcripts += get_splits(
@@ -101,8 +101,7 @@ class QuizGenerator:
         if self.chunks_path is not None:
             with jsonlines.open(self.chunks_path, "w") as writer:
                 for chunk in all_transcripts:
-                    writer.write({"chunk": chunk})
-            raise ValueError
+                    writer.write(chunk.model_dump(mode="json"))
         all_reformulations = create_reformulations(
             all_transcripts,
             self.model_name,
