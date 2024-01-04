@@ -88,3 +88,5 @@ docker run --runtime nvidia --gpus all \
 ```bash
 docker build --build-arg="NEXUS_PYPI_PULL_URL={NEXUS_PYPI_PULL_URL}" -t quizgen -f server/Dockerfile . && docker run --env-file .env --network="host" -p 3000:3000 quizgen
 ```
+
+**Warning:** `--network="host"` only works on Linux.
