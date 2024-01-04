@@ -4,6 +4,7 @@ from typing import List, Literal
 from transformers import PreTrainedTokenizerBase
 
 from quiz_generation.connectors.connectors import AbstractConnector
+from quiz_generation.dtos import TranscribedText
 from quiz_generation.metadata_generation.metadata_generator import (
     MetadataGenerator,
     MetadataPromptsConfig,
@@ -19,7 +20,7 @@ API_URL = "http://0.0.0.0:8000/generate"
 
 
 def metadata_generation(
-    transcripts: List[str],
+    transcripts: List[TranscribedText],
     language: Literal["en", "fr"],
     model_name: str,
     tokenizer: PreTrainedTokenizerBase,

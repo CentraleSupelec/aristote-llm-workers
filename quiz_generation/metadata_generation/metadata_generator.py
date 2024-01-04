@@ -1,3 +1,4 @@
+import warnings
 from typing import Dict, List, Optional
 
 from pydantic import BaseModel
@@ -13,7 +14,7 @@ from quiz_generation.preprocessing.preprocessing import (
     get_templated_script,
     get_token_nb,
 )
-import warnings
+
 
 class MetadataPromptsConfig(BaseModel):
     summary_prompt_path: str
@@ -189,11 +190,15 @@ class MetadataGenerator:
                 "[TITLE]" not in self.discipline_prompt
                 or "[DESCRIPTION]" not in self.discipline_prompt
             ):
-                raise ValueError("Discipline prompt must contain [TITLE], [DESCRIPTION]")
+                raise ValueError(
+                    "Discipline prompt must contain [TITLE], [DESCRIPTION]"
+                )
             discipline_instruction = self.discipline_prompt.replace(
                 "[TITLE]", title
             ).replace("[DESCRIPTION]", description)
-            discipline_prompt = get_templated_script(discipline_instruction, self.tokenizer)
+            discipline_prompt = get_templated_script(
+                discipline_instruction, self.tokenizer
+            )
             if self.debug:
                 print("Title prompt:", discipline_prompt)
                 print("Title Tokens: ", get_token_nb(discipline_prompt, self.tokenizer))

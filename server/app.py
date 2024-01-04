@@ -10,6 +10,7 @@ from quiz_generation.connectors.connectors import (
     APIConnectorWithOpenAIFormat,
     CustomOpenAIConnector,
 )
+from quiz_generation.dtos import TranscribedText
 from quiz_generation.evaluation.evaluator import EvaluationPromptsConfig, Evaluator
 from quiz_generation.metadata_generation.main import metadata_generation
 from quiz_generation.metadata_generation.metadata_generator import (
@@ -110,10 +111,10 @@ def health():
 
 
 def generate_quizzes(
-    language: str, disciplines: List[str], sentences: List[str]
+    language: str, disciplines: List[str], transcripts: List[TranscribedText]
 ) -> QuizzesWrapper:
     metadata = metadata_generation(
-        transcripts=sentences,
+        transcripts=transcripts,
         language=language,
         model_name=MODEL_NAME,
         tokenizer=tokenizer,
@@ -129,7 +130,7 @@ def generate_quizzes(
         prompts_config=prompts_config,
         chunks_path=None,
     )
-    quizzes = quiz_generator.full_generation(sentences)
+    quizzes = quiz_generator.full_generation(transcripts)
     formatted_quizzes = [
         MultipleChoiceQuestion(
             question=quiz.question,
@@ -188,8 +189,17 @@ def evaluate_quizzes(quizzes: QuizzesWrapper, language: str = "fr"):
 @app.post("/generate-quizzes", response_model=QuizzesWrapper)
 def generate(transcript: TranscriptWrapper):
     disciplines = transcript.disciplines
-    sentences = [sentence.text for sentence in transcript.transcript.sentences]
-    return generate_quizzes(transcript.transcript.language, disciplines, sentences)
+    transcribed_sentences = [
+        TranscribedText(
+            text=sentence.text,
+            start=sentence.start,
+            end=sentence.end,
+        )
+        for sentence in transcript.transcript.sentences
+    ]
+    return generate_quizzes(
+        transcript.transcript.language, disciplines, transcribed_sentences
+    )
 
 
 @app.post("/evaluate-quizzes", response_model=EvaluationsWrapper)
