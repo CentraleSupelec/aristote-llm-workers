@@ -5,14 +5,14 @@ dynamic = ["version"]
 authors = [{ name = "Antonio Loison", email = "antonio.loison@illuin.tech" }]
 maintainers = [{ name = "Antonio Loison", email = "antonio.loison@illuin.tech" }]
 readme = "README.md"
-requires-python = ">=3.11,<3.12"
+requires-python = ">=3.10,<3.11"
 classifiers = [
     "Intended Audience :: Science/Research",
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
     "Private :: Do Not Upload",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.10",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Typing :: Typed",
 ]
@@ -38,13 +38,11 @@ exp = [
     "jinja2-time>=0.2.0,<0.3.0",
     "python-slugify>=8.0.0,<9.0.0",
     "python-dotenv>=1.0.0",
-    "illuin-llm-tools>=0.1.5",
     "guidance>=0.0.64",
     "redis>=4.6.0",
     "redis-om>=0.2.1",
     "tiktoken>=0.5.1",
     "fastapi>=0.104.0",
-    "torch>=2.1.0",
     "uvicorn>=0.23.2",
     "accelerate>=0.24.0",
     "sentencepiece>=0.1.99",
@@ -52,13 +50,14 @@ exp = [
     "types-requests>=2.31.0.10",
     "pandas>=2.1.4",
     "numpy>=1.26.2",
+    "torch>=2.1.0",
 ]
 dev = [
     "quiz-generation[exp]",
-    "black>=23.3.0",
+    "black>=23.12.0",
     "deptry>=0.12.0",
     "mypy>=1.4.0",
-    "ruff>=0.0.290",
+    "ruff>=0.1.9",
     "coverage>=7.2.0",
     "pytest>=7.4.0",
 ]
@@ -90,10 +89,13 @@ zip-safe = false
 platforms = ["any"]
 
 [tool.setuptools.packages.find]
-include = ["quiz_generation", "quiz_generation.*", "experiment_template", "experiment_template.*"]
+include = ["quiz_generation", "quiz_generation.*", "server", "server.*", "experiment_template", "experiment_template.*"]
 
 [tool.setuptools.package-data]
 quiz_generation = ["py.typed"]
+
+[tool.deptry]
+extend_exclude = ["experiment_template"]
 
 [tool.deptry.per_rule_ignores]
 DEP001 = [
@@ -101,6 +103,9 @@ DEP001 = [
     "vllm", # exp dependency
 ]
 DEP002 = [
+    "Jinja2",
+    "GitPython",
+    "python-slugify",
     "protobuf", # exp dependency
     "redis", # exp dependency
     "redis-om", # exp dependency
@@ -164,9 +169,14 @@ line-length = 88
 [tool.ruff]
 select = ["E", "F", "W", "I", "N"]
 line-length = 88
+exclude = [
+    "experiments/2023-10-25_zero-shot-quiz-generation/vigostral/app.py",
+]
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
+"server/dtos.py" = ["N815"]
+"test_api.py" = ["E501"]
 
 [tool.pytest.ini_options]
 addopts = ["-ra", "--strict-markers"]

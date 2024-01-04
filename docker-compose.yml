@@ -1,0 +1,22 @@
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    runtime: nvidia
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    ipc: host
+    env_file:
+      - .env
+    command: --model ${MODEL_NAME} --dtype ${DTYPE} --tensor-parallel-size ${TENSOR_PARALLEL_SIZE}
+  quizgenerator:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      args:
+        NEXUS_PYPI_PULL_URL: ${NEXUS_PYPI_PULL_URL}
+    env_file:
+      - .env
+    volumes:
+      - ~/.llm_cache/:/root/.llm_cache/
+    ports:
+     - 3000:3000

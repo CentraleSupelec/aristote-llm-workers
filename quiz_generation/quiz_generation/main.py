@@ -1,10 +1,11 @@
-from typing import Literal, Optional
+from typing import List, Literal, Optional
 
 import jsonlines
 
 from quiz_generation.connectors.connectors import AbstractConnector
 from quiz_generation.preprocessing.preprocessing import get_tokenizer, load_file
 from quiz_generation.quiz_generation.quiz_generator import (
+    MultipleAnswerQuiz,
     QuizGenerator,
     QuizPromptsConfig,
 )
@@ -18,7 +19,7 @@ def main(
     prompts_config: QuizPromptsConfig,
     output_path: str,
     chunks_path: Optional[str] = None,
-) -> None:
+) -> List[MultipleAnswerQuiz]:
     tokenizer = get_tokenizer(model_name)
 
     transcripts = load_file(transcript_path)
@@ -36,3 +37,5 @@ def main(
     with jsonlines.open(output_path, "w") as writer:
         for quiz in quizzes:
             writer.write(quiz.model_dump(mode="json"))
+
+    return quizzes

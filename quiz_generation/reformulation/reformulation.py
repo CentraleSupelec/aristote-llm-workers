@@ -8,38 +8,38 @@ from quiz_generation.connectors.connectors import (
     CustomPrompt,
     CustomPromptParameters,
 )
+from quiz_generation.dtos.dtos import Reformulation, TranscribedText
 from quiz_generation.preprocessing.preprocessing import (
-    get_templated_script,
     get_token_nb,
 )
 
 PROMPT_REFORMULATION_EN = (
-    "You will receive the transcript of a course."
-    "Generate an exhaustive description of the following transcript:\n"
-    "[TRANSCRIPT]\n"
-    "The description should contain all the essential information of the course "
+    "You will receive the transcript of a course. "
+    "Rewrite the following transcript without the noise of the transcription as if it "
+    "was on a textbook:\n[TRANSCRIPT]\n"
+    "The final text should contain all the essential information of the course "
     "and no repetitions.\n"
-    "Description:\n"
+    "Text:\n"
 )
 
 PROMPT_REFORMULATION_FR = (
-    "Tu vas recevoir le transcript d'un cours."
-    "Génère une description exhaustive du transcript suivant:\n"
-    "[TRANSCRIPT]\n"
-    "La description doit contenir tous les points essentiels du cours et "
+    "Tu vas recevoir le transcript d'un cours. "
+    "Reformule le transcript suivant sans le bruit de la transcription comme si "
+    "c'était dans un livre de cours:\n[TRANSCRIPT]\n"
+    "La reformulation doit contenir tous les points essentiels du cours et "
     "pas de répétitions.\n"
     "Réponds en français.\n"
-    "Description:\n"
+    "Texte:\n"
 )
 
 
 def create_reformulations(
-    transcripts: List[str],
+    transcripts: List[TranscribedText],
     model_name: str,
     tokenizer: AutoTokenizer,
     api_connector: AbstractConnector,
     language: Literal["en", "fr"],
-) -> List[str]:
+) -> List[Reformulation]:
     if language == "en":
         base_prompt = PROMPT_REFORMULATION_EN
     elif language == "fr":
@@ -48,37 +48,44 @@ def create_reformulations(
         raise ValueError("Language must be 'en' or 'fr'")
 
     replaced_texts = [
-        base_prompt.replace("[TRANSCRIPT]", transcript) for transcript in transcripts
+        base_prompt.replace("[TRANSCRIPT]", transcript.text)
+        for transcript in transcripts
     ]
-    templated_transcripts = [
-        get_templated_script(text, tokenizer) for text in replaced_texts
-    ]
-    reformulations = api_connector.custom_multi_requests(
+    reformulation_texts = api_connector.custom_multi_requests(
         prompts=[
             CustomPrompt(
-                text=templated_transcript,
+                text=text,
                 parameters=CustomPromptParameters(
                     model_name=model_name,
-                    max_tokens=get_token_nb(templated_transcript, tokenizer),
+                    max_tokens=get_token_nb(text, tokenizer),
                     temperature=0.1,
                 ),
             )
-            for templated_transcript in templated_transcripts
+            for text in replaced_texts
         ],
-        progress_desc="Generating reformulations",
+        progress_desc="Generating reformulation texts",
     )
-    reformulations = [
-        reformulation.replace("\n\n", "\n") for reformulation in reformulations
+    reformulation_texts = [
+        reformulation.replace("\n\n", "\n") for reformulation in reformulation_texts
     ]
-    reformulations = [
+    reformulation_texts = [
         re.sub("([\n\\s]*[.?][\n\\s]*)^", "", reformulation)
-        for reformulation in reformulations
+        for reformulation in reformulation_texts
     ]
-    new_reformulations = []
-    for reformulation in reformulations:
+    new_reformulation_texts = []
+    for reformulation in reformulation_texts:
         new_reformulation = reformulation
         matches = list(re.finditer("([\n\\s]*[.?][\n\\s]*)", reformulation))
         if matches and matches[0].start() == 0:
             new_reformulation = new_reformulation[matches[0].end() :]
-        new_reformulations.append(new_reformulation.strip())
-    return new_reformulations
+        new_reformulation_texts.append(new_reformulation.strip())
+
+    reformulations = [
+        Reformulation(
+            text=text,
+            start=transcript.start,
+            end=transcript.end,
+        )
+        for text, transcript in zip(new_reformulation_texts, transcripts)
+    ]
+    return reformulations

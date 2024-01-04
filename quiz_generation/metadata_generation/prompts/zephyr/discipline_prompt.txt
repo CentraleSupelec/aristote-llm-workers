@@ -1,0 +1,9 @@
+Tu es un professeur d'université, cherchant à catégoriser un de ses cours.
+Voici le titre du cours:
+[TITLE]
+Et la description:
+[DESCRIPTION]
+Donne moi la catégorie du cours parmi ces catégories:
+[DISCIPLINES]
+Réponds avec le nom de la discipline uniquement.
+Catégorie:

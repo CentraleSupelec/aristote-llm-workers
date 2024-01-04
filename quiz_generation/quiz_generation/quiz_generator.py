@@ -12,6 +12,7 @@ from quiz_generation.connectors.connectors import (
     CustomPrompt,
     CustomPromptParameters,
 )
+from quiz_generation.dtos import Reformulation, TranscribedText
 from quiz_generation.preprocessing.preprocessing import get_splits, get_token_nb
 from quiz_generation.reformulation.reformulation import create_reformulations
 
@@ -25,8 +26,10 @@ class MultipleAnswerQuiz(BaseModel):
     fake_answer_2: str  # = Field(min_length=1)
     fake_answer_3: str  # = Field(min_length=1)
     explanation: str  # = Field(min_length=1)
-    max_origin_length: int
-    quiz_origin_text: str
+    max_origin_length: Optional[int] = None
+    quiz_origin_text: Optional[str] = None
+    origin_start: Optional[float] = None
+    origin_end: Optional[float] = None
 
 
 class QuizPromptsConfig(BaseModel):
@@ -53,36 +56,36 @@ class QuizGenerator:
             self.quiz_generation_prompt = file.read()
 
     def get_custom_prompt(self, conv: List[dict]) -> CustomPrompt:
-        if isinstance(self.tokenizer, PreTrainedTokenizerBase):
-            text = self.tokenizer.apply_chat_template(
-                conversation=conv, tokenize=False, add_generation_prompt=True
-            )
-            prompt_input = CustomPrompt(
-                text=text,
-                parameters=CustomPromptParameters(
-                    model_name=self.model_name,
-                    max_tokens=100,
-                    temperature=0.3,
-                ),
-            )
-        else:
-            prompt_input = CustomPrompt(
-                messages=[Message(**message) for message in conv],
-                parameters=CustomPromptParameters(
-                    model_name=self.model_name,
-                    max_tokens=100,
-                    temperature=0,
-                ),
-            )
+        # if isinstance(self.tokenizer, PreTrainedTokenizerBase):
+        #     text = self.tokenizer.apply_chat_template(
+        #         conversation=conv, tokenize=False, add_generation_prompt=True
+        #     )
+        #     prompt_input = CustomPrompt(
+        #         text=text,
+        #         parameters=CustomPromptParameters(
+        #             model_name=self.model_name,
+        #             max_tokens=100,
+        #             temperature=0.3,
+        #         ),
+        #     )
+        # else:
+        prompt_input = CustomPrompt(
+            messages=[Message(**message) for message in conv],
+            parameters=CustomPromptParameters(
+                model_name=self.model_name,
+                max_tokens=100,
+                temperature=0,
+            ),
+        )
         return prompt_input
 
     def generate_reformulations(
         self,
-        transcripts: List[str],
+        transcripts: List[TranscribedText],
         max_lengths: List[int],
         # offsets: Optional[List[int]] = None,
-    ) -> List[str]:
-        all_transcripts = []
+    ) -> List[Reformulation]:
+        all_transcripts: List[TranscribedText] = []
         for max_length in max_lengths:
             if len(all_transcripts) < 50:
                 all_transcripts += get_splits(
@@ -98,8 +101,7 @@ class QuizGenerator:
         if self.chunks_path is not None:
             with jsonlines.open(self.chunks_path, "w") as writer:
                 for chunk in all_transcripts:
-                    writer.write({"chunk": chunk})
-            raise ValueError
+                    writer.write(chunk.model_dump(mode="json"))
         all_reformulations = create_reformulations(
             all_transcripts,
             self.model_name,
@@ -121,7 +123,7 @@ class QuizGenerator:
             [
                 {
                     "role": "user",
-                    "content": question_prompt.replace("[EXTRACT]", reformulation),
+                    "content": question_prompt.replace("[EXTRACT]", reformulation.text),
                 }
             ]
             for reformulation in reformulations
@@ -237,8 +239,10 @@ class QuizGenerator:
                 fake_answer_2=fake_answer_2,
                 fake_answer_3=fake_answer_3,
                 explanation=explanation,
-                max_origin_length=get_token_nb(reformulation, self.tokenizer),
-                quiz_origin_text=reformulation,
+                max_origin_length=get_token_nb(reformulation.text, self.tokenizer),
+                quiz_origin_text=reformulation.text,
+                origin_start=reformulation.start,
+                origin_end=reformulation.end,
             )
             for (
                 question,
@@ -261,9 +265,9 @@ class QuizGenerator:
 
     def full_generation(
         self,
-        transcripts: List[str],
+        transcripts: List[TranscribedText],
     ) -> List[MultipleAnswerQuiz]:
-        max_lengths = [2000, 1000, 500, 250]
+        max_lengths = [2000]  # , 1000, 500, 250]
         all_reformulations = self.generate_reformulations(
             transcripts,
             max_lengths,

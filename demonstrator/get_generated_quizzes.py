@@ -4,80 +4,8 @@ from typing import Dict, Literal, Optional
 import jsonlines
 from unidecode import unidecode
 
-transcript_name2path = {
-    "clustering": {
-        "transcript_path": "data/mit_videos_transcripts/transcript_clustering.txt",
-        "chunks_path": (
-            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr-chunks/clustering.jsonl"
-        ),
-        "metadata_path": (
-            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_clustering/metadata.json"
-        ),
-        "quizzes_path": (
-            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_clustering/evaluated_quizzes.jsonl"
-        ),
-    },
-    "philosophy": {
-        "transcript_path": "data/harvard_transcript/philosophy_lecture.txt",
-        "chunks_path": (
-            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr-chunks/philosophy.jsonl"
-        ),
-        "metadata_path": (
-            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_philosophy/metadata.json"
-        ),
-        "quizzes_path": (
-            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_philosophy/evaluated_quizzes.jsonl"
-        ),
-    },
-    "biology": {
-        "transcript_path": "data/en/biology_high_school_class/transcript.txt",
-        "chunks_path": (
-            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr-chunks/biology.jsonl"
-        ),
-        "metadata_path": (
-            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_biology/metadata.json"
-        ),
-        "quizzes_path": (
-            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_biology/evaluated_quizzes.jsonl"
-        ),
-    },
-    "literature": {
-        "transcript_path": "data/en/literature_class/transcript.txt",
-        "chunks_path": (
-            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr-chunks/literature.jsonl"
-        ),
-        "metadata_path": (
-            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_literature/metadata.json"
-        ),
-        "quizzes_path": (
-            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_literature/evaluated_quizzes.jsonl"
-        ),
-    },
-    "cs_ri": {
-        "transcript_path": "data/cs_videos_transcripts/transcript_ri.json",
-        "chunks_path": (
-            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr-chunks/ri.jsonl"
-        ),
-        "metadata_path": (
-            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_ri/metadata.json"
-        ),
-        "quizzes_path": (
-            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_ri/evaluated_quizzes.jsonl"
-        ),
-    },
-    "sociologie": {
-        "transcript_path": "data/cs_videos_transcripts/transcript_sociologie.json",
-        "chunks_path": (
-            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr-chunks/sociologie.jsonl"
-        ),
-        "metadata_path": (
-            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_sociologie/metadata.json"
-        ),
-        "quizzes_path": (
-            "experiments/2023-11-21_gpt4-english-filtering/results/zephyr_sociologie/evaluated_quizzes.jsonl"
-        ),
-    },
-}
+with open("demonstrator/transcript_name2path.json", "r") as file:
+    transcript_name2path = json.load(file)
 
 
 def postprocess_answer(answer):

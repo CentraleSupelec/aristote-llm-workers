@@ -12,4 +12,3 @@ prompts_config:
   title_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/title_prompt.txt
   description_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/description_prompt.txt
   generate_topics_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/generate_topics_prompt.txt
-  combine_topics_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/combine_topics_prompt.txt
