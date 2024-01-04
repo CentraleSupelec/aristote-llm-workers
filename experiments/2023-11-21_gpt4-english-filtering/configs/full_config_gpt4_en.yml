@@ -34,7 +34,6 @@ metadata_generation_config:
     title_prompt_path: quiz_generation/metadata_generation/prompts/english/title_prompt.txt
     description_prompt_path: quiz_generation/metadata_generation/prompts/english/description_prompt.txt
     generate_topics_prompt_path: quiz_generation/metadata_generation/prompts/english/generate_topics_prompt.txt
-    combine_topics_prompt_path: quiz_generation/metadata_generation/prompts/english/combine_topics_prompt.txt
 
 quiz_generation_config:
   (): "quiz_generation.pipeline.configs.QuizGenerationConfig"

@@ -14,4 +14,3 @@ prompts_config:
   description_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/description_prompt.txt
   discipline_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/discipline_prompt.txt
   generate_topics_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/generate_topics_prompt.txt
-  combine_topics_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/combine_topics_prompt.txt

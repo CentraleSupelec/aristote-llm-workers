@@ -40,7 +40,6 @@ SUMMARY_PROMPT_PATH = os.environ.get("SUMMARY_PROMPT_PATH")
 TITLE_PROMPT_PATH = os.environ.get("TITLE_PROMPT_PATH")
 DESCRIPTION_PROMPT_PATH = os.environ.get("DESCRIPTION_PROMPT_PATH")
 GENERATE_TOPICS_PROMPT_PATH = os.environ.get("GENERATE_TOPICS_PROMPT_PATH")
-COMBINE_TOPICS_PROMPT_PATH = os.environ.get("COMBINE_TOPICS_PROMPT_PATH")
 DISCIPLINE_PROMPT_PATH = os.environ.get("DISCIPLINE_PROMPT_PATH")
 
 QUIZ_GENERATION_PROMPT_PATH = os.environ.get("QUIZ_GENERATION_PROMPT_PATH")
@@ -83,7 +82,6 @@ metadata_prompt_config = MetadataPromptsConfig(
     title_prompt_path=TITLE_PROMPT_PATH,
     description_prompt_path=DESCRIPTION_PROMPT_PATH,
     generate_topics_prompt_path=GENERATE_TOPICS_PROMPT_PATH,
-    combine_topics_prompt_path=COMBINE_TOPICS_PROMPT_PATH,
     discipline_prompt_path=DISCIPLINE_PROMPT_PATH,
 )
 prompts_config = QuizPromptsConfig(

@@ -9,4 +9,3 @@ prompts_config:
   title_prompt_path: quiz_generation/metadata_generation/prompts/title_prompt.txt
   description_prompt_path: quiz_generation/metadata_generation/prompts/description_prompt.txt
   generate_topics_prompt_path: quiz_generation/metadata_generation/prompts/generate_topics_prompt.txt
-  combine_topics_prompt_path: quiz_generation/metadata_generation/prompts/combine_topics_prompt.txt
