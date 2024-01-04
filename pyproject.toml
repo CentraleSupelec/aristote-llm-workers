@@ -125,6 +125,7 @@ DEP002 = [
     "parameterized", # dev dependency
     "ruff", # dev dependency
     "jinja2-time", # dev dependency
+    "types-python-slugify", # dev dependency
     "quiz-generation", # project dependency
     "gradio", # demo dependency
     "ipykernel", # notebook dependency
@@ -171,7 +172,7 @@ line-length = 88
 select = ["E", "F", "W", "I", "N"]
 line-length = 88
 exclude = [
-    "experiments/2023-10-25_zero-shot-quiz-generation/vigostral/app.py",
+    "experiments/2023-10-25_zero-shot-quiz-generation/vigostral/server.py",
 ]
 
 [tool.ruff.per-file-ignores]
