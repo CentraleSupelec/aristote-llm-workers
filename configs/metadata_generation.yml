@@ -1,14 +1,15 @@
-model_name: gpt-4-1106-preview
-transcript_path: data/cs_videos_transcripts/transcript_ri.json
-language: fr
-output_path: experiments/2023-10-25_zero-shot-quiz-generation/results/metadata/metadata_gpt-4_fr_cs_ri.json
+model_name: gpt-3.5-turbo-0125
+transcript_path: data/fr/cs_videos_transcripts/transcript_ri.json
+output_path: results/metadata_gpt-35_fr_cs_ri.json
 connector:
   (): "quiz_generation.connectors.connectors.CustomOpenAIConnector"
-  cache_path: .cache_gpt-4
+  cache_path: .cache_gpt-35
   max_requests_per_second: 30
 prompts_config:
   (): "quiz_generation.metadata_generation.metadata_generator.MetadataPromptsConfig"
+  reformulation_prompt_path: quiz_generation/reformulation/prompts/reformulation_prompt_fr.txt
   summary_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/summary_prompt.txt
   title_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/title_prompt.txt
   description_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/description_prompt.txt
   generate_topics_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/generate_topics_prompt.txt
+  discipline_prompt_path: quiz_generation/metadata_generation/prompts/zephyr/discipline_prompt.txt

@@ -1,0 +1,14 @@
+model_name: gpt-3.5-turbo-0125
+transcript_path: data/fr/cs_videos_transcripts/transcript_ri.json
+connector:
+  (): "quiz_generation.connectors.connectors.CustomOpenAIConnector"
+  cache_path: .cache_gpt-35
+  max_requests_per_second: 30
+  backoff_max_time: 3
+  request_timeout: 20
+chunks_path: results/ri.jsonl
+prompts_config:
+  (): "quiz_generation.quiz_generation.quiz_generator.QuizPromptsConfig"
+  quiz_generation_prompt: quiz_generation/quiz_generation/prompts/zephyr/quiz_generation_prompt.txt
+  reformulation_prompt_path: quiz_generation/reformulation/prompts/reformulation_prompt_fr.txt
+output_path: results/quizzes_gpt-35_fr_cs_ri.jsonl
