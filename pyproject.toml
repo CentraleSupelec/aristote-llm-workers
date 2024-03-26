@@ -32,27 +32,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-exp = [
-    "tabulate>=0.9.0",
-    "copier>=8.3.0,<9.0.0",
-    "GitPython>=3.0.0,<4.0.0",
-    "jinja2-time>=0.2.0,<0.3.0",
-    "python-slugify>=8.0.0,<9.0.0",
-    "python-dotenv>=1.0.0",
-    "guidance>=0.0.64",
-    "redis>=4.6.0",
-    "redis-om>=0.2.1",
-    "tiktoken>=0.5.1",
-    "fastapi>=0.104.0",
-    "uvicorn>=0.23.2",
-    "accelerate>=0.24.0",
-    "sentencepiece>=0.1.99",
-    "protobuf>=4.24.4",
-    "types-requests>=2.31.0.10",
-    "pandas>=2.1.4",
-    "numpy>=1.26.2",
-    "torch>=2.1.0",
-]
 dev = [
     "quiz-generation[exp]",
     "black>=23.12.0",
@@ -100,24 +79,10 @@ quiz_generation = ["py.typed"]
 extend_exclude = ["experiment_template", "experiments"]
 
 [tool.deptry.per_rule_ignores]
-DEP001 = [
-    "outlines", # exp dependency
-    "vllm", # exp dependency
-]
 DEP002 = [
     "Jinja2",
     "GitPython",
     "python-slugify",
-    "tabulate", # exp dependency
-    "pandas", # exp dependency
-    "numpy", # exp dependency
-    "guidance", # exp dependency
-    "protobuf", # exp dependency
-    "redis", # exp dependency
-    "redis-om", # exp dependency
-    "torch", # exp dependency
-    "accelerate", # exp dependency
-    "sentencepiece", # exp dependency
     "black", # dev dependency
     "copier", # dev dependency
     "deptry", # dev dependency

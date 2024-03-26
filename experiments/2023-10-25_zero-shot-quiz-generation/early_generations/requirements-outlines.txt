@@ -1,3 +1,0 @@
-datasets==2.14.6
-outlines==0.0.9
-transformers==4.34.1

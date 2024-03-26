@@ -5,10 +5,6 @@ set positional-arguments
 default:
     @just --list
 
-# Scaffold a new experiment
-new-exp:
-    copier copy --trust experiment_template/ experiments/
-
 # Set up a new development environment
 init:
     #!/usr/bin/env bash
