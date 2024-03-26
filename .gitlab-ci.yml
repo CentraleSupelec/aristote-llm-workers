@@ -12,7 +12,7 @@ download_deps:
   script:
     - pip install --no-cache-dir --upgrade pip
     - pip install --no-cache-dir setuptools_scm[toml]
-    - curl -sSL https://pdm.fming.dev/install-pdm.py | python - --version v2.9.3
+    - curl -sSL https://pdm.fming.dev/install-pdm.py | python - --version v2.10.0
     - export PATH="/root/.local/bin:$PATH"
     - rm -f .pdm.toml
     - pdm config pypi.extra.url "$NEXUS_PYPI_PULL_URL"

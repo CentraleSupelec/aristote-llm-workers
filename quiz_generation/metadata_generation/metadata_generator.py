@@ -251,7 +251,9 @@ class MetadataGenerator:
                 ),
             ),
         )
-        topics_list = [topic for topic in topics_list_raw.split("\n-")]
+        topics_list = [
+            topic for topic in topics_list_raw.split("\n-") if ":" not in topic
+        ]
         if len(topics_list) == 1:
             topics_list = topics_list[0].split("\n")
         if len(topics_list) == 1:

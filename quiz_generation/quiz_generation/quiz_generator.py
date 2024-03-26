@@ -2,7 +2,6 @@ import warnings
 from typing import List, Optional, Union
 
 import jsonlines
-from illuin_llm_tools import Message
 from pydantic import BaseModel
 from tiktoken import Encoding
 from transformers import PreTrainedTokenizerBase
@@ -11,6 +10,7 @@ from quiz_generation.connectors.connectors import (
     AbstractConnector,
     CustomPrompt,
     CustomPromptParameters,
+    Message,
 )
 from quiz_generation.dtos import Reformulation, TranscribedText
 from quiz_generation.preprocessing.preprocessing import get_splits, get_token_nb

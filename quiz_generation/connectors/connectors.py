@@ -2,26 +2,30 @@ import hashlib
 import warnings
 from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor
-from typing import List, Optional
+from typing import List, Literal, Optional, Union
 
+import backoff
+import openai
 import requests
 from diskcache import Cache
-from illuin_llm_tools import (
-    Message,
-    OpenAIConnector,
-    Prompt,
-    PromptParameters,
-    TextGeneration,
-)
+from openai import OpenAI
 from pydantic import BaseModel
 from tqdm import tqdm
+
+
+class Message(BaseModel):
+    role: Literal["system", "user", "assistant"]
+    content: str
 
 
 class CustomPromptParameters(BaseModel):
     model_name: str
     max_tokens: int = 256
     temperature: float = 0.5
-    stop: Optional[List[str]] = None
+    top_p: Optional[float] = None
+    seed: Optional[int] = None
+    stop: Optional[Union[str, List[str]]] = None
+    response_format: Literal["text", "json_object"] = "text"
 
 
 class CustomPrompt(BaseModel):
@@ -38,80 +42,23 @@ class AbstractConnector:
     def generate(self, prompt: CustomPrompt) -> str:
         pass
 
-    @abstractmethod
     def custom_multi_requests(
-        self, prompts: List[CustomPrompt], progress_desc: str
-    ) -> List[str]:
-        pass
-
-
-class CustomOpenAIConnector(OpenAIConnector, AbstractConnector):
-    def __init__(
         self,
-        api_key: Optional[str] = None,
-        organization: Optional[str] = None,
-        backoff_max_time: int = 30,
-        request_timeout: Optional[int] = None,
-        cache_path: Optional[str] = None,
-        verbosity: int = 1,
-        max_requests_per_second: float = 1.0,
-    ):
-        OpenAIConnector.__init__(
-            self,
-            api_key,
-            organization,
-            backoff_max_time,
-            request_timeout,
-            cache_path,
-            verbosity,
-        )
-        AbstractConnector.__init__(self, cache_path=cache_path)
-        self.max_requests_per_second = max_requests_per_second
-
-    def generate(self, prompt: CustomPrompt) -> str:
-        text_generation = self.make_request(
-            prompt=Prompt(
-                text=prompt.text,
-                messages=prompt.messages,
-                parameters=PromptParameters(
-                    model=prompt.parameters.model_name,
-                    max_tokens=prompt.parameters.max_tokens,
-                    temperature=prompt.parameters.temperature,
-                    stop=prompt.parameters.stop,
-                ),
-            )
-        )
-        if isinstance(text_generation, TextGeneration):
-            if isinstance(text_generation.text, str):
-                return text_generation.text
-            else:
-                raise ValueError("Text generation failed")
-        else:
-            raise ValueError("Wrong generation type")
-
-    def custom_multi_requests(
-        self, prompts: List[CustomPrompt], progress_desc: str
+        prompts: List[CustomPrompt],
+        progress_desc: Optional[str] = None,
+        batch_size: int = 16,
     ) -> List[str]:
-        llm_tools_prompts = [
-            Prompt(
-                text=prompt.text,
-                messages=prompt.messages,
-                parameters=PromptParameters(
-                    model=prompt.parameters.model_name,
-                    max_tokens=prompt.parameters.max_tokens,
-                    temperature=prompt.parameters.temperature,
-                    stop=prompt.parameters.stop,
-                ),
+        # Create a thread pool to parallelize requests
+        with ThreadPoolExecutor(max_workers=batch_size) as executor:
+            # Send requests in batches
+            responses = list(
+                tqdm(
+                    executor.map(self.generate, prompts),
+                    total=len(prompts),
+                    desc=progress_desc,
+                )
             )
-            for prompt in prompts
-        ]
-        print("Cost: ", self.get_costs(llm_tools_prompts))
-        results = self.multi_requests(
-            llm_tools_prompts,
-            max_requests_per_second=self.max_requests_per_second,
-            progress_desc=progress_desc,
-        )
-        return [result.text for result in results]
+        return responses
 
 
 def get_cache_key(prompt: CustomPrompt) -> str:
@@ -134,6 +81,113 @@ def get_cache_key(prompt: CustomPrompt) -> str:
         f"{messages_str}"
     )
     return str(hashlib.sha256(str_to_encode.encode()).hexdigest())
+
+
+class CustomOpenAIConnector(AbstractConnector):
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        organization: Optional[str] = None,
+        backoff_max_time: int = 30,
+        request_timeout: Optional[int] = None,
+        cache_path: Optional[str] = None,
+        max_requests_per_second: float = 1.0,
+    ):
+        AbstractConnector.__init__(self, cache_path=cache_path)
+        self.sync_client = OpenAI(api_key=api_key, organization=organization)
+        self.backoff_max_time = backoff_max_time
+        self.request_timeout = request_timeout
+        self.max_requests_per_second = max_requests_per_second
+        self.cache = Cache(cache_path)
+
+    # def generate(self, prompt: CustomPrompt) -> str:
+    #     text_generation = self.make_request(
+    #         prompt=Prompt(
+    #             text=prompt.text,
+    #             messages=prompt.messages,
+    #             parameters=PromptParameters(
+    #                 model=prompt.parameters.model_name,
+    #                 max_tokens=prompt.parameters.max_tokens,
+    #                 temperature=prompt.parameters.temperature,
+    #                 stop=prompt.parameters.stop,
+    #             ),
+    #         )
+    #     )
+    #     if isinstance(text_generation, TextGeneration):
+    #         if isinstance(text_generation.text, str):
+    #             return text_generation.text
+    #         else:
+    #             raise ValueError("Text generation failed")
+    #     else:
+    #         raise ValueError("Wrong generation type")
+
+    def _generate(
+        self,
+        prompt: CustomPrompt,
+    ) -> str:
+        cache_key = get_cache_key(prompt)
+        if self.cache is not None:
+            cached_text = self.cache.get(cache_key)
+        else:
+            cached_text = None
+        if isinstance(cached_text, str):
+            return cached_text
+        else:
+            try:
+                if prompt.text is not None:
+                    messages_ = [{"role": "user", "content": prompt.text}]
+                elif prompt.messages is not None:
+                    messages_ = [
+                        message.model_dump(mode="json") for message in prompt.messages
+                    ]
+                else:
+                    raise ValueError("Prompt must contain text or messages")
+                response = self.sync_client.chat.completions.create(
+                    model=prompt.parameters.model_name,
+                    messages=messages_,
+                    temperature=prompt.parameters.temperature,
+                    max_tokens=prompt.parameters.max_tokens,
+                    top_p=prompt.parameters.top_p,
+                    seed=prompt.parameters.seed,
+                    stop=prompt.parameters.stop,
+                    response_format={"type": prompt.parameters.response_format},
+                    timeout=self.request_timeout,
+                )
+            except Exception as exception:
+                raise exception
+            try:
+                result = str(response.choices[0].message.content)
+                if prompt.parameters.stop is not None:
+                    if any([stop in result for stop in prompt.parameters.stop]):
+                        result = result[
+                            : result.index(prompt.parameters.stop[0])
+                        ].strip()
+                if self.cache is not None:
+                    self.cache.set(cache_key, result)
+                return result.strip()
+            except Exception as exception:
+                raise exception
+                # warnings.warn(
+                #     f"Request failed with this exception: {exception}"
+                # )
+                # return ""
+
+    def generate(
+        self,
+        prompt: CustomPrompt,
+    ) -> str:
+        """Make asynchronous request using backoff
+        that retries the request if it failed.
+
+        Args:
+            text (str): prompt text
+
+        Returns:
+            str: generated text
+        """
+        return backoff.on_exception(
+            backoff.expo, openai.RateLimitError, max_time=self.backoff_max_time
+        )(self._generate)(prompt=prompt)
 
 
 class APIConnector(AbstractConnector):
@@ -192,24 +246,6 @@ class APIConnector(AbstractConnector):
                         ].strip()
                 self.cache.set(cache_key, result)
                 return result.strip()
-
-    def custom_multi_requests(
-        self,
-        prompts: List[CustomPrompt],
-        progress_desc: Optional[str] = None,
-        batch_size: int = 16,
-    ) -> List[str]:
-        # Create a thread pool to parallelize requests
-        with ThreadPoolExecutor(max_workers=batch_size) as executor:
-            # Send requests in batches
-            responses = list(
-                tqdm(
-                    executor.map(self.generate, prompts),
-                    total=len(prompts),
-                    desc=progress_desc,
-                )
-            )
-        return responses
 
 
 class APIConnectorWithOpenAIFormat(AbstractConnector):
@@ -276,21 +312,3 @@ class APIConnectorWithOpenAIFormat(AbstractConnector):
                     #     f"Request failed with this exception: {exception}"
                     # )
                     # return ""
-
-    def custom_multi_requests(
-        self,
-        prompts: List[CustomPrompt],
-        progress_desc: Optional[str] = None,
-        batch_size: int = 16,
-    ) -> List[str]:
-        # Create a thread pool to parallelize requests
-        with ThreadPoolExecutor(max_workers=batch_size) as executor:
-            # Send requests in batches
-            responses = list(
-                tqdm(
-                    executor.map(self.generate, prompts),
-                    total=len(prompts),
-                    desc=progress_desc,
-                )
-            )
-        return responses
