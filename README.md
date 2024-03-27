@@ -1,6 +1,19 @@
-# Quiz Generation
+# Aristote - Quiz Generation
 
-Generate quizzes with Large Language Models for educational purposes.
+Aristote is an educacional assistant that uses open-source LLMs to describe educacional video transcripts and generate quizzes to help students learn.
+
+You can send a video transcript to Aristote and Aristote will generate the title, the description, a list of topics covered in the video and the main discipline of the video. It can also generate a list of potential quizzes on the different topics of the video.
+
+If you want to accelerate the selection of the quizzes generated with the open-source LLMs, you can use Aristote to evaluate your quizzes with GPT-4 according to several specific boolean criteria and filter out bad quizzes based on this evaluation:
+
+- whether the question is really a question,
+- whether the question is related to the subject of the course,
+- whether the question is self contained,
+- whether the language is clear,
+- whether the answers are all different,
+- whether the answers are related,
+- whether the fake answers are not obvious,
+- whether the quiz is about a theoretical concept or a specific course example.
 
 ## Install
 
@@ -19,16 +32,6 @@ pdm sync --dev -G :all -L lockfiles/{DEVICE}.lock
 ```
 
 where `{DEVICE}` is the type of device you are using. You can choose between `cpu` and `gpu`.
-
-### Load the data
-
-To download the data, you need `dvc`. Check the install procedure [here](https://dvc.org/doc/install).
-
-Make sure that you have access to the `gs://quiz-generation` bucket in the `llm-testing` project. Then, you can download the data with:
-
-```bash
-dvc pull
-```
 
 ## Generate metadata
 
@@ -90,3 +93,9 @@ docker build --build-arg="NEXUS_PYPI_PULL_URL={NEXUS_PYPI_PULL_URL}" -t quizgen 
 ```
 
 **Warning:** `--network="host"` only works on Linux.
+
+## Credits
+
+This project is based on a prototype made by four students from the [Paris Digital Lab](https://paris-digital-lab.com/): Antoine Vaglio, Liwei Sun, Mohammed Bahhad et Pierre-Louis Veyrenc.
+
+Illuin Technology perfected the project and made it available as it is now for CentraleSupélec.
