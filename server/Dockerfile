@@ -14,8 +14,8 @@ RUN ln -snf /usr/share/zoneinfo/Europe/Paris /etc/localtime && echo Europe/Paris
 
 RUN python -m pip install --upgrade pip
 
-COPY ./server/server-requirements.txt ./
-RUN pip install --no-cache-dir -r server-requirements.txt
+COPY ./requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ./quiz_generation /server_app/quiz_generation
 COPY ./server /server_app/server

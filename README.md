@@ -15,23 +15,19 @@ If you want to accelerate the selection of the quizzes generated with the open-s
 - whether the fake answers are not obvious,
 - whether the quiz is about a theoretical concept or a specific course example.
 
-## Install
+## Use Aristote's CLI
 
-You can install the dependencies with `pdm` or `pip` depending on your preference.
-
-### `pip` install
+We recommend installing dependencies with [uv](https://github.com/astral-sh/uv):
 
 ```bash
-pip install -e .
+uv pip install -r requirements.txt
 ```
 
-### `pdm` install
+But you can also simply install the dependencies with `pip`.
 
 ```bash
-pdm sync --dev -G :all -L lockfiles/{DEVICE}.lock
+pip install -r requirements.txt
 ```
-
-where `{DEVICE}` is the type of device you are using. You can choose between `cpu` and `gpu`.
 
 ## Generate metadata
 
@@ -53,14 +49,16 @@ Then launch the following command with your config file path:
 quizgen generate-quizzes {QUIZ_GEN_YML_CONFIG_PATH}
 ```
 
-## Launch Quiz Generation API with Docker 
+## Use Aristote through Aristote API with Docker
+
+### Use `docker-compose`
 
 First set up your `.env` file based on the `.env.dist` file.
 
-Then you can launch the quiz generation API. You can use the following command by replacing `{NEXUS_PYPI_PULL_URL}` with your URL of the Nexus PyPI repository:
+Then you can launch the quiz generation API. You can use the following command:
 
 ```bash
-NEXUS_PYPI_PULL_URL={NEXUS_PYPI_PULL_URL} docker compose up
+docker compose up
 ```
 
 To get the documentation of the API, you can go to the `docs` route of the API.
@@ -69,7 +67,7 @@ To get the documentation of the API, you can go to the `docs` route of the API.
 
 You will need at least 32 GB of GPU VRAM to launch the service.
 
-### Launch seperatly
+### Launch separatly
 
 You can launch the VLLM API and the Quiz Generation API separately.
 
@@ -89,10 +87,38 @@ docker run --runtime nvidia --gpus all \
 #### Quiz Generation API
 
 ```bash
-docker build --build-arg="NEXUS_PYPI_PULL_URL={NEXUS_PYPI_PULL_URL}" -t quizgen -f server/Dockerfile . && docker run --env-file .env --network="host" -p 3000:3000 quizgen
+docker build -t quizgen -f server/Dockerfile . && docker run --env-file .env --network="host" -p 3000:3000 quizgen
 ```
 
 **Warning:** `--network="host"` only works on Linux.
+
+## Contributing
+
+To contribute, we recommend to install the [`just`](https://github.com/casey/just) command.
+
+Then you can setup the dev dependencies with:
+
+```bash
+just intall
+```
+
+Launch tests with:
+
+```bash
+just test
+```
+
+Check linting with:
+
+```bash
+just lint
+```
+
+And reformat files with:
+
+```bash
+just format
+```
 
 ## Credits
 
