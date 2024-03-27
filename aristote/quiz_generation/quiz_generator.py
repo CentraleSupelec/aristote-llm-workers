@@ -6,15 +6,15 @@ from pydantic import BaseModel
 from tiktoken import Encoding
 from transformers import PreTrainedTokenizerBase
 
-from quiz_generation.connectors.connectors import (
+from aristote.connectors.connectors import (
     AbstractConnector,
     CustomPrompt,
     CustomPromptParameters,
     Message,
 )
-from quiz_generation.dtos import Reformulation, TranscribedText
-from quiz_generation.preprocessing.preprocessing import get_splits, get_token_nb
-from quiz_generation.reformulation.reformulation import create_reformulations
+from aristote.dtos import Reformulation, TranscribedText
+from aristote.preprocessing.preprocessing import get_splits, get_token_nb
+from aristote.reformulation.reformulation import create_reformulations
 
 BATCH_SIZE = 4
 

@@ -36,7 +36,7 @@ First configure your `yml` file for this generation based on the [provided examp
 Then launch the following command with your config file path:
 
 ```bash
-quizgen generate-metadata {METADATA_YML_CONFIG_PATH}
+aristote generate-metadata {METADATA_YML_CONFIG_PATH}
 ```
 
 ## Generate quizzes
@@ -46,7 +46,7 @@ First configure your `yml` file for this generation based on the [provided examp
 Then launch the following command with your config file path:
 
 ```bash
-quizgen generate-quizzes {QUIZ_GEN_YML_CONFIG_PATH}
+aristote generate-quizzes {QUIZ_GEN_YML_CONFIG_PATH}
 ```
 
 ## Use Aristote through Aristote API with Docker
@@ -87,7 +87,7 @@ docker run --runtime nvidia --gpus all \
 #### Quiz Generation API
 
 ```bash
-docker build -t quizgen -f server/Dockerfile . && docker run --env-file .env --network="host" -p 3000:3000 quizgen
+docker build -t aristote -f server/Dockerfile . && docker run --env-file .env --network="host" -p 3000:3000 aristote
 ```
 
 **Warning:** `--network="host"` only works on Linux.

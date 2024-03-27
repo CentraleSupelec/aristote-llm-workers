@@ -4,13 +4,13 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel
 from transformers import AutoTokenizer
 
-from quiz_generation.connectors.connectors import (
+from aristote.connectors.connectors import (
     AbstractConnector,
     CustomPrompt,
     CustomPromptParameters,
 )
-from quiz_generation.dtos.dtos import MetaData, Reformulation, Summary
-from quiz_generation.preprocessing.preprocessing import (
+from aristote.dtos.dtos import MetaData, Reformulation, Summary
+from aristote.preprocessing.preprocessing import (
     get_templated_script,
     get_token_nb,
 )

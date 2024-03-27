@@ -3,13 +3,13 @@ from typing import Any, Dict, List, Literal
 from pydantic import BaseModel
 from transformers import AutoTokenizer
 
-from quiz_generation.connectors.connectors import (
+from aristote.connectors.connectors import (
     AbstractConnector,
     CustomPrompt,
     CustomPromptParameters,
 )
-from quiz_generation.dtos.dtos import MetaData
-from quiz_generation.quiz_generation.quiz_generator import MultipleAnswerQuiz
+from aristote.dtos.dtos import MetaData
+from aristote.quiz_generation.quiz_generator import MultipleAnswerQuiz
 
 
 class QuizEvaluation(BaseModel):

@@ -1,15 +1,15 @@
 import os
 from typing import List
 
-from quiz_generation.evaluation.main import main as evaluate
-from quiz_generation.metadata_generation.main import main as generate_metadata
-from quiz_generation.pipeline.configs import (
+from aristote.evaluation.main import main as evaluate
+from aristote.metadata_generation.main import main as generate_metadata
+from aristote.pipeline.configs import (
     EvaluationConfig,
     MetadataGenerationConfig,
     QuizGenerationConfig,
     TaskConfig,
 )
-from quiz_generation.quiz_generation.main import main as generate_quizzes
+from aristote.quiz_generation.main import main as generate_quizzes
 
 
 def main(

@@ -17,7 +17,7 @@ RUN python -m pip install --upgrade pip
 COPY ./requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ./quiz_generation /server_app/quiz_generation
+COPY ./aristote /server_app/aristote
 COPY ./server /server_app/server
 
 CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "3000"]

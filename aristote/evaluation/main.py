@@ -3,14 +3,14 @@ from typing import Literal
 
 import jsonlines
 
-from quiz_generation.connectors.connectors import AbstractConnector
-from quiz_generation.dtos.dtos import MetaData
-from quiz_generation.evaluation.evaluator import (
+from aristote.connectors.connectors import AbstractConnector
+from aristote.dtos.dtos import MetaData
+from aristote.evaluation.evaluator import (
     EvaluationPromptsConfig,
     Evaluator,
     MultipleAnswerQuiz,
 )
-from quiz_generation.preprocessing.preprocessing import get_tokenizer
+from aristote.preprocessing.preprocessing import get_tokenizer
 
 
 def main(

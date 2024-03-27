@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from quiz_generation.quiz_generation.quiz_generator import QuizPromptsConfig
+from aristote.quiz_generation.quiz_generator import QuizPromptsConfig
 
 
 class QuizMainConfig(BaseModel):

@@ -2,9 +2,9 @@ from typing import List, Optional
 
 import jsonlines
 
-from quiz_generation.connectors.connectors import AbstractConnector
-from quiz_generation.preprocessing.preprocessing import get_tokenizer, load_file
-from quiz_generation.quiz_generation.quiz_generator import (
+from aristote.connectors.connectors import AbstractConnector
+from aristote.preprocessing.preprocessing import get_tokenizer, load_file
+from aristote.quiz_generation.quiz_generator import (
     MultipleAnswerQuiz,
     QuizGenerator,
     QuizPromptsConfig,

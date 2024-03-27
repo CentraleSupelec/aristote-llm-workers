@@ -6,7 +6,7 @@ from nltk import sent_tokenize
 from tiktoken import Encoding, encoding_for_model
 from transformers import AutoTokenizer, PreTrainedTokenizerBase
 
-from quiz_generation.dtos.dtos import TranscribedText
+from aristote.dtos.dtos import TranscribedText
 
 
 def get_tokenizer(model_name: str) -> Union[PreTrainedTokenizerBase, Encoding]:

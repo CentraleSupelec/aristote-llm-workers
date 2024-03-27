@@ -3,13 +3,13 @@ from typing import List
 
 from transformers import AutoTokenizer
 
-from quiz_generation.connectors.connectors import (
+from aristote.connectors.connectors import (
     AbstractConnector,
     CustomPrompt,
     CustomPromptParameters,
 )
-from quiz_generation.dtos.dtos import Reformulation, TranscribedText
-from quiz_generation.preprocessing.preprocessing import (
+from aristote.dtos.dtos import Reformulation, TranscribedText
+from aristote.preprocessing.preprocessing import (
     get_token_nb,
 )
 

@@ -3,10 +3,10 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel
 
-from quiz_generation.connectors.connectors import AbstractConnector
-from quiz_generation.evaluation.evaluator import EvaluationPromptsConfig
-from quiz_generation.metadata_generation.metadata_generator import MetadataPromptsConfig
-from quiz_generation.quiz_generation.quiz_generator import QuizPromptsConfig
+from aristote.connectors.connectors import AbstractConnector
+from aristote.evaluation.evaluator import EvaluationPromptsConfig
+from aristote.metadata_generation.metadata_generator import MetadataPromptsConfig
+from aristote.quiz_generation.quiz_generator import QuizPromptsConfig
 
 
 @dataclass

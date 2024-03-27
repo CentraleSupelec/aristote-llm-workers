@@ -20,7 +20,7 @@ install:
     uv pip install -e ".[dev]"
 
 # Run all code checks
-checks: check-deps check-lockfiles format lint type
+checks: check-deps format lint type
 
 # Check code formatting
 format:

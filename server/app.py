@@ -6,18 +6,18 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from transformers import AutoTokenizer
 
-from quiz_generation.connectors.connectors import (
+from aristote.connectors.connectors import (
     APIConnectorWithOpenAIFormat,
     CustomOpenAIConnector,
 )
-from quiz_generation.dtos import TranscribedText
-from quiz_generation.evaluation.evaluator import EvaluationPromptsConfig, Evaluator
-from quiz_generation.metadata_generation.main import metadata_generation
-from quiz_generation.metadata_generation.metadata_generator import (
+from aristote.dtos import TranscribedText
+from aristote.evaluation.evaluator import EvaluationPromptsConfig, Evaluator
+from aristote.metadata_generation.main import metadata_generation
+from aristote.metadata_generation.metadata_generator import (
     MetaData,
     MetadataPromptsConfig,
 )
-from quiz_generation.quiz_generation.quiz_generator import (
+from aristote.quiz_generation.quiz_generator import (
     MultipleAnswerQuiz,
     QuizGenerator,
     QuizPromptsConfig,

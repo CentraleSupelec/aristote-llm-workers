@@ -1,4 +1,4 @@
-from quiz_generation.dtos.dtos import (
+from aristote.dtos.dtos import (
     MetaData,
     Reformulation,
     Summary,

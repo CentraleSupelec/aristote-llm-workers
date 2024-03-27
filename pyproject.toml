@@ -61,7 +61,7 @@ requires = ["setuptools", "setuptools-scm[toml]", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project.scripts]
-quizgen = "quiz_generation.cli.cli:main"
+aristote = "aristote.cli.cli:main"
 
 [tool.setuptools_scm]
 fallback_version = "0.0.0-dev"
@@ -71,10 +71,10 @@ zip-safe = false
 platforms = ["any"]
 
 [tool.setuptools.packages.find]
-include = ["quiz_generation", "quiz_generation.*", "server", "server.*"]
+include = ["aristote", "aristote.*", "server", "server.*"]
 
 [tool.setuptools.package-data]
-quiz_generation = ["py.typed"]
+aristote = ["py.typed"]
 
 [tool.deptry.per_rule_ignores]
 DEP002 = [
@@ -120,7 +120,7 @@ module = []
 ignore_missing_imports = true
 
 [tool.coverage.run]
-include = ["quiz_generation/*"]
+include = ["aristote/*"]
 relative_files = true
 
 [tool.coverage.report]

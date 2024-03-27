@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from quiz_generation.metadata_generation.metadata_generator import MetadataPromptsConfig
+from aristote.metadata_generation.metadata_generator import MetadataPromptsConfig
 
 
 class MetadataMainConfig(BaseModel):

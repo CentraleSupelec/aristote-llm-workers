@@ -3,18 +3,18 @@ from typing import List, Optional
 
 from transformers import PreTrainedTokenizerBase
 
-from quiz_generation.connectors.connectors import AbstractConnector
-from quiz_generation.dtos import MetaData, TranscribedText
-from quiz_generation.metadata_generation.metadata_generator import (
+from aristote.connectors.connectors import AbstractConnector
+from aristote.dtos import MetaData, TranscribedText
+from aristote.metadata_generation.metadata_generator import (
     MetadataGenerator,
     MetadataPromptsConfig,
 )
-from quiz_generation.preprocessing.preprocessing import (
+from aristote.preprocessing.preprocessing import (
     get_splits,
     get_tokenizer,
     load_file,
 )
-from quiz_generation.reformulation.reformulation import create_reformulations
+from aristote.reformulation.reformulation import create_reformulations
 
 API_URL = "http://0.0.0.0:8000/generate"
 

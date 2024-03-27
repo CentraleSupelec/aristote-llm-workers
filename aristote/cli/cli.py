@@ -3,10 +3,10 @@ from typing import Callable
 import click
 import configue
 
-from quiz_generation.evaluation.main import main as evaluation_main
-from quiz_generation.metadata_generation.main import main as metadata_main
-from quiz_generation.pipeline.main import main as pipeline_main
-from quiz_generation.quiz_generation.main import main as quiz_main
+from aristote.evaluation.main import main as evaluation_main
+from aristote.metadata_generation.main import main as metadata_main
+from aristote.pipeline.main import main as pipeline_main
+from aristote.quiz_generation.main import main as quiz_main
 
 API_URL = "http://0.0.0.0:8000/generate"
 

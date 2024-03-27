@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from quiz_generation.evaluation.evaluator import EvaluatedQuiz
+from aristote.evaluation.evaluator import EvaluatedQuiz
 
 
 class Sentence(BaseModel):

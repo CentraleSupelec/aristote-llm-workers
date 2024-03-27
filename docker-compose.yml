@@ -8,7 +8,7 @@ services:
     env_file:
       - .env
     command: --model ${MODEL_NAME} --dtype ${DTYPE} --tensor-parallel-size ${TENSOR_PARALLEL_SIZE}
-  quizgenerator:
+  aristote:
     build:
       context: .
       dockerfile: server/Dockerfile

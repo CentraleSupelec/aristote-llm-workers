@@ -3,8 +3,8 @@ from typing import List
 import pytest
 from transformers import AutoTokenizer
 
-from quiz_generation.dtos.dtos import TranscribedText
-from quiz_generation.preprocessing.preprocessing import (
+from aristote.dtos.dtos import TranscribedText
+from aristote.preprocessing.preprocessing import (
     get_splits,
     get_token_nb,
     load_txt,
