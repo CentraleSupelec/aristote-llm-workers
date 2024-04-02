@@ -1,0 +1,732 @@
+[Musique]
+
+dans cette vidéo on va parler de la
+
+deuxième loi de newton donc cette
+
+deuxième loi de newton en fait c'est le
+
+point de départ a utilisé pour résoudre
+
+un problème de mécanique qui consiste à
+
+trouver la trajectoire d'un mobile en
+
+connaissant par exemple les forces qui
+
+subit donc parlons de cette deuxième
+
+ligne olten déjà il faut être dans un
+
+référentiel galiléen pour pouvoir
+
+l'utiliser donc on précise avant de
+
+l'écrire dans un référentiel galiléen
+
+virgule et donc la voici la somme des
+
+forces extérieures est égale à la dérive
+
+et par rapport au temps on en a déjà
+
+parlé de ceux des sur d'été dans la
+
+vidéo sur position vecteur
+
+opposition en vitesse accélération des
+
+surdités ça veut dire dérivés par
+
+rapport au temps donc c'est la dérive et
+
+par rapport au temps de ppc la quantité
+
+de mouvement et pc définit comme la
+
+masse du système en kilos multipliée par
+
+la vitesse de son centre de masse
+
+vais donc c'est un vecteur le centre de
+
+maçon valnot tg je vais en reparler
+
+après et la vitesse 1 mètre par seconde
+
+les forces ici ce sont les forces
+
+extérieures qui s'appliquent sur le
+
+système leur unité de ses forces et
+
+newton on verra dans les exemples ce que
+
+c'est que ces forces extérieures donc
+
+c'est les forces qui viennent sur le
+
+système qui s'applique sur le système
+
+maintenant on va faire de deux cas
+
+particuliers premier cas particulier
+
+c'est si la masse du système est
+
+constante ce qui est très souvent cas si
+
+par exemple tu suis une balle de foot de
+
+tennis de basket de ce que tu veux de
+
+golf qui part d'un endroit qui a une
+
+certaine trajectoire et qui atterrit
+
+ailleurs la masse de la balle est
+
+constante toujours la même masse ya pas
+
+de perte de masse si tu suis une
+
+automobile c'est pareil si tu etc dans
+
+la plupart des cas l'objet que tu vas
+
+suivre regarde sa masse il ya un cas
+
+très courant en exercice en tout cas du
+
+système dont la masse varices et la
+
+fusée la fusée par avec des réserves des
+
+réserves d'eau pour sa propulsion et ses
+
+réserves ont elles brûlent et donc
+
+finalement vont être éjecté sous forme
+
+de gaz donc en fait la masse de la fusée
+
+varié au cours du temps donc si on est
+
+dans le cas très courant de la masse qui
+
+est constante alors on va pas en faire
+
+quelque chose
+
+parce que comme la masse est constante
+
+quand tu vas dérivés par rapport au
+
+temps m x v g20 comme m est une
+
+constante elle sort de la dérive et est
+
+injuste m fois la dérive élevé donc
+
+c'est ce que j'ai écrit la somme des
+
+forces extérieures est égal à hem fois
+
+la dérive et devaient par rapport au
+
+temps et la dérive élevé par rapport au
+
+temps on a vu dans une vidéo que c'est
+
+l'accélération donc on se retrouve avec
+
+soin des forces extérieures est égal à m
+
+la masse du système fois l'accélération
+
+de son centre de masse si maintenant le
+
+système c'est juste un point bas si
+
+c'est juste un point son centre de masse
+
+c'est ce point donc en fait ce qui va
+
+changer c'est qu'au lieu des clergés jeu
+
+mais rien du tout c'est la vitesse du
+
+point donc cm x dvi / d'été et dv sur
+
+d'été c'est l'accélération donc cm x
+
+l'accélération alors maintenant ce
+
+fameux centre de masse là que j'ai noté
+
+granger comment le trouvez
+
+déjà quelle est la définition du centre
+
+de masse le centre de masse et le
+
+barycentre des masses
+
+c'est à dire en quelque sorte le point
+
+d'équilibré des masses
+
+alors remarque importante c'est que si
+
+le champ de pesanteur est uniforme ce
+
+qui est le cas à la surface de la terre
+
+par exemple c'est aussi le centre de
+
+gravité semble de masse et centre de
+
+gravité c'est la même chose
+
+si jamais tu es pas dans ce cadre là un
+
+champ de pesanteur non uniforme quelle
+
+est la différence entre les deux c'est
+
+que le centre de masse c'est le
+
+barycentre des masses alors que le
+
+centre de gravité c'est le lieu où
+
+s'exerce le poids et il sera pas tout à
+
+fait au même endroit
+
+dans la plupart des exercices que tu vas
+
+rencontrer cette année tu vas avoir à
+
+faire un champ de pesanteur uniforme et
+
+donc sentent barycentre de masse centre
+
+de gravité c'est la même chose pour
+
+information un autre nom de barry
+
+sentent de masse on appelle aussi ça
+
+donc le centre de masse on l'appelle
+
+aussi le centre inertielle
+
+où le sang d'inertie
+
+alors du coup on va noter granger
+
+puisqu'on va confondre centre de gravité
+
+centre de masse est alors pour le
+
+trouver il ya une relation
+
+lié au fait que c'est un barycentre
+
+c'est que la masse totale du système x
+
+auger le vecteur roger est égale à la
+
+somme des différentes masses faux amis
+
+donc c'est la seule sur id est mis aux
+
+amis on va on va donner dans un exemple
+
+comment utiliser cette formule alors au
+
+ces le centre d'un repère g c'est donc
+
+le centre de masse
+
+m i c'est la masse de la 12ème point et
+
+aux amis c'est le vecteur position de
+
+ceux qui aiment points qui constituent
+
+le système donc prenons un exemple
+
+simple c'est à dire un système composé
+
+juste deux points m1 m2 donc tu vois
+
+dans cette somme est premier tour va
+
+voir un deuxième tour voire deux il ya
+
+juste dans la somme ya juste deux termes
+
+donc on y va donc on place j'ai placé
+
+ici pour pour être un peu un peu
+
+cohérent un point au centre d'un repère
+
+et j'applique la formule que vaut la
+
+masse totale la somme des deux masses
+
+celle-ci cm celle ci cm donc ça fait 2e
+
+donc deuxième fois le vecteur roger égal
+
+on y va pour le premier tour de la somme
+
+le premier terme de la somme donc
+
+première masse m donc cm x om
+
+1m x bien plus deuxième terme cette fois
+
+ci c'est la masse numéro de la masse
+
+numéro 2 ça sa valeur cm encore donc ème
+
+fois au m2 owens donc à partir de
+
+maintenant on va travailler un petit peu
+
+on va des composés auger par la relation
+
+de chasles en disant que c'est om un
+
+plus et manger
+
+rien de magique ah je m'aperçois que
+
+j'ai oublié le m
+
+à droite j'y touche pas m o m un plus et
+
+moyenne 2 ensuite ici ce que je vais
+
+faire c'est que le 2 om 1 je le fais
+
+passer à droite donc du coup cela
+
+devient moins de om 1 et comme il y
+
+était déjà une fois il ya un point qui
+
+apparaît et à gauche il reste 2e
+
+et mangez donc deuxièmes et manger
+
+égales - om un plus m -mg
+
+la de nouveau je vais utiliser la
+
+relation de chasles - om 1 cm en haut et
+
+m1 au plus au m2 ça fait m1 m2 le m
+
+haies en facteur donc ça fait m m1 m2 et
+
+à gauche ça n'a pas changé c'est pour ça
+
+que je n'ai pas écrit deuxième et munger
+
+et ensuite j'ai plus qu'à simplifier les
+
+aime
+
+et le 2 par à droite ça fait bien et
+
+manger égale m1 m2 sur 2
+
+évidemment j'ai mis quelle surprise
+
+pourquoi pourquoi ce n'est pas une
+
+surprise regarde où il est du coup le
+
+point g
+
+le vecteur m1 gcm en m2 divisé par deux
+
+donc ça veut dire que je pars demain le
+
+vecteur m1 m2 il est là
+
+le vecteur m1 m2 divisé par deux mais il
+
+est là
+
+et on te dit que ce vecteur m1 m2 cm1
+
+j'ai donc ça veut dire que et manger
+
+j'ai là tout simplement ce que je viens
+
+de dire c'est que j'ai est au centre g
+
+entre eux m1 et m2 c'est pour ça que
+
+j'ai mis quelle surprise évidemment il
+
+ya aucune surprise mais c'est propre et
+
+c'est mathématique sur sept ce
+
+déroulement là te permettrait aussi de
+
+montrer un type d'exercice tu peux
+
+entraîner que si tu prend ici un premier
+
+point m 1 toujours une barre donc la
+
+barre et ce en masse à gauche il ya un
+
+point m1 de masse 2ème cette fois
+
+ensuite de l'autre côté de la barre tu
+
+mets un point m 2 de masse m eh bien tu
+
+peux montrer que le point g cette fois
+
+ci le centre de masse il est à un tiers
+
+de la distance m1 m2 donc il est là à
+
+titre d'exercice tu peux refaire donc ce
+
+qu'on vient de fermer avec ces nouvelles
+
+données et donc maintenant on va
+
+continuer donc dans le grand troyes on
+
+va passer cette fois ci à quelques
+
+exemples de la deuxième loi de newton
+
+pour la mettre en application
+
+donc pour commencer le cas de la chute
+
+libre donc c'est un exemple parmi plein
+
+d'autres d'accord on va s'entraîner on
+
+va regarder un petit peu ce que donne
+
+cette deuxième le newton donc ici c'est
+
+un une balle une balle dont le centre
+
+ses grands thèmes on part à mettre un
+
+peu la situation avec un fort paire de
+
+centraux axe horizontal x axe vertical y
+
+jeu mais pas de troisième axe parce
+
+qu'en fin de compte le mouvement va être
+
+plan donc à quoi bon représenter la
+
+troisième direction je représente le
+
+vecteur intensité de pesanteurs qui vers
+
+le bas alors quel est mon système
+
+d'études le système c'est la balle de
+
+son 3ème question que voir que vos
+
+l'accélération mais justement grâce à la
+
+deuxième le newton on va le déterminer
+
+donc dans un référentiel galiléen ce qui
+
+est le cas ici on va on va faire une
+
+étude sur une durée suffisamment courtes
+
+donc le référentiel terrestre sur
+
+galiléen sommes des forces extérieures
+
+est égal à emma accélération du point m
+
+c'est à dire m c'est le centre de la
+
+balle donc c'est le centre de masse donc
+
+tout va bien parce que c'est ça la
+
+deuxième le newton sélectionne des
+
+forces est égal à hem fois
+
+l'accélération du centre de masse
+
+donc là on va s'occuper du terme de
+
+gauche on va se poser la question cette
+
+somme des forces extérieures trouvons là
+
+donc pour la trouver faire le bilan des
+
+forces ici a priori il le poids paix et
+
+galen g mon première force qui
+
+s'appliquait sur la balle deuxième force
+
+peut être la force de frottement de
+
+l'air la balle tombe elle et elle est
+
+oui il ya du frottement de l'air dont
+
+c'est à dire une force qui va être vers
+
+le haut ici je la négligent donc au
+
+final est là que le poids donc on peut
+
+écrire que mg est égal à emma on
+
+simplifie les masses c'est les mêmes à
+
+égal j'ai donc le vecteur accélération
+
+il a deux composantes
+
+c'est un vecteur donc il se décompose
+
+selon l'aqsiq c' est l' axe y sa
+
+composante selon l'aqsiq ca x5 opposante
+
+selon l'acte y ca y est j'ai des
+
+composants le donc j'essaie un vecteur
+
+qui est purement verticale vers le bas
+
+donc il n'ya pas de composante
+
+horizontale donc sa composante vaut zéro
+
+horizontal et sa composante verticale
+
+est négative parce qu'elle va dans le
+
+sens inverse de lax y - g avec g qui
+
+vaut 9 80 mètres seconde moins deux à
+
+paris par exemple
+
+voilà on a répondu à la question d'un
+
+trouver ce que vaut l'accélération alors
+
+tu vas me dire mais ça s'arrête là c'est
+
+tout en fait pas tout à fait mais on va
+
+pas le voir dans cette vidéo là bas tout
+
+à fait en fait une fois qu'on a à
+
+l'accélération on peut remonter à la
+
+vitesse puis à la position donc
+
+déterminer la trajectoire de cette balle
+
+qui va tomber comment rappelle-toi
+
+l'accélération c'est la dérive et de la
+
+vitesse mais du coup la vitesse on peut
+
+le trouver en faisant la primitive de
+
+l'accélération puis la position la
+
+primitive de la vitesse mais on verra ça
+
+dans une autre vidéo
+
+deuxième exemple un bateau donc là on va
+
+faire l'hypothèse que ce bateau un
+
+mouvement rectiligne uniforme et on se
+
+pose une question c'est que valent les
+
+forces qui s'exercent sur ce bateau
+
+donc voilà la situation ici à un bateau
+
+à voile pourquoi pas donc ils naviguent
+
+sur une horizontale un lot a priori et
+
+horizontale bien sûr
+
+le poids s'applique sur le centre de
+
+gravité c'est vers le bas ensuite le
+
+bateau flotte parce qu'à la poussée
+
+d'archimède donc c'est une force qui est
+
+vers le haut
+
+la force de traction
+
+s'applique s'exerce au niveau des voiles
+
+et vers la droite on va dire que le
+
+bateau avance vers la droite et l'eau
+
+exerce un frottement sur la coque du
+
+bateau donc cette force de frottement
+
+elle est opposée à la vitesse c'est à
+
+dire donc et les verts la bouche
+
+maintenant on veut en savoir un peu plus
+
+sur ses forces et donc grâce à la
+
+deuxième ligne automne on va en savoir
+
+un peu plus donc si la vitesse est
+
+constante
+
+l'accélération cd v sur d'été la dérivée
+
+d'une constante c'est zéro donc
+
+l'accélération vos héros dans le
+
+référentiel galiléen on a dit que la
+
+somme des forces était égal à emma donc
+
+la somme des forces est égal aux
+
+vecteurs nul et qu'est ce que ça veut
+
+dire que cette somme d'efforts c'est
+
+égal aux vecteurs nul eh bien ça veut
+
+dire que la somme des différents
+
+vecteurs doit valoir 0 donc en fait on
+
+va les traiter horizontaux puis enfin
+
+comment dire on va s'occuper que des
+
+vecteurs horizontaux dans un premier
+
+temps et ensuite des secteurs verticaux
+
+pourquoi parce qu'ils peuvent pas
+
+interagir on peut pas compenser si tu
+
+veux un vecteur verticale par un vecteur
+
+horizontale c'est pour ça que pour
+
+utiliser le fait que la somme des forces
+
+vos héros d'abord je vais m'occuper des
+
+forces horizontal puis forces verticales
+
+donc on y va les forces en l'occurrence
+
+je commence par les forces verticales
+
+donc bon bain les deux y en a que deux
+
+donc si elle ce qu'on pense ça veut dire
+
+que leur somme au 02 ça veut dire que
+
+l'une l'opposé l'autre c'est ce que j'ai
+
+écrit là la force d'archimède la poussée
+
+d'archimède c'est moins le poids
+
+et puis ensuite on s'occupe des forces
+
+horizontale la force de traction bassée
+
+- la force de frottement puisque les
+
+deux doivent annuler alors petite
+
+remarque et c'est pas un piège que je
+
+t'ai fait c'est juste on s'est un peu
+
+placé dans un cas particulier quand même
+
+parce que comme on est aidé en mouvement
+
+et que si l'uniforme est ce que ça te
+
+rappelle pas quelque chose ça mais si ça
+
+te rappelle le principe d'inertie en
+
+fait la sente le dire je me suis placé
+
+dans le cadre du principe d'inertie donc
+
+voilà j'ai joué un peu sur les termes
+
+sont eux dire que c'était le principe
+
+d'inertie mais on voit en fait qu'avec
+
+la deuxième loi de newton on retrouve le
+
+principe d'inertie quelque part tu
+
+pourrais même dire si tu as bien compris
+
+que le principe d'inertie ce n'est qu'un
+
+cas particulier de la deuxième ligne
+
+automne
+
+[Musique]
+

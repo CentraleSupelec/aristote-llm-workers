@@ -1,11 +1,11 @@
-model_name: gpt-3.5-turbo-0125
-transcript_path: data/fr/cs_videos_transcripts/transcript_ri.json
-output_path: results/metadata_gpt-35_fr_cs_ri.json
-connector:
+model_name: gpt-3.5-turbo-0125 # Model name used to generate the metadata. It can be an OpenAI model or an huggingface model.
+transcript_path: transcripts_examples/fr/deuxieme_loi_de_newton_les_bons_profs.txt # Path to the .txt transcript. To get an example you can get the generated subtitles from a youtube video.
+output_path: results/metadata_gpt-35_fr_newton.json # Metadata output path
+connector: # Configuration of the connector. You can use the CustomOpenAIConnector for OpenAI and APIConnectorWithOpenAIFormat for HuggingFace models deployed with vLLM
   (): "aristote.connectors.connectors.CustomOpenAIConnector"
   cache_path: .cache_gpt-35
   max_requests_per_second: 30
-prompts_config:
+prompts_config: # Prompts configuration. Paths to each prompt saved as .txt file.
   (): "aristote.metadata_generation.metadata_generator.MetadataPromptsConfig"
   reformulation_prompt_path: aristote/reformulation/prompts/reformulation_prompt_fr.txt
   summary_prompt_path: aristote/metadata_generation/prompts/zephyr/summary_prompt.txt

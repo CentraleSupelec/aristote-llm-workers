@@ -1,5 +1,5 @@
 [project]
-name = "quiz-generation"
+name = "aristote"
 description = "Generate quizzes with Large Language Models for educational purposes"
 dynamic = ["version"]
 authors = [{ name = "Antonio Loison", email = "antonio.loison@illuin.tech" }]
@@ -94,7 +94,7 @@ DEP002 = [
     "ruff", # dev dependency
     "jinja2-time", # dev dependency
     "types-python-slugify", # dev dependency
-    "quiz-generation", # project dependency
+    "aristote", # project dependency
     "gradio", # demo dependency
     "ipykernel", # notebook dependency
     "nbformat", # notebook dependency

@@ -18,6 +18,7 @@ def main(
     prompts_config: QuizPromptsConfig,
     output_path: str,
     chunks_path: Optional[str] = None,
+    chunk_sizes: Optional[List[int]] = None,
 ) -> List[MultipleAnswerQuiz]:
     tokenizer = get_tokenizer(model_name)
 
@@ -30,7 +31,7 @@ def main(
         prompts_config=prompts_config,
         chunks_path=chunks_path,
     )
-    quizzes = quiz_generator.full_generation(transcripts)
+    quizzes = quiz_generator.full_generation(transcripts, chunk_sizes=chunk_sizes)
 
     with jsonlines.open(output_path, "w") as writer:
         for quiz in quizzes:
