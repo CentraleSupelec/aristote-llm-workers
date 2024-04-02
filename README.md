@@ -15,6 +15,20 @@ If you want to accelerate the selection of the quizzes generated with the open-s
 - whether the fake answers are not obvious,
 - whether the quiz is about a theoretical concept or a specific course example.
 
+**Table of Contents**
+
+- [How does it work?](#how-does-it-work)
+- [Getting Started: Use Aristote with Docker (Recommended)](#getting-started-use-aristote-with-docker-recommended)
+  - [Use `docker-compose` (Recommended)](#use-docker-compose-recommended)
+  - [Launch separatly](#launch-separatly)
+    - [LLM Service](#llm-service)
+    - [Quiz Generation Service](#quiz-generation-service)
+- [Use Aristote's CLI](#use-aristotes-cli)
+  - [Generate metadata](#generate-metadata)
+  - [Generate quizzes](#generate-quizzes)
+- [Contributing](#contributing)
+- [Credits](#credits)
+
 ## How does it work?
 
 Aristote generates quizzes and metadata from the transcript of a video.
@@ -27,7 +41,7 @@ This diagram shows how the pipeline works:
 
 ![img](assets/pipeline.png)
 
-## Getting Started: Use Aristote through Aristote API with Docker (Recommended)
+## Getting Started: Use Aristote with Docker (Recommended)
 
 Aristote is based on two services. One service deploys the LLM through a vLLM server. The other manages the metadata and quiz generation by calling the LLM.
 
@@ -72,7 +86,7 @@ docker build -t aristote -f server/Dockerfile . && docker run --env-file .env --
 
 ## Use Aristote's CLI
 
-You may need to test the features of the app without Docker.
+You can test the features of the app without Docker.
 
 You can do it, locally, through the `aristote` cli.
 In a virtual environment, we recommend installing dependencies with [uv](https://github.com/astral-sh/uv):
@@ -86,6 +100,8 @@ But you can also simply install the dependencies with `pip`.
 ```bash
 pip install -e .
 ```
+
+You also have to set up your `.env` file based on the `.env.dist` file.
 
 ### Generate metadata
 

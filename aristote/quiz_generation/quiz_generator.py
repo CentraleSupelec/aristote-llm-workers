@@ -266,10 +266,10 @@ class QuizGenerator:
     def full_generation(
         self,
         transcripts: List[TranscribedText],
-        chunk_sizes: Optional[List[int]] = None
+        chunk_sizes: Optional[List[int]] = None,
     ) -> List[MultipleAnswerQuiz]:
         if chunk_sizes is None:
-            max_lengths = [2000, 1000] #, 500, 250]
+            max_lengths = [2000, 1000]  # , 500, 250]
         else:
             max_lengths = chunk_sizes
         all_reformulations = self.generate_reformulations(
