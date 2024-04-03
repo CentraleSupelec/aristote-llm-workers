@@ -12,8 +12,6 @@ services:
     build:
       context: .
       dockerfile: server/Dockerfile
-      args:
-        NEXUS_PYPI_PULL_URL: ${NEXUS_PYPI_PULL_URL}
     env_file:
       - .env
     volumes:
