@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timedelta
 from typing import List, Literal
 
 import uvicorn
@@ -23,6 +24,7 @@ from aristote.quiz_generation.quiz_generator import (
     QuizPromptsConfig,
 )
 from server.server_dtos import (
+    AnswerPointer,
     Choice,
     EnrichmentVersionMetadata,
     EvaluationsWrapper,
@@ -69,8 +71,19 @@ def health() -> bool:
     return True
 
 
+def format_time(seconds: int):
+    duration = timedelta(seconds=seconds)
+    base_date = datetime(1900, 1, 1)
+    result_date = base_date + duration
+    result_string = result_date.strftime("%H:%M:%S")
+    return result_string
+
+
 def generate_quizzes(
-    language: str, disciplines: List[str], transcripts: List[TranscribedText]
+    language: str,
+    disciplines: List[str],
+    media_types: List[str],
+    transcripts: List[TranscribedText],
 ) -> QuizzesWrapper:
     if language == "fr":
         metadata_prompt_config = MetadataPromptsConfig(
@@ -80,6 +93,8 @@ def generate_quizzes(
             description_prompt_path=os.environ["DESCRIPTION_PROMPT_PATH_FR"],
             generate_topics_prompt_path=os.environ["GENERATE_TOPICS_PROMPT_PATH_FR"],
             discipline_prompt_path=os.environ["DISCIPLINE_PROMPT_PATH_FR"],
+            media_type_prompt_path=os.environ["MEDIA_TYPE_PROMPT_PATH_FR"],
+            local_media_type_prompt_path=os.environ["LOCAL_MEDIA_TYPE_PROMPT_PATH_FR"],
         )
         prompts_config = QuizPromptsConfig(
             quiz_generation_prompt=os.environ["QUIZ_GENERATION_PROMPT_PATH_FR"],
@@ -93,6 +108,8 @@ def generate_quizzes(
             description_prompt_path=os.environ["DESCRIPTION_PROMPT_PATH_EN"],
             generate_topics_prompt_path=os.environ["GENERATE_TOPICS_PROMPT_PATH_EN"],
             discipline_prompt_path=os.environ["DISCIPLINE_PROMPT_PATH_EN"],
+            media_type_prompt_path=os.environ["MEDIA_TYPE_PROMPT_PATH_EN"],
+            local_media_type_prompt_path=os.environ["LOCAL_MEDIA_TYPE_PROMPT_PATH_EN"],
         )
         prompts_config = QuizPromptsConfig(
             quiz_generation_prompt=os.environ["QUIZ_GENERATION_PROMPT_PATH_EN"],
@@ -108,6 +125,7 @@ def generate_quizzes(
         connector=connector,
         prompts_config=metadata_prompt_config,
         disciplines=disciplines,
+        media_types=media_types,
     )
     quiz_generator = QuizGenerator(
         model_name=MODEL_NAME,
@@ -127,6 +145,10 @@ def generate_quizzes(
                 Choice(option_text=quiz.fake_answer_2, correct_answer=False),
                 Choice(option_text=quiz.fake_answer_3, correct_answer=False),
             ],
+            answer_pointer=AnswerPointer(
+                start_answer_pointer=format_time(quiz.origin_start),
+                stop_answer_pointer=format_time(quiz.origin_end),
+            ),
         )
         for quiz in quizzes
     ]
@@ -193,6 +215,7 @@ def evaluate_quizzes(
     )
     reformated_quizzes = [
         MultipleAnswerQuiz(
+            id=quiz.id,
             question=quiz.question,
             answer=quiz.choices[0].option_text,
             fake_answer_1=quiz.choices[1].option_text,
@@ -209,6 +232,7 @@ def evaluate_quizzes(
 @app.post("/generate-quizzes", response_model=QuizzesWrapper)
 def generate(transcript: TranscriptWrapper) -> QuizzesWrapper:
     disciplines = transcript.disciplines
+    media_types = transcript.media_types
     transcribed_sentences = [
         TranscribedText(
             text=sentence.text,
@@ -218,7 +242,7 @@ def generate(transcript: TranscriptWrapper) -> QuizzesWrapper:
         for sentence in transcript.transcript.sentences
     ]
     return generate_quizzes(
-        transcript.transcript.language, disciplines, transcribed_sentences
+        transcript.transcript.language, disciplines, media_types, transcribed_sentences
     )
 
 

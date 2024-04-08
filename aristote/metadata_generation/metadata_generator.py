@@ -9,7 +9,7 @@ from aristote.connectors.connectors import (
     CustomPrompt,
     CustomPromptParameters,
 )
-from aristote.dtos.dtos import MetaData, Reformulation, Summary
+from aristote.dtos.dtos import MediaType, MetaData, Reformulation, Summary
 from aristote.preprocessing.preprocessing import (
     get_templated_script,
     get_token_nb,
@@ -24,6 +24,7 @@ class MetadataPromptsConfig(BaseModel):
     generate_topics_prompt_path: str
     discipline_prompt_path: Optional[str] = None
     media_type_prompt_path: Optional[str] = None
+    local_media_type_prompt_path: Optional[str] = None
 
 
 class MetadataGenerator:
@@ -35,6 +36,7 @@ class MetadataGenerator:
         prompts_config: MetadataPromptsConfig,
         debug: bool = False,
         disciplines: Optional[List[str]] = None,
+        media_types: Optional[List[str]] = None,
     ) -> None:
         self.model_name = model_name
         self.tokenizer = tokenizer
@@ -73,6 +75,49 @@ class MetadataGenerator:
                 "No discipline_prompt provided, discipline will not be categorised"
             )
             self.discipline_prompt = None
+
+        if prompts_config.local_media_type_prompt_path is not None:
+            with open(
+                prompts_config.local_media_type_prompt_path, "r", encoding="utf-8"
+            ) as file:
+                self.local_media_type_prompt = file.read()
+                if media_types is not None:
+                    self.local_media_type_prompt = self.local_media_type_prompt.replace(
+                        "[MEDIA_TYPES]",
+                        "\n".join([f"- {media_type}" for media_type in media_types]),
+                    )
+                else:
+                    warnings.warn("No media types provided, using empty string")
+                    self.discipline_prompt = self.discipline_prompt.replace(
+                        "[MEDIA_TYPES]", ""
+                    )
+        else:
+            warnings.warn(
+                "No local_media_type_prompt provided, local media type"
+                + " will not be categorised"
+            )
+            self.local_media_type_prompt = None
+
+        if prompts_config.media_type_prompt_path is not None:
+            with open(
+                prompts_config.media_type_prompt_path, "r", encoding="utf-8"
+            ) as file:
+                self.media_type_prompt = file.read()
+                if media_types is not None:
+                    self.media_type_prompt = self.media_type_prompt.replace(
+                        "[MEDIA_TYPES]",
+                        "\n".join([f"- {media_type}" for media_type in media_types]),
+                    )
+                else:
+                    warnings.warn("No media types provided, using empty string")
+                    self.media_type_prompt = self.media_type_prompt.replace(
+                        "[MEDIA_TYPES]", ""
+                    )
+        else:
+            warnings.warn(
+                "No media_type_prompt provided, media type will not be categorised"
+            )
+            self.media_type_prompt = None
 
     def generate_summaries(
         self,
@@ -117,9 +162,53 @@ class MetadataGenerator:
         ]
         return summaries
 
-    def generate_main_elements(
+    def generate_local_media_types(
         self,
-        summaries: List[Summary],
+        transcripts: List[Reformulation],
+    ) -> List[MediaType]:
+        # Generate media type of reformulations
+        replaced_texts = []
+        if "[TRANSCRIPT]" not in self.local_media_type_prompt:
+            raise ValueError("Local media type prompt must contain [TRANSCRIPT]")
+        replaced_texts = [
+            self.local_media_type_prompt.replace("[TRANSCRIPT]", transcript.text)
+            for transcript in transcripts
+        ]
+        templated_transcripts = [
+            get_templated_script(text, self.tokenizer) for text in replaced_texts
+        ]
+        local_media_types_text = self.api_connector.custom_multi_requests(
+            prompts=[
+                CustomPrompt(
+                    text=templated_transcript,
+                    parameters=CustomPromptParameters(
+                        model_name=self.model_name,
+                        max_tokens=min(
+                            3500 // len(templated_transcripts),
+                            get_token_nb(templated_transcript, self.tokenizer),
+                        ),
+                        temperature=0.1,
+                        stop=["\n"],
+                    ),
+                )
+                for templated_transcript in templated_transcripts
+            ],
+            progress_desc="Generating local media types",
+        )
+        local_media_types = [
+            MediaType(
+                text=local_media_type_text.replace("\n\n", "\n"),
+                start=transcript.start,
+                end=transcript.end,
+            )
+            for local_media_type_text, transcript in zip(
+                local_media_types_text, transcripts
+            )
+        ]
+        return local_media_types
+
+    def generate_main_elements(
+        self, summaries: List[Summary], local_media_types: List[MediaType]
     ) -> Dict[str, str]:
         """Generate description, title and discipline category
         from title and description.
@@ -219,10 +308,59 @@ class MetadataGenerator:
             print("Discipline:", discipline)
             print("============================================================")
 
+        # Media type generation
+        if self.media_type_prompt is None:
+            media_type = None
+        else:
+            if (
+                "[TITLE]" not in self.media_type_prompt
+                or "[DESCRIPTION]" not in self.media_type_prompt
+                or "[LOCAL_MEDIA_TYPES]" not in self.media_type_prompt
+            ):
+                raise ValueError(
+                    "Media type prompt must contain [TITLE], [DESCRIPTION]"
+                    + ", [LOCAL_MEIDA_TYPES]"
+                )
+            media_type_instruction = (
+                self.media_type_prompt.replace("[TITLE]", title)
+                .replace("[DESCRIPTION]", description)
+                .replace(
+                    "[LOCAL_MEDIA_TYPES]",
+                    "\n".join(
+                        [
+                            f"- {local_media_type.text}"
+                            for local_media_type in local_media_types
+                        ]
+                    ),
+                )
+            )
+            media_type_prompt = get_templated_script(
+                media_type_instruction, self.tokenizer
+            )
+            if self.debug:
+                print("Title prompt:", media_type_prompt)
+                print("Title Tokens: ", get_token_nb(media_type_prompt, self.tokenizer))
+                print("============================================================")
+            media_type = self.api_connector.generate(
+                CustomPrompt(
+                    text=media_type_prompt,
+                    parameters=CustomPromptParameters(
+                        model_name=self.model_name,
+                        max_tokens=100,
+                        temperature=0.1,
+                        stop=["\n", "."],
+                    ),
+                ),
+            )
+        if self.debug:
+            print("Media type:", media_type)
+            print("============================================================")
+
         return {
             "title": title,
             "description": description,
             "discipline": discipline,
+            "media_type": media_type,
         }
 
     def generate_main_topics(self, summaries: List[Summary]) -> List[str]:
@@ -275,12 +413,13 @@ class MetadataGenerator:
     ) -> MetaData:
         # Generate summaries
         summaries = self.generate_summaries(transcripts)
+        local_media_types = self.generate_local_media_types(transcripts)
         if self.debug:
             print("Summaries:", summaries)
             print("============================================================")
 
         # Generate simple metadata
-        partial_metadata = self.generate_main_elements(summaries)
+        partial_metadata = self.generate_main_elements(summaries, local_media_types)
 
         topics = self.generate_main_topics(summaries)
 
@@ -288,5 +427,6 @@ class MetadataGenerator:
             title=partial_metadata["title"],
             description=partial_metadata["description"],
             discipline=partial_metadata["discipline"],
+            media_type=partial_metadata["media_type"],
             main_topics=topics,
         )

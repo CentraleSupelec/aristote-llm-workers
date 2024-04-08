@@ -144,6 +144,8 @@ line-length = 88
 "__init__.py" = ["F401"]
 "server/dtos.py" = ["N815"]
 "test_api.py" = ["E501"]
+"aristote/generate_quizz.py" = ["E402"]
+"aristote/evaluate_quizz.py" = ["E402"]
 
 [tool.pytest.ini_options]
 addopts = ["-ra", "--strict-markers"]
