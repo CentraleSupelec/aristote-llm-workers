@@ -1,0 +1,7 @@
+You're a university professor, looking to determine the type of one of his courses.
+This is a part of the transcript of the course :
+[TRANSCRIPT]
+Give me the type of the course from this list of types :
+[MEDIA_TYPES]
+Respond only with the name of the type.
+Type:

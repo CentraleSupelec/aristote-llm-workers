@@ -27,6 +27,7 @@ def metadata_generation(
     prompts_config: MetadataPromptsConfig,
     debug: bool = False,
     disciplines: Optional[List[str]] = None,
+    media_types: Optional[List[str]] = None,
 ) -> MetaData:
     new_transcripts = get_splits(transcripts, tokenizer=tokenizer)
     if len(new_transcripts) > 20:
@@ -55,6 +56,7 @@ def metadata_generation(
         prompts_config=prompts_config,
         debug=debug,
         disciplines=disciplines,
+        media_types=media_types,
     )
     metadata = metadata_generator.generate_metadata(reformulations)
     return metadata
@@ -68,6 +70,7 @@ def main(
     output_path: Optional[str] = None,
     debug: bool = False,
     disciplines: Optional[List[str]] = None,
+    media_types: Optional[List[str]] = None,
 ) -> None:
     tokenizer = get_tokenizer(model_name)
     transcripts = load_file(transcript_path)
@@ -80,6 +83,7 @@ def main(
         prompts_config,
         debug,
         disciplines,
+        media_types,
     )
 
     if output_path is not None:

@@ -29,6 +29,7 @@ class QuizEvaluation(BaseModel):
 
 
 class EvaluatedQuiz(BaseModel):
+    id: str
     quiz: MultipleAnswerQuiz
     evaluation: QuizEvaluation
 
@@ -216,7 +217,9 @@ class Evaluator:
             all_eval_results[i]["score"] = sum(int_values)
 
         evaluated_quizzes = [
-            EvaluatedQuiz(quiz=quiz, evaluation=QuizEvaluation(**eval_results))
+            EvaluatedQuiz(
+                id=quiz.id, quiz=quiz, evaluation=QuizEvaluation(**eval_results)
+            )
             for quiz, eval_results in zip(quizzes, all_eval_results)
         ]
         return evaluated_quizzes

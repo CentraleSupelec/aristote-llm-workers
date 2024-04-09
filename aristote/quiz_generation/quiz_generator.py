@@ -20,6 +20,7 @@ BATCH_SIZE = 4
 
 
 class MultipleAnswerQuiz(BaseModel):
+    id: Optional[str] = None
     question: str  # = Field(min_length=1)
     answer: str  # = Field(min_length=1)
     fake_answer_1: str  # = Field(min_length=1)

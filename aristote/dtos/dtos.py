@@ -17,6 +17,10 @@ class Summary(TextDTO):
     pass
 
 
+class MediaType(TextDTO):
+    pass
+
+
 class Reformulation(TextDTO):
     pass
 
