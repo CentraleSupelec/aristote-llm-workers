@@ -1,3 +1,4 @@
+import os
 from typing import List
 
 import pytest
@@ -127,7 +128,9 @@ def test_get_splits(
     max_length: int,
     expected_splits: List[TranscribedText],
 ) -> None:
-    tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
+    tokenizer = AutoTokenizer.from_pretrained(
+        pretrained_model_name_or_path=tokenizer_name, token=os.environ["HF_TOKEN"]
+    )
     splits = get_splits(transcripts, tokenizer, max_length)
     print(splits)
     assert isinstance(splits[0], TranscribedText)
