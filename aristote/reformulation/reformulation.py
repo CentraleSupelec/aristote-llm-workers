@@ -39,6 +39,7 @@ def create_reformulations(
     tokenizer: AutoTokenizer,
     api_connector: AbstractConnector,
     prompt_path: str,
+    batch_size: int,
 ) -> List[Reformulation]:
     with open(prompt_path, "r", encoding="utf-8") as file:
         base_prompt = file.read()
@@ -63,6 +64,7 @@ def create_reformulations(
             for text in replaced_texts
         ],
         progress_desc="Generating reformulation texts",
+        batch_size=batch_size,
     )
     reformulation_texts = [
         reformulation.replace("\n\n", "\n") for reformulation in reformulation_texts

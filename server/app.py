@@ -23,6 +23,10 @@ from aristote.quiz_generation.quiz_generator import (
     QuizGenerator,
     QuizPromptsConfig,
 )
+from aristote.translation_generation.main import translation_generation
+from aristote.translation_generation.translation_generator import (
+    TranslationPromptsConfig,
+)
 from server.server_dtos import (
     AnswerPointer,
     Choice,
@@ -30,19 +34,26 @@ from server.server_dtos import (
     EvaluationsWrapper,
     MultipleChoiceQuestion,
     QuizzesWrapper,
+    Sentence,
+    Transcript,
     TranscriptWrapper,
+    TranslationInputtWrapper,
+    TranslationOutputWrapper,
 )
 
 load_dotenv(".env")
 
 MODEL_NAME = os.environ["MODEL_NAME"]
 VLLM_API_URL = os.environ["VLLM_API_URL"]
+VLLM_TOKEN = os.environ["VLLM_TOKEN"]
 VLLM_CACHE_PATH = os.environ["VLLM_CACHE_PATH"]
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 OPENAI_ORG_ID = os.environ.get("OPENAI_ORG_ID")
 OPEN_AI_CACHE_PATH = os.environ.get("OPEN_AI_CACHE_PATH")
 EVALUATION_MODEL_NAME = os.environ["EVALUATION_MODEL_NAME"]
+
+BATCH_SIZE = int(os.environ["BATCH_SIZE"])
 
 app = FastAPI(
     title="Quiz Generation API",
@@ -52,6 +63,7 @@ app = FastAPI(
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 connector = APIConnectorWithOpenAIFormat(
     api_url=VLLM_API_URL,
+    token=VLLM_TOKEN,
     cache_path=VLLM_CACHE_PATH,
 )
 openai_connector = CustomOpenAIConnector(
@@ -126,6 +138,7 @@ def generate_quizzes(
         prompts_config=metadata_prompt_config,
         disciplines=disciplines,
         media_types=media_types,
+        batch_size=BATCH_SIZE,
     )
     quiz_generator = QuizGenerator(
         model_name=MODEL_NAME,
@@ -133,6 +146,7 @@ def generate_quizzes(
         api_connector=connector,
         prompts_config=prompts_config,
         chunks_path=None,
+        batch_size=BATCH_SIZE,
     )
     quizzes = quiz_generator.full_generation(transcripts)
     formatted_quizzes = [
@@ -229,6 +243,150 @@ def evaluate_quizzes(
     return EvaluationsWrapper(evaluations=evaluations)
 
 
+def translate_quizzes(
+    enrichment: TranslationInputtWrapper, language: Literal["fr", "en"] = "en"
+) -> TranslationOutputWrapper:
+    if language == "fr":
+        translation_prompts_config = TranslationPromptsConfig(
+            quiz_translation_prompt_path=os.environ["QUIZ_TRANSLATION_PROMPT_PATH_FR"],
+            title_translation_prompt_path=os.environ[
+                "TITLE_TRANSLATION_PROMPT_PATH_FR"
+            ],
+            description_translation_prompt_path=os.environ[
+                "DESCRIPTION_TRANSLATION_PROMPT_PATH_FR"
+            ],
+            topics_translation_prompt_path=os.environ[
+                "TOPICS_TRANSLATION_PROMPT_PATH_FR"
+            ],
+            transcript_translation_prompt_path=os.environ[
+                "TRANSCRIPT_TRANSLATION_PROMPT_PATH_FR"
+            ],
+        )
+    elif language == "en":
+        translation_prompts_config = TranslationPromptsConfig(
+            quiz_translation_prompt_path=os.environ["QUIZ_TRANSLATION_PROMPT_PATH_EN"],
+            title_translation_prompt_path=os.environ[
+                "TITLE_TRANSLATION_PROMPT_PATH_EN"
+            ],
+            description_translation_prompt_path=os.environ[
+                "DESCRIPTION_TRANSLATION_PROMPT_PATH_EN"
+            ],
+            topics_translation_prompt_path=os.environ[
+                "TOPICS_TRANSLATION_PROMPT_PATH_EN"
+            ],
+            transcript_translation_prompt_path=os.environ[
+                "TRANSCRIPT_TRANSLATION_PROMPT_PATH_EN"
+            ],
+        )
+    else:
+        raise ValueError(f"Language {language} not supported.")
+
+    transcribed_sentences = [
+        TranscribedText(
+            text=sentence.text,
+            start=sentence.start,
+            end=sentence.end,
+        )
+        for sentence in enrichment.transcript.sentences
+    ]
+
+    translation = translation_generation(
+        meta_data=MetaData(
+            title=enrichment.enrichment_version_metadata.title,
+            description=enrichment.enrichment_version_metadata.description,
+            main_topics=enrichment.enrichment_version_metadata.topics,
+        ),
+        quizzes=[
+            MultipleAnswerQuiz(
+                id=multiple_choice_question.id,
+                question=multiple_choice_question.question,
+                explanation=multiple_choice_question.explanation,
+                answer=multiple_choice_question.choices[0].option_text,
+                fake_answer_1=multiple_choice_question.choices[1].option_text,
+                fake_answer_2=multiple_choice_question.choices[2].option_text,
+                fake_answer_3=multiple_choice_question.choices[3].option_text,
+            )
+            for multiple_choice_question in enrichment.multiple_choice_questions
+        ],
+        transcripts=transcribed_sentences,
+        model_name=MODEL_NAME,
+        prompts_config=translation_prompts_config,
+        tokenizer=tokenizer,
+        connector=connector,
+        from_language=enrichment.from_language,
+        to_language=enrichment.to_language,
+        batch_size=BATCH_SIZE,
+    )
+
+    return TranslationOutputWrapper(
+        enrichment_version_metadata=EnrichmentVersionMetadata(
+            title=translation.meta_data.title,
+            description=translation.meta_data.description,
+            topics=translation.meta_data.main_topics,
+        ),
+        multiple_choice_questions=[
+            MultipleChoiceQuestion(
+                id=enrichment.multiple_choice_questions[quiz_index].id,
+                question=quizz.question,
+                explanation=quizz.explanation,
+                choices=[
+                    Choice(
+                        id=enrichment.multiple_choice_questions[quiz_index]
+                        .choices[0]
+                        .id,
+                        option_text=quizz.answer,
+                        correct_answer=enrichment.multiple_choice_questions[quiz_index]
+                        .choices[0]
+                        .correct_answer,
+                    ),
+                    Choice(
+                        id=enrichment.multiple_choice_questions[quiz_index]
+                        .choices[1]
+                        .id,
+                        option_text=quizz.fake_answer_1,
+                        correct_answer=enrichment.multiple_choice_questions[quiz_index]
+                        .choices[1]
+                        .correct_answer,
+                    ),
+                    Choice(
+                        id=enrichment.multiple_choice_questions[quiz_index]
+                        .choices[2]
+                        .id,
+                        option_text=quizz.fake_answer_2,
+                        correct_answer=enrichment.multiple_choice_questions[quiz_index]
+                        .choices[2]
+                        .correct_answer,
+                    ),
+                    Choice(
+                        id=enrichment.multiple_choice_questions[quiz_index]
+                        .choices[3]
+                        .id,
+                        option_text=quizz.fake_answer_3,
+                        correct_answer=enrichment.multiple_choice_questions[quiz_index]
+                        .choices[3]
+                        .correct_answer,
+                    ),
+                ],
+            )
+            for quiz_index, quizz in enumerate(translation.quizzes)
+        ],
+        transcript=Transcript(
+            text=" ".join(
+                [transcribed_text.text for transcribed_text in translation.transcript]
+            ),
+            sentences=[
+                Sentence(
+                    start=transcribed_text.start,
+                    end=transcribed_text.end,
+                    text=transcribed_text.text,
+                )
+                for transcribed_text in translation.transcript
+            ],
+        ),
+        status="OK",
+    )
+
+
 @app.post("/generate-quizzes", response_model=QuizzesWrapper)
 def generate(transcript: TranscriptWrapper) -> QuizzesWrapper:
     disciplines = transcript.disciplines
@@ -249,6 +407,11 @@ def generate(transcript: TranscriptWrapper) -> QuizzesWrapper:
 @app.post("/evaluate-quizzes", response_model=EvaluationsWrapper)
 def evaluate(quizzes: QuizzesWrapper) -> EvaluationsWrapper:
     return evaluate_quizzes(quizzes)
+
+
+@app.post("/translate-enrichment", response_model=TranslationOutputWrapper)
+def translate(enrichment: TranslationInputtWrapper) -> TranslationOutputWrapper:
+    return translate_quizzes(enrichment)
 
 
 if __name__ == "__main__":

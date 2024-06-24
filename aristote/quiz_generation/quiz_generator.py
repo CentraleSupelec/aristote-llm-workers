@@ -16,8 +16,6 @@ from aristote.dtos import Reformulation, TranscribedText
 from aristote.preprocessing.preprocessing import get_splits, get_token_nb
 from aristote.reformulation.reformulation import create_reformulations
 
-BATCH_SIZE = 4
-
 
 class MultipleAnswerQuiz(BaseModel):
     id: Optional[str] = None
@@ -46,12 +44,14 @@ class QuizGenerator:
         api_connector: AbstractConnector,
         prompts_config: QuizPromptsConfig,
         chunks_path: Optional[str] = None,
+        batch_size: Optional[int] = None,
     ) -> None:
         self.model_name = model_name
         self.tokenizer = tokenizer
         self.api_connector = api_connector
         self.prompts_config = prompts_config
         self.chunks_path = chunks_path
+        self.batch_size = batch_size
 
         with open(prompts_config.quiz_generation_prompt, "r", encoding="utf-8") as file:
             self.quiz_generation_prompt = file.read()
@@ -109,6 +109,7 @@ class QuizGenerator:
             self.tokenizer,
             self.api_connector,
             self.prompts_config.reformulation_prompt_path,
+            self.batch_size,
         )
         return all_reformulations
 
@@ -132,6 +133,7 @@ class QuizGenerator:
         questions = self.api_connector.custom_multi_requests(
             [self.get_custom_prompt(conv) for conv in conversations],
             progress_desc="Generating questions",
+            batch_size=self.batch_size,
         )
         for i, question in enumerate(questions):
             if "?" in question:
@@ -151,6 +153,7 @@ class QuizGenerator:
         answers = self.api_connector.custom_multi_requests(
             [self.get_custom_prompt(conv) for conv in conversations],
             progress_desc="Generating answers",
+            batch_size=self.batch_size,
         )
         answers = [answer + "." for answer in answers]
         for i, answer in enumerate(answers):
@@ -171,6 +174,7 @@ class QuizGenerator:
         fake_answers_1 = self.api_connector.custom_multi_requests(
             [self.get_custom_prompt(conv) for conv in conversations],
             progress_desc="Generating fake answers 1",
+            batch_size=self.batch_size,
         )
         fake_answers_1 = [answer + "." for answer in fake_answers_1]
         for i, answer in enumerate(fake_answers_1):
@@ -191,6 +195,7 @@ class QuizGenerator:
         fake_answers_2 = self.api_connector.custom_multi_requests(
             [self.get_custom_prompt(conv) for conv in conversations],
             progress_desc="Generating fake answers 2",
+            batch_size=self.batch_size,
         )
         fake_answers_2 = [answer + "." for answer in fake_answers_2]
         for i, answer in enumerate(fake_answers_2):
@@ -211,6 +216,7 @@ class QuizGenerator:
         fake_answers_3 = self.api_connector.custom_multi_requests(
             [self.get_custom_prompt(conv) for conv in conversations],
             progress_desc="Generating fake answers 3",
+            batch_size=self.batch_size,
         )
         fake_answers_3 = [answer + "." for answer in fake_answers_3]
         for i, answer in enumerate(fake_answers_3):
@@ -231,6 +237,7 @@ class QuizGenerator:
         explanations = self.api_connector.custom_multi_requests(
             [self.get_custom_prompt(conv) for conv in conversations],
             progress_desc="Generating explanations",
+            batch_size=self.batch_size,
         )
         return [
             MultipleAnswerQuiz(

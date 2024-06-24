@@ -37,11 +37,13 @@ class MetadataGenerator:
         debug: bool = False,
         disciplines: Optional[List[str]] = None,
         media_types: Optional[List[str]] = None,
+        batch_size: Optional[int] = None,
     ) -> None:
         self.model_name = model_name
         self.tokenizer = tokenizer
         self.api_connector = api_connector
         self.debug = debug
+        self.batch_size = batch_size
 
         with open(prompts_config.summary_prompt_path, "r", encoding="utf-8") as file:
             self.summary_prompt = file.read()
@@ -151,6 +153,7 @@ class MetadataGenerator:
                 for templated_transcript in templated_transcripts
             ],
             progress_desc="Generating summaries",
+            batch_size=self.batch_size,
         )
         summaries = [
             Summary(
@@ -194,6 +197,7 @@ class MetadataGenerator:
                 for templated_transcript in templated_transcripts
             ],
             progress_desc="Generating local media types",
+            batch_size=self.batch_size,
         )
         local_media_types = [
             MediaType(

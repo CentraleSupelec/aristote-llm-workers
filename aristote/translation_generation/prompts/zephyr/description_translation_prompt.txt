@@ -1,0 +1,5 @@
+You're a university professor looking for a description for one of your courses.
+You have the description in this language : [FROM_LANGUAGE]
+[DESCRIPTION]
+You have to translate it into this language : [TO_LANGUAGE]
+Translated description:

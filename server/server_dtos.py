@@ -17,8 +17,8 @@ class Sentence(BaseModel):
 
 
 class Transcript(BaseModel):
-    original_file_name: str
-    language: str
+    original_file_name: Optional[str] = None
+    language: Optional[str] = None
     text: str
     sentences: List[Sentence]
 
@@ -47,6 +47,7 @@ class EnrichmentVersionMetadata(BaseSchema):
 
 
 class Choice(BaseSchema):
+    id: Optional[str] = None
     option_text: str
     correct_answer: bool
 
@@ -77,3 +78,20 @@ class EvaluationsWrapper(BaseSchema):
     task_id: Optional[str] = None
     failure_cause: Optional[str] = None
     status: Optional[str] = None
+
+
+class TranslationWrapper(BaseSchema):
+    enrichment_version_metadata: EnrichmentVersionMetadata
+    multiple_choice_questions: List[MultipleChoiceQuestion]
+    transcript: Transcript
+
+
+class TranslationInputtWrapper(TranslationWrapper):
+    from_language: str
+    to_language: str
+
+
+class TranslationOutputWrapper(TranslationWrapper):
+    task_id: Optional[str] = None
+    failure_cause: Optional[str] = None
+    status: str
