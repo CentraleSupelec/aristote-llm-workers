@@ -1,0 +1,14 @@
+You're a university professor looking to generate a list of topics for one of your courses.
+You have the list of topics in this language : [FROM_LANGUAGE]
+You have to translate it into this language : [TO_LANGUAGE]
+For context, this is the title of the course : [TITLE]
+Ths is a description of the course : [DESCRIPTION]
+Here is the list of topics :
+[TOPICS]
+Give me the translated list of topics separated by a line jump "\n", like below. And do not give anything else besides the translated topics !
+TOPICS:
+- Topic 1
+- Topic 2
+- Topic 3
+TOPICS:
+-

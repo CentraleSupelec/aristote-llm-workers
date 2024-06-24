@@ -28,6 +28,7 @@ def metadata_generation(
     debug: bool = False,
     disciplines: Optional[List[str]] = None,
     media_types: Optional[List[str]] = None,
+    batch_size: Optional[int] = None,
 ) -> MetaData:
     new_transcripts = get_splits(transcripts, tokenizer=tokenizer)
     if len(new_transcripts) > 20:
@@ -47,6 +48,7 @@ def metadata_generation(
         tokenizer,
         connector,
         prompts_config.reformulation_prompt_path,
+        batch_size=batch_size,
     )
 
     metadata_generator = MetadataGenerator(
@@ -57,6 +59,7 @@ def metadata_generation(
         debug=debug,
         disciplines=disciplines,
         media_types=media_types,
+        batch_size=batch_size,
     )
     metadata = metadata_generator.generate_metadata(reformulations)
     return metadata

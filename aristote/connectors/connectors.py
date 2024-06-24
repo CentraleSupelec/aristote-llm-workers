@@ -12,6 +12,8 @@ from openai import OpenAI
 from pydantic import BaseModel
 from tqdm import tqdm
 
+from aristote.custom_exceptions import NotResponsiveModelError
+
 
 class Message(BaseModel):
     role: Literal["system", "user", "assistant"]
@@ -249,8 +251,14 @@ class APIConnector(AbstractConnector):
 
 
 class APIConnectorWithOpenAIFormat(AbstractConnector):
-    def __init__(self, api_url: str, cache_path: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        api_url: str,
+        token: Optional[str] = None,
+        cache_path: Optional[str] = None,
+    ) -> None:
         self.api_url = api_url
+        self.token = token
         if cache_path is not None:
             self.cache = Cache(cache_path)
         else:
@@ -265,6 +273,7 @@ class APIConnectorWithOpenAIFormat(AbstractConnector):
             cached_text = self.cache.get(cache_key)
         else:
             cached_text = None
+        cached_text = None
         if isinstance(cached_text, str):
             return cached_text
         else:
@@ -277,6 +286,10 @@ class APIConnectorWithOpenAIFormat(AbstractConnector):
                     ]
                 else:
                     raise ValueError("Prompt must contain text or messages")
+                headers = {}
+                if self.token:
+                    headers["Authorization"] = "Bearer " + self.token
+
                 response = requests.post(
                     self.api_url,
                     json={
@@ -286,7 +299,8 @@ class APIConnectorWithOpenAIFormat(AbstractConnector):
                         "max_tokens": prompt.parameters.max_tokens,
                         "stop": prompt.parameters.stop,
                     },
-                    timeout=1000,
+                    timeout=60000,
+                    headers=headers,
                 )
             except Exception as exception:
                 raise exception
@@ -294,7 +308,10 @@ class APIConnectorWithOpenAIFormat(AbstractConnector):
                 warnings.warn(
                     f"Request failed with status code: {response.status_code}"
                 )
-                return ""
+                warnings.warn(f"Request failed content: {response.content}")
+                raise NotResponsiveModelError(
+                    f"LLM is not responding. Error code : {response.status_code}"
+                )
             else:
                 try:
                     result = str(response.json()["choices"][0]["message"]["content"])

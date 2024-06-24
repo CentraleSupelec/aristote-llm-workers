@@ -1,0 +1,2 @@
+class NotResponsiveModelError(Exception):
+    pass
