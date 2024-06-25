@@ -273,7 +273,6 @@ class APIConnectorWithOpenAIFormat(AbstractConnector):
             cached_text = self.cache.get(cache_key)
         else:
             cached_text = None
-        cached_text = None
         if isinstance(cached_text, str):
             return cached_text
         else:
