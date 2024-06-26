@@ -1,0 +1,9 @@
+You're a university professor, looking to categorize one of his courses.
+This is the course's title :
+[TITLE]
+And description :
+[DESCRIPTION]
+Give the category of the course from theses categories :
+[DISCIPLINES]
+Respond only with the name of the category.
+Catégory:

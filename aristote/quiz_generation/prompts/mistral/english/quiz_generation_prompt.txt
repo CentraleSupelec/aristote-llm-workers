@@ -1,0 +1,26 @@
+You're a teaching assistant helping a teacher create a knowledge test for his students.
+Generate a question about the following extract that can be answered in one sentence:
+[EXTRACT]
+Make sure that the question is about the knowledge mentioned in the transcript but not the transcript or the course itself.
+The form of the question should be as simple as possible. Make sure that there is only one question in the question.
+Question: {QUESTION}
+Now, generate the answer to the question in one sentence. The answer must be in the extract.
+Do not repeat the question in the answer.
+Answer: {ANSWER}
+Now, provide a wrong answer in one sentence.
+This fake answer should be different from the previous answer, but the format should be similar.
+Do not repeat the question in the fake answer.
+It must be obviously false.
+Fake answer 1: {FAKE ANSWER 1}
+Now, provide another wrong answer in one sentence.
+This fake answer should be different from the previous 2 answers, but the format should be similar.
+Do not repeat the question in the fake answer.
+It must be subtly wrong.
+Fake answer 2: {FAKE ANSWER 2}
+Now, provide another wrong answer in one sentence.
+This fake answer should be different from the previous 3 answers, but the format should be similar.
+Do not repeat the question in the fake answer.
+It must be subtly wrong.
+Fake answer 3: {FAKE ANSWER 3}
+Provide an explanation for the answer and the wrong answers.
+Explanation: {EXPLANATION}

@@ -1,9 +1,0 @@
-Tu es un évaluateur de quiz de cours, voici le titre du cours et une description.
-Titre: [TITLE]
-Desctiption: [DESCRIPTION]
-Tu vas voir une question et plusieurs réponses possibles à cette question.
-Question: [QUESTION]
-Réponses:
-[ANSWERS]
-Est-ce que toutes les réponses sont différentes? Réponds par oui ou par non.
-Réponse: 

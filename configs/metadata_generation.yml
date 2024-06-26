@@ -7,9 +7,9 @@ connector: # Configuration of the connector. You can use the CustomOpenAIConnect
   max_requests_per_second: 30
 prompts_config: # Prompts configuration. Paths to each prompt saved as .txt file.
   (): "aristote.metadata_generation.metadata_generator.MetadataPromptsConfig"
-  reformulation_prompt_path: aristote/reformulation/prompts/reformulation_prompt_fr.txt
-  summary_prompt_path: aristote/metadata_generation/prompts/zephyr/summary_prompt.txt
-  title_prompt_path: aristote/metadata_generation/prompts/zephyr/title_prompt.txt
-  description_prompt_path: aristote/metadata_generation/prompts/zephyr/description_prompt.txt
-  generate_topics_prompt_path: aristote/metadata_generation/prompts/zephyr/generate_topics_prompt.txt
-  discipline_prompt_path: aristote/metadata_generation/prompts/zephyr/discipline_prompt.txt
+  reformulation_prompt_path: aristote/reformulation/prompts/mistral/french/reformulation_prompt.txt
+  summary_prompt_path: aristote/metadata_generation/prompts/mistral/french/summary_prompt.txt
+  title_prompt_path: aristote/metadata_generation/prompts/mistral/french/title_prompt.txt
+  description_prompt_path: aristote/metadata_generation/prompts/mistral/french/description_prompt.txt
+  generate_topics_prompt_path: aristote/metadata_generation/prompts/mistral/french/generate_topics_prompt.txt
+  discipline_prompt_path: aristote/metadata_generation/prompts/mistral/french/discipline_prompt.txt

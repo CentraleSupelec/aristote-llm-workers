@@ -12,6 +12,6 @@ chunk_sizes:  # List of sizes of chunks. Here the transcript will first be split
   - 1000
 prompts_config: # Prompts configuration. Paths to each prompt saved as .txt file.
   (): "aristote.quiz_generation.quiz_generator.QuizPromptsConfig"
-  quiz_generation_prompt: aristote/quiz_generation/prompts/zephyr/quiz_generation_prompt.txt
-  reformulation_prompt_path: aristote/reformulation/prompts/reformulation_prompt_fr.txt
+  quiz_generation_prompt: aristote/quiz_generation/prompts/mistral/french/quiz_generation_prompt.txt
+  reformulation_prompt_path: aristote/reformulation/prompts/mistral/french/reformulation_prompt.txt
 output_path: results/quizzes_gpt-35_fr_cs_ri.jsonl # Quizzes output path

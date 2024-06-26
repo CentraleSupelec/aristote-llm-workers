@@ -1,0 +1,4 @@
+You will receive the transcript of a course. Rewrite the following transcript without the noise of the transcription as if it was on a textbook:
+[TRANSCRIPT]
+The final text should contain all the essential information of the course and no repetitions.
+Text:

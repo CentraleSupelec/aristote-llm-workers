@@ -1,0 +1,7 @@
+Tu es un professeur d'université, cherchant à déterminer la nature d'un de ses cours.
+Voici une partie de ce cours :
+[TRANSCRIPT]
+Donne moi la nature du cours parmi ces natures :
+[MEDIA_TYPES]
+Réponds avec le nom du type uniquement.
+Catégorie:
