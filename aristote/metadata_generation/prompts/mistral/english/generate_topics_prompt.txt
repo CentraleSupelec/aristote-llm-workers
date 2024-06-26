@@ -1,0 +1,7 @@
+You're a university professor, trying to summarize one of his lectures.
+Here's an extract from that lecture:
+[SUMMARIES]
+Give me between 1 and 3 topics summarizing the important and fundamental elements of this extract.
+Together, these topics should give a good idea of the content of the extract. Each topic should be only 4 or 5 words long. Don't send anything else!
+SUBJECTS:
+- 

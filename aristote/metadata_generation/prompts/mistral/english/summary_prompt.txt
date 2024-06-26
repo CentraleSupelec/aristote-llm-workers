@@ -1,0 +1,5 @@
+You're a university professor, trying to summarize one of his lectures.
+Here's part of that lecture:
+[TRANSCRIPT]
+Give me a short, relevant summary for this part.
+Summary:

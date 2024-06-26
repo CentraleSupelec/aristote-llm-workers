@@ -43,7 +43,10 @@ from server.server_dtos import (
 
 load_dotenv(".env")
 
+language_map = {"fr": "french", "en": "english"}
+
 MODEL_NAME = os.environ["MODEL_NAME"]
+MODEL_PROMPTS_FOLDER = os.environ["MODEL_PROMPTS_FOLDER"]
 VLLM_API_URL = os.environ["VLLM_API_URL"]
 VLLM_TOKEN = os.environ["VLLM_TOKEN"]
 VLLM_CACHE_PATH = os.environ["VLLM_CACHE_PATH"]
@@ -52,6 +55,7 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 OPENAI_ORG_ID = os.environ.get("OPENAI_ORG_ID")
 OPEN_AI_CACHE_PATH = os.environ.get("OPEN_AI_CACHE_PATH")
 EVALUATION_MODEL_NAME = os.environ["EVALUATION_MODEL_NAME"]
+EVALUATION_MODEL_PROMPTS_FOLDER = os.environ["EVALUATION_MODEL_PROMPTS_FOLDER"]
 
 BATCH_SIZE = int(os.environ["BATCH_SIZE"])
 
@@ -91,41 +95,52 @@ def format_time(seconds: int):
     return result_string
 
 
+def get_promprt_path(env_path, language) -> str:
+    return (
+        os.environ[env_path]
+        .replace("[language]", language_map[language])
+        .replace("[model_folder_name]", MODEL_PROMPTS_FOLDER)
+    )
+
+
 def generate_quizzes(
     language: str,
     disciplines: List[str],
     media_types: List[str],
     transcripts: List[TranscribedText],
 ) -> QuizzesWrapper:
-    if language == "fr":
+    if language in language_map.keys():
         metadata_prompt_config = MetadataPromptsConfig(
-            reformulation_prompt_path=os.environ["REFORMULATION_PROMPT_PATH_FR"],
-            summary_prompt_path=os.environ["SUMMARY_PROMPT_PATH_FR"],
-            title_prompt_path=os.environ["TITLE_PROMPT_PATH_FR"],
-            description_prompt_path=os.environ["DESCRIPTION_PROMPT_PATH_FR"],
-            generate_topics_prompt_path=os.environ["GENERATE_TOPICS_PROMPT_PATH_FR"],
-            discipline_prompt_path=os.environ["DISCIPLINE_PROMPT_PATH_FR"],
-            media_type_prompt_path=os.environ["MEDIA_TYPE_PROMPT_PATH_FR"],
-            local_media_type_prompt_path=os.environ["LOCAL_MEDIA_TYPE_PROMPT_PATH_FR"],
+            reformulation_prompt_path=get_promprt_path(
+                "REFORMULATION_PROMPT_PATH", language=language
+            ),
+            summary_prompt_path=get_promprt_path(
+                "SUMMARY_PROMPT_PATH", language=language
+            ),
+            title_prompt_path=get_promprt_path("TITLE_PROMPT_PATH", language=language),
+            description_prompt_path=get_promprt_path(
+                "DESCRIPTION_PROMPT_PATH", language=language
+            ),
+            generate_topics_prompt_path=get_promprt_path(
+                "GENERATE_TOPICS_PROMPT_PATH", language=language
+            ),
+            discipline_prompt_path=get_promprt_path(
+                "DISCIPLINE_PROMPT_PATH", language=language
+            ),
+            media_type_prompt_path=get_promprt_path(
+                "MEDIA_TYPE_PROMPT_PATH", language=language
+            ),
+            local_media_type_prompt_path=get_promprt_path(
+                "LOCAL_MEDIA_TYPE_PROMPT_PATH", language=language
+            ),
         )
         prompts_config = QuizPromptsConfig(
-            quiz_generation_prompt=os.environ["QUIZ_GENERATION_PROMPT_PATH_FR"],
-            reformulation_prompt_path=os.environ["REFORMULATION_PROMPT_PATH_FR"],
-        )
-    elif language == "en":
-        metadata_prompt_config = MetadataPromptsConfig(
-            reformulation_prompt_path=os.environ["REFORMULATION_PROMPT_PATH_EN"],
-            summary_prompt_path=os.environ["SUMMARY_PROMPT_PATH_EN"],
-            title_prompt_path=os.environ["TITLE_PROMPT_PATH_EN"],
-            description_prompt_path=os.environ["DESCRIPTION_PROMPT_PATH_EN"],
-            generate_topics_prompt_path=os.environ["GENERATE_TOPICS_PROMPT_PATH_EN"],
-            discipline_prompt_path=os.environ["DISCIPLINE_PROMPT_PATH_EN"],
-            media_type_prompt_path=os.environ["MEDIA_TYPE_PROMPT_PATH_EN"],
-            local_media_type_prompt_path=os.environ["LOCAL_MEDIA_TYPE_PROMPT_PATH_EN"],
-        )
-        prompts_config = QuizPromptsConfig(
-            quiz_generation_prompt=os.environ["QUIZ_GENERATION_PROMPT_PATH_EN"],
-            reformulation_prompt_path=os.environ["REFORMULATION_PROMPT_PATH_EN"],
+            quiz_generation_prompt=get_promprt_path(
+                "QUIZ_GENERATION_PROMPT_PATH", language=language
+            ),
+            reformulation_prompt_path=get_promprt_path(
+                "REFORMULATION_PROMPT_PATH", language=language
+            ),
         )
     else:
         raise ValueError(f"Language {language} not supported.")
@@ -182,35 +197,32 @@ def generate_quizzes(
 def evaluate_quizzes(
     quizzes: QuizzesWrapper, language: Literal["fr", "en"] = "fr"
 ) -> EvaluationsWrapper:
-    if language == "fr":
+    if language in language_map.keys():
         evaluation_prompts_config = EvaluationPromptsConfig(
-            is_related_prompt=os.environ["IS_RELATED_PROMPT_PATH_FR"],
-            is_self_contained_prompt=os.environ["IS_SELF_CONTAINED_PROMPT_PATH_FR"],
-            is_question_prompt=os.environ["IS_QUESTION_PROMPT_PATH_FR"],
-            language_is_clear_prompt=os.environ["LANGUAGE_IS_CLEAR_PROMPT_PATH_FR"],
-            answers_are_all_different_prompt=os.environ[
-                "ANSWERS_ARE_ALL_DIFFERENT_PROMPT_PATH_FR"
-            ],
-            fake_answers_are_not_obvious_prompt=os.environ[
-                "FAKE_ANSWERS_ARE_NOT_OBVIOUS_PROMPT_PATH_FR"
-            ],
-            answers_are_related=os.environ["ANSWERS_ARE_RELATED_PROMPT_PATH_FR"],
-            quiz_about_concept=os.environ["QUIZ_ABOUT_CONCEPT_PROMPT_PATH_FR"],
-        )
-    elif language == "en":
-        evaluation_prompts_config = EvaluationPromptsConfig(
-            is_related_prompt=os.environ["IS_RELATED_PROMPT_PATH_EN"],
-            is_self_contained_prompt=os.environ["IS_SELF_CONTAINED_PROMPT_PATH_EN"],
-            is_question_prompt=os.environ["IS_QUESTION_PROMPT_PATH_EN"],
-            language_is_clear_prompt=os.environ["LANGUAGE_IS_CLEAR_PROMPT_PATH_EN"],
-            answers_are_all_different_prompt=os.environ[
-                "ANSWERS_ARE_ALL_DIFFERENT_PROMPT_PATH_EN"
-            ],
-            fake_answers_are_not_obvious_prompt=os.environ[
-                "FAKE_ANSWERS_ARE_NOT_OBVIOUS_PROMPT_PATH_EN"
-            ],
-            answers_are_related=os.environ["ANSWERS_ARE_RELATED_PROMPT_PATH_EN"],
-            quiz_about_concept=os.environ["QUIZ_ABOUT_CONCEPT_PROMPT_PATH_EN"],
+            is_related_prompt=get_promprt_path(
+                "IS_RELATED_PROMPT_PATH", language=language
+            ),
+            is_self_contained_prompt=get_promprt_path(
+                "IS_SELF_CONTAINED_PROMPT_PATH", language=language
+            ),
+            is_question_prompt=get_promprt_path(
+                "IS_QUESTION_PROMPT_PATH", language=language
+            ),
+            language_is_clear_prompt=get_promprt_path(
+                "LANGUAGE_IS_CLEAR_PROMPT_PATH", language=language
+            ),
+            answers_are_all_different_prompt=get_promprt_path(
+                "ANSWERS_ARE_ALL_DIFFERENT_PROMPT_PATH", language=language
+            ),
+            fake_answers_are_not_obvious_prompt=get_promprt_path(
+                "FAKE_ANSWERS_ARE_NOT_OBVIOUS_PROMPT_PATH", language=language
+            ),
+            answers_are_related=get_promprt_path(
+                "ANSWERS_ARE_RELATED_PROMPT_PATH", language=language
+            ),
+            quiz_about_concept=get_promprt_path(
+                "QUIZ_ABOUT_CONCEPT_PROMPT_PATH", language=language
+            ),
         )
     else:
         raise ValueError(f"Language {language} not supported.")
@@ -246,37 +258,23 @@ def evaluate_quizzes(
 def translate_quizzes(
     enrichment: TranslationInputtWrapper, language: Literal["fr", "en"] = "en"
 ) -> TranslationOutputWrapper:
-    if language == "fr":
+    if language in language_map.keys():
         translation_prompts_config = TranslationPromptsConfig(
-            quiz_translation_prompt_path=os.environ["QUIZ_TRANSLATION_PROMPT_PATH_FR"],
-            title_translation_prompt_path=os.environ[
-                "TITLE_TRANSLATION_PROMPT_PATH_FR"
-            ],
-            description_translation_prompt_path=os.environ[
-                "DESCRIPTION_TRANSLATION_PROMPT_PATH_FR"
-            ],
-            topics_translation_prompt_path=os.environ[
-                "TOPICS_TRANSLATION_PROMPT_PATH_FR"
-            ],
-            transcript_translation_prompt_path=os.environ[
-                "TRANSCRIPT_TRANSLATION_PROMPT_PATH_FR"
-            ],
-        )
-    elif language == "en":
-        translation_prompts_config = TranslationPromptsConfig(
-            quiz_translation_prompt_path=os.environ["QUIZ_TRANSLATION_PROMPT_PATH_EN"],
-            title_translation_prompt_path=os.environ[
-                "TITLE_TRANSLATION_PROMPT_PATH_EN"
-            ],
-            description_translation_prompt_path=os.environ[
-                "DESCRIPTION_TRANSLATION_PROMPT_PATH_EN"
-            ],
-            topics_translation_prompt_path=os.environ[
-                "TOPICS_TRANSLATION_PROMPT_PATH_EN"
-            ],
-            transcript_translation_prompt_path=os.environ[
-                "TRANSCRIPT_TRANSLATION_PROMPT_PATH_EN"
-            ],
+            quiz_translation_prompt_path=get_promprt_path(
+                "QUIZ_TRANSLATION_PROMPT_PATH", language=language
+            ),
+            title_translation_prompt_path=get_promprt_path(
+                "TITLE_TRANSLATION_PROMPT_PATH", language=language
+            ),
+            description_translation_prompt_path=get_promprt_path(
+                "DESCRIPTION_TRANSLATION_PROMPT_PATH", language=language
+            ),
+            topics_translation_prompt_path=get_promprt_path(
+                "TOPICS_TRANSLATION_PROMPT_PATH", language=language
+            ),
+            transcript_translation_prompt_path=get_promprt_path(
+                "TRANSCRIPT_TRANSLATION_PROMPT_PATH", language=language
+            ),
         )
     else:
         raise ValueError(f"Language {language} not supported.")

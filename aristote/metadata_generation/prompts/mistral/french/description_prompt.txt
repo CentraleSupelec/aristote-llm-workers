@@ -1,0 +1,6 @@
+Tu es un professeur d'université, cherchant à donner une petite description du sujet d'un de ses cours.
+Voici les différentes parties de ce cours : 
+[SUMMARIES]
+Donne moi une courte description du cours en moins de quatre phrases.
+Réponds en français.
+Courte description:

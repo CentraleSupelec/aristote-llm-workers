@@ -1,0 +1,6 @@
+Tu es un professeur d'université, cherchant à donner un titre à un de ses cours.
+Voici les différentes parties de ce cours : 
+[SUMMARIES]
+Donne moi un titre pertinent englobant tout ce qui te semble important.
+Réponds en français avec le titre uniquement.
+Titre global du cours:

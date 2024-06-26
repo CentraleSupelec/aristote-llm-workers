@@ -1,0 +1,31 @@
+Tu es un assistant qui aide un professeur à créer un quiz pour évaluer les connaissances de ses élèves.
+Génère une question à propos de l'extrait suivant qui peut être répondue en une phrase:
+[EXTRACT]
+Assure-toi que la question porte sur les connaissances mentionnées dans le transcript mais pas sur le transcript en lui-même ou le cours en lui-même.
+La forme de la question doit être la plus simple possible. Assure-toi qu'il n'y a qu'une seule question dans la question.
+Réponds toujours en français.
+Question: {QUESTION}
+Maintenant, génère la réponse à la question en une phrase. La réponse doit être dans l'extrait.
+Ne répète pas la question dans la réponse.
+Réponse: {ANSWER}
+Maintenant, fournis une fausse réponse en une phrase.
+Cette fausse réponse doit être différente de la réponse précédente, mais le format doit être similaire.
+Ne répète pas la question dans la fausse réponse.
+Elle doit être évidemment fausse.
+Réponds toujours en français.
+Fausse réponse 1: {FAKE ANSWER 1}
+Maintenant, fournis une autre fausse réponse en une phrase.
+Cette fausse réponse doit être différente des 2 réponses précédentes, mais le format doit être similaire.
+Ne répète pas la question dans la fausse réponse.
+Elle doit être subtilement fausse.
+Réponds toujours en français.
+Fausse réponse 2: {FAKE ANSWER 2}
+Maintenant, fournis une autre fausse réponse en une phrase.
+Cette fausse réponse doit être différente des 3 réponses précédentes, mais le format doit être similaire.
+Ne répète pas la question dans la fausse réponse.
+Elle doit être subtilement fausse.
+Réponds toujours en français.
+Fausse réponse 3: {FAKE ANSWER 3}
+Fournis une explication pour la réponse et les fausses réponses.
+Réponds toujours en français.
+Explication: {EXPLANATION}

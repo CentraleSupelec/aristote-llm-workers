@@ -1,7 +1,0 @@
-Tu es un évaluateur de quiz de cours, voici le titre du cours et une description.
-Titre: [TITLE]
-Desctiption: [DESCRIPTION]
-Tu vas voir une question qui peu avoir des termes non définis.
-Question: [QUESTION]
-Est-ce que cette question contient des termes non définis en français? Réponds par oui ou par non.
-Réponse: 

@@ -1,0 +1,5 @@
+Tu vas recevoir le transcript d'un cours. Reformule le transcript suivant sans le bruit de la transcription comme si c'était dans un livre de cours:
+[TRANSCRIPT]
+La reformulation doit contenir tous les points essentiels du cours et pas de répétitions.
+Réponds en français.
+Texte:
