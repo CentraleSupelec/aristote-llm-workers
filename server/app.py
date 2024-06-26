@@ -95,11 +95,14 @@ def format_time(seconds: int):
     return result_string
 
 
-def get_promprt_path(env_path, language) -> str:
+def get_promprt_path(env_path, language, evaluation: bool = False) -> str:
     return (
         os.environ[env_path]
         .replace("[language]", language_map[language])
-        .replace("[model_folder_name]", MODEL_PROMPTS_FOLDER)
+        .replace(
+            "[model_folder_name]",
+            EVALUATION_MODEL_PROMPTS_FOLDER if evaluation else MODEL_PROMPTS_FOLDER,
+        )
     )
 
 
@@ -200,28 +203,32 @@ def evaluate_quizzes(
     if language in language_map.keys():
         evaluation_prompts_config = EvaluationPromptsConfig(
             is_related_prompt=get_promprt_path(
-                "IS_RELATED_PROMPT_PATH", language=language
+                "IS_RELATED_PROMPT_PATH", language=language, evaluation=True
             ),
             is_self_contained_prompt=get_promprt_path(
-                "IS_SELF_CONTAINED_PROMPT_PATH", language=language
+                "IS_SELF_CONTAINED_PROMPT_PATH", language=language, evaluation=True
             ),
             is_question_prompt=get_promprt_path(
-                "IS_QUESTION_PROMPT_PATH", language=language
+                "IS_QUESTION_PROMPT_PATH", language=language, evaluation=True
             ),
             language_is_clear_prompt=get_promprt_path(
-                "LANGUAGE_IS_CLEAR_PROMPT_PATH", language=language
+                "LANGUAGE_IS_CLEAR_PROMPT_PATH", language=language, evaluation=True
             ),
             answers_are_all_different_prompt=get_promprt_path(
-                "ANSWERS_ARE_ALL_DIFFERENT_PROMPT_PATH", language=language
+                "ANSWERS_ARE_ALL_DIFFERENT_PROMPT_PATH",
+                language=language,
+                evaluation=True,
             ),
             fake_answers_are_not_obvious_prompt=get_promprt_path(
-                "FAKE_ANSWERS_ARE_NOT_OBVIOUS_PROMPT_PATH", language=language
+                "FAKE_ANSWERS_ARE_NOT_OBVIOUS_PROMPT_PATH",
+                language=language,
+                evaluation=True,
             ),
             answers_are_related=get_promprt_path(
-                "ANSWERS_ARE_RELATED_PROMPT_PATH", language=language
+                "ANSWERS_ARE_RELATED_PROMPT_PATH", language=language, evaluation=True
             ),
             quiz_about_concept=get_promprt_path(
-                "QUIZ_ABOUT_CONCEPT_PROMPT_PATH", language=language
+                "QUIZ_ABOUT_CONCEPT_PROMPT_PATH", language=language, evaluation=True
             ),
         )
     else:
