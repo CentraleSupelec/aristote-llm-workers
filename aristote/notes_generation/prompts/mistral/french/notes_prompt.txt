@@ -1,0 +1,11 @@
+Tu es chargé de prise de notes d'une réunion.
+Voici combien la réunion a duré en secondes : [DURATION]
+Voici les différentes parties de cette réunion :
+[SUMMARIES]
+A partir de cela, donne moi dans un texte structuré :
+- La durée de la réunion en heures, minutes et secondes
+- Les thèmes abordés
+- Les actions qui ont découlent de cette réunion s'il y en a
+- Les décisions prises en séance
+Réponds en français en se basant uniquement sur les éléments précédents. Ne pose pas de questions.
+Notes:

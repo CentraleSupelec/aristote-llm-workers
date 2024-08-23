@@ -1,0 +1,11 @@
+You are in charge of taking notes in a meeting.
+Here is the duration of the meeting in seconds : [DURATION]
+Here are different parts of the meeting :
+[SUMMARIES]
+From that, generate a structure text containing :
+- The duration of the meeting in hours, minutes and seconds.
+- The topics discussed.
+- The actions that will be taken following the meeting.
+- The decisions that have been taken in the meeting.
+Respond in English based on the elemets provided above. Do not ask questions.
+Notes:

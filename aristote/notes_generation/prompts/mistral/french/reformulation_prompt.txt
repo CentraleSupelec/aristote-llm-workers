@@ -1,0 +1,8 @@
+Tu vas recevoir le transcript d'une réunion. Reformule le transcript suivant sans le bruit de la transcription:
+[TRANSCRIPT]
+La reformulation doit contenir tous les points essentiels de cet échange notamment :
+- Les thèmes abordés
+- Les actions qui ont découlent de cette réunion s'il y en a
+- Les décisions prises en séance
+Réponds en français.
+Texte:

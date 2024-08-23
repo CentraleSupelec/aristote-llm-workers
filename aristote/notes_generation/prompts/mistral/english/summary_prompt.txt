@@ -1,0 +1,6 @@
+You are in charge of taking notes during a meeting.
+Here is a reformulated part of the meeting based on its transcript :
+[TRANSCRIPT]
+Give me a short resume, of four concise sententes maximum for this part.
+Réponds in English. Be to the point. No introduction needed.
+Summary:
