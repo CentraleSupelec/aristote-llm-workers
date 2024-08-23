@@ -1,0 +1,5 @@
+You are in charge of translating notes that have been taken to summarize a meeting.
+You have the notes in this language : [FROM_LANGUAGE]
+[NOTES]
+You have to translate these notes, while keeping the same structure, into this language : [TO_LANGUAGE]
+Translated notes:

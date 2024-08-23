@@ -24,12 +24,14 @@ class TranslationPromptsConfig(BaseModel):
     title_translation_prompt_path: str
     description_translation_prompt_path: str
     topics_translation_prompt_path: str
+    notes_translation_prompt_path: str
 
 
 class TranslationResult(BaseModel):
-    meta_data: MetaData
+    meta_data: Optional[MetaData] = None
     quizzes: List[MultipleAnswerQuiz]
     transcript: List[TranscribedText]
+    notes: str
 
 
 class TranslationGenerator:
@@ -66,6 +68,11 @@ class TranslationGenerator:
         ) as file:
             self.transcript_translation_prompt = file.read()
 
+        with open(
+            prompts_config.notes_translation_prompt_path, "r", encoding="utf-8"
+        ) as file:
+            self.notes_prompt = file.read()
+
         if prompts_config.topics_translation_prompt_path is not None:
             with open(
                 prompts_config.topics_translation_prompt_path, "r", encoding="utf-8"
@@ -98,6 +105,9 @@ class TranslationGenerator:
         self, meta_data: MetaData, from_language: str, to_language: str
     ) -> MetaData:
         # Generate metadata translation
+
+        if meta_data is None:
+            return None
 
         if self.title_prompt is None:
             title = None
@@ -235,6 +245,48 @@ class TranslationGenerator:
 
         return MetaData(title=title, description=description, main_topics=topics_list)
 
+    def generate_notes_translation(
+        self, notes: str, from_language: str, to_language: str
+    ) -> str:
+        if self.notes_prompt is None:
+            translated_notes = None
+        else:
+            if (
+                "[NOTES]" not in self.notes_prompt
+                or "[FROM_LANGUAGE]" not in self.notes_prompt
+                or "[TO_LANGUAGE]" not in self.notes_prompt
+            ):
+                raise ValueError(
+                    "Notes prompt must contain [NOTES], [FROM_LANGUAGE]"
+                    + " and [TO_LANGUAGE]"
+                )
+            notes_instruction = (
+                self.notes_prompt.replace("[NOTES]", notes)
+                .replace("[FROM_LANGUAGE]", from_language)
+                .replace("[TO_LANGUAGE]", to_language)
+            )
+
+            notes_prompt = get_templated_script(notes_instruction, self.tokenizer)
+            if self.debug:
+                print("Notes prompt:", notes_prompt)
+                print("Notes Tokens: ", get_token_nb(notes_prompt, self.tokenizer))
+                print("============================================================")
+            translated_notes = self.api_connector.generate(
+                CustomPrompt(
+                    text=notes_prompt,
+                    parameters=CustomPromptParameters(
+                        model_name=self.model_name,
+                        max_tokens=500,
+                        temperature=0.1,
+                    ),
+                ),
+            )
+        if self.debug:
+            print("Notes:", translated_notes)
+            print("============================================================")
+
+        return translated_notes
+
     def generate_quizzes_translation(
         self,
         meta_data: MetaData,
@@ -258,8 +310,13 @@ class TranslationGenerator:
                 )
 
             question_prompt = (
-                self.quiz_translation_prompt.replace("[TITLE]", meta_data.title)
-                .replace("[DESCRIPTION]", meta_data.description)
+                self.quiz_translation_prompt.replace(
+                    "[TITLE]", meta_data.title if meta_data is not None else "N/A"
+                )
+                .replace(
+                    "[DESCRIPTION]",
+                    meta_data.description if meta_data is not None else "N/A",
+                )
                 .replace("[FROM_LANGUAGE]", from_language)
                 .replace("[TO_LANGUAGE]", to_language)
                 .split("{TRANSLATED_QUESTION}")[0]
@@ -442,8 +499,13 @@ class TranslationGenerator:
                 )
 
             transcript_translation_prompt = (
-                self.transcript_translation_prompt.replace("[TITLE]", meta_data.title)
-                .replace("[DESCRIPTION]", meta_data.description)
+                self.transcript_translation_prompt.replace(
+                    "[TITLE]", meta_data.title if meta_data is not None else "N/A"
+                )
+                .replace(
+                    "[DESCRIPTION]",
+                    meta_data.description if meta_data is not None else "N/A",
+                )
                 .replace("[FROM_LANGUAGE]", from_language)
                 .replace("[TO_LANGUAGE]", to_language)
                 .split("{TRANSLATED_TEXT}")[0]
@@ -479,6 +541,7 @@ class TranslationGenerator:
         meta_data: MetaData,
         transcripts: List[TranscribedText],
         quizzes: List[MultipleAnswerQuiz],
+        notes: str,
         from_language: str,
         to_language: str,
     ) -> TranslationResult:
@@ -497,8 +560,15 @@ class TranslationGenerator:
             from_language=from_language,
             to_language=to_language,
         )
+        notes_translation = self.generate_notes_translation(
+            notes=notes,
+            from_language=from_language,
+            to_language=to_language,
+        )
+
         return TranslationResult(
             meta_data=meta_data_translation,
             quizzes=quizzes_translation,
             transcript=transcripts_translation,
+            notes=notes_translation,
         )

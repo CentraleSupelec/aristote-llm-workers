@@ -91,7 +91,8 @@ def aristote_worklow():
         enrichment_version_id = json_response["enrichmentVersionId"]
         transcript = json_response["transcript"]
         multiple_choice_questions = json_response["multipleChoiceQuestions"]
-        print(json_response)
+        notes = json_response["notes"]
+        # print(json_response)
     else:
         print(f"Couldn't get a job. Error code : {job_response.status_code}")
         return
@@ -127,6 +128,7 @@ def aristote_worklow():
                 )
                 for multiple_choice_question in multiple_choice_questions
             ],
+            notes=notes,
             from_language=json_response["language"],
             to_language=json_response["translateTo"],
         )

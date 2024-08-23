@@ -26,8 +26,6 @@ class Transcript(BaseModel):
 class TranscriptWrapper(BaseModel):
     enrichment_version_id: str
     transcript: Transcript
-    media_types: List[str]
-    disciplines: List[str]
 
 
 class BaseSchema(BaseModel):
@@ -66,8 +64,9 @@ class MultipleChoiceQuestion(BaseSchema):
 
 
 class QuizzesWrapper(BaseSchema):
-    enrichment_version_metadata: EnrichmentVersionMetadata
-    multiple_choice_questions: List[MultipleChoiceQuestion]
+    enrichment_version_metadata: Optional[EnrichmentVersionMetadata] = None
+    multiple_choice_questions: List[MultipleChoiceQuestion] = None
+    notes: Optional[str] = None
     task_id: Optional[str] = None
     failure_cause: Optional[str] = None
     status: Optional[str] = None
@@ -81,9 +80,10 @@ class EvaluationsWrapper(BaseSchema):
 
 
 class TranslationWrapper(BaseSchema):
-    enrichment_version_metadata: EnrichmentVersionMetadata
+    enrichment_version_metadata: Optional[EnrichmentVersionMetadata] = None
     multiple_choice_questions: List[MultipleChoiceQuestion]
     transcript: Transcript
+    notes: str
 
 
 class TranslationInputtWrapper(TranslationWrapper):

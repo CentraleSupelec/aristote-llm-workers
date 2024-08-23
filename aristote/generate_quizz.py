@@ -88,15 +88,20 @@ def aristote_worklow():
         transcript = json_response["transcript"]
         media_types = json_response["mediaTypes"]
         disciplines = json_response["disciplines"]
+        generate_metadata = json_response["generateMetadata"]
+        generate_quiz = json_response["generateQuiz"]
+        generate_notes = json_response["generateNotes"]
     else:
         print(f"Couldn't get a job. Error code : {job_response.status_code}")
         return
+
     print("Enrichment ID : ", enrichment_id)
     print("Disciplines : ", disciplines)
     print("Media types : ", media_types)
 
     try:
-        quizz = generate(
+        print(generate_metadata, generate_quiz, generate_notes)
+        enrichment_result = generate(
             TranscriptWrapper(
                 enrichment_version_id=enrichment_version_id,
                 transcript=Transcript(
@@ -112,28 +117,32 @@ def aristote_worklow():
                     text=transcript["text"],
                     sentences=transcript["sentences"],
                 ),
-                media_types=media_types,
-                disciplines=disciplines,
-            )
+            ),
+            media_types,
+            disciplines,
+            generate_metadata,
+            generate_quiz,
+            generate_notes,
         )
     except NotResponsiveModelError as e:
         print(e)
         print(f"Aborting enrichment {enrichment_id}")
         return
 
-    quizz.task_id = task_id
+    enrichment_result.task_id = task_id
 
-    print("Discipline : ", quizz.enrichment_version_metadata.discipline)
-    print("Media type : ", quizz.enrichment_version_metadata.media_type)
+    if generate_metadata:
+        print("Discipline : ", enrichment_result.enrichment_version_metadata.discipline)
+        print("Media type : ", enrichment_result.enrichment_version_metadata.media_type)
 
-    if quizz.enrichment_version_metadata.discipline not in disciplines:
-        quizz.enrichment_version_metadata.discipline = None
-    if quizz.enrichment_version_metadata.media_type not in media_types:
-        quizz.enrichment_version_metadata.media_type = None
+        if enrichment_result.enrichment_version_metadata.discipline not in disciplines:
+            enrichment_result.enrichment_version_metadata.discipline = None
+        if enrichment_result.enrichment_version_metadata.media_type not in media_types:
+            enrichment_result.enrichment_version_metadata.media_type = None
 
     enrichment_response: Response = requests.post(
         f"{ARISTOTE_API_BASE_URL}/v1/enrichments/{enrichment_id}/versions/{enrichment_version_id}/ai_enrichment",
-        json=json.loads(quizz.model_dump_json(by_alias=True)),
+        json=json.loads(enrichment_result.model_dump_json(by_alias=True)),
         headers={
             "Authorization": "Bearer " + token,
             "Content-Type": "application/json",
