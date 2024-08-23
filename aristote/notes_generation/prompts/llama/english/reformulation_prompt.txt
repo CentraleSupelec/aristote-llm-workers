@@ -1,0 +1,8 @@
+This is the transcript of a part of a meeting. Reformulate it while removing the noise in it:
+[TRANSCRIPT]
+The reformulation should have all the essential points of this exchange, namely :
+- The discussed topics
+- The actions that will be taken following this meeting
+- The decisions that have been taken in this meeting
+Respond in English. Be to the point. Give only the response.
+Text:

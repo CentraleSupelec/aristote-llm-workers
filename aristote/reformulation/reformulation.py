@@ -13,25 +13,6 @@ from aristote.preprocessing.preprocessing import (
     get_token_nb,
 )
 
-PROMPT_REFORMULATION_EN = (
-    "You will receive the transcript of a course. "
-    "Rewrite the following transcript without the noise of the transcription as if it "
-    "was on a textbook:\n[TRANSCRIPT]\n"
-    "The final text should contain all the essential information of the course "
-    "and no repetitions.\n"
-    "Text:\n"
-)
-
-PROMPT_REFORMULATION_FR = (
-    "Tu vas recevoir le transcript d'un cours. "
-    "Reformule le transcript suivant sans le bruit de la transcription comme si "
-    "c'était dans un livre de cours:\n[TRANSCRIPT]\n"
-    "La reformulation doit contenir tous les points essentiels du cours et "
-    "pas de répétitions.\n"
-    "Réponds en français.\n"
-    "Texte:\n"
-)
-
 
 def create_reformulations(
     transcripts: List[TranscribedText],

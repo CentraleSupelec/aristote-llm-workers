@@ -19,6 +19,7 @@ def translation_generation(
     meta_data: MetaData,
     transcripts: List[TranscribedText],
     quizzes: List[MultipleAnswerQuiz],
+    notes: str,
     from_language: str,
     to_language: str,
     model_name: str,
@@ -46,13 +47,14 @@ def translation_generation(
         api_connector=connector,
         prompts_config=prompts_config,
         debug=True,
-        topics=meta_data.main_topics,
+        topics=meta_data.main_topics if meta_data is not None else None,
         batch_size=batch_size,
     )
     translation = translation_generator.generate_translation(
         quizzes=quizzes,
         meta_data=meta_data,
         transcripts=new_transcripts,
+        notes=notes,
         from_language=from_language,
         to_language=to_language,
     )
