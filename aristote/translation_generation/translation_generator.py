@@ -248,6 +248,9 @@ class TranslationGenerator:
     def generate_notes_translation(
         self, notes: str, from_language: str, to_language: str
     ) -> str:
+        if notes is None:
+            return None
+
         if self.notes_prompt is None:
             translated_notes = None
         else:
