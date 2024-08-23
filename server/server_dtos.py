@@ -83,7 +83,7 @@ class TranslationWrapper(BaseSchema):
     enrichment_version_metadata: Optional[EnrichmentVersionMetadata] = None
     multiple_choice_questions: List[MultipleChoiceQuestion]
     transcript: Transcript
-    notes: str
+    notes: Optional[str] = None
 
 
 class TranslationInputtWrapper(TranslationWrapper):

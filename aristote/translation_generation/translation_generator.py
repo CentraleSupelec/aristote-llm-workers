@@ -31,7 +31,7 @@ class TranslationResult(BaseModel):
     meta_data: Optional[MetaData] = None
     quizzes: List[MultipleAnswerQuiz]
     transcript: List[TranscribedText]
-    notes: str
+    notes: Optional[str] = None
 
 
 class TranslationGenerator:
