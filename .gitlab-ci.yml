@@ -41,6 +41,23 @@ lint:
   tags:
     - docker
 
+test:
+  extends: .lint_test_template
+  stage: test
+  script:
+    - python -m nltk.downloader stopwords punkt
+    - coverage run -m pytest tests/
+    - coverage xml -o coverage.xml
+    - coverage report -m --skip-covered
+  artifacts:
+    expire_in: 2 hour
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+  tags:
+    - docker
+
 build:
   stage: build
   image:
@@ -68,4 +85,5 @@ build:
 stages:
   - download_deps
   - lint
+  - test
   - build
