@@ -1,0 +1,6 @@
+Tu es chargé de prise de notes lors d'une réunion
+Voici une partie de cette réunion reformulé à partir de son transcript:
+[TRANSCRIPT]
+Donne moi un résumé court, en maximum quatre phrases courtes et pertinent pour cette partie.
+Réponds en français.
+Résumé:

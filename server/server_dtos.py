@@ -69,14 +69,14 @@ class QuizzesWrapper(BaseSchema):
     notes: Optional[str] = None
     task_id: Optional[str] = None
     failure_cause: Optional[str] = None
-    status: Optional[str] = None
+    status: Optional[str] = "OK"
 
 
 class EvaluationsWrapper(BaseSchema):
     evaluations: List[EvaluatedQuiz]
     task_id: Optional[str] = None
     failure_cause: Optional[str] = None
-    status: Optional[str] = None
+    status: Optional[str] = "OK"
 
 
 class TranslationWrapper(BaseSchema):
@@ -94,4 +94,4 @@ class TranslationInputtWrapper(TranslationWrapper):
 class TranslationOutputWrapper(TranslationWrapper):
     task_id: Optional[str] = None
     failure_cause: Optional[str] = None
-    status: str
+    status: Optional[str] = "OK"
