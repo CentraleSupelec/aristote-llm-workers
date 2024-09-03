@@ -105,23 +105,12 @@ class NotesGenerator:
         if "[SUMMARIES]" not in self.notes_prompt:
             raise ValueError("Prompt must contain [SUMMARIES]")
 
-        # if "[START_TIMESTAMP]" not in self.notes_prompt:
-        #     raise ValueError("Prompt must contain [START_TIMESTAMP]")
-
-        # if "[END_TIMESTAMP]" not in self.notes_prompt:
-        #     raise ValueError("Prompt must contain [END_TIMESTAMP]")
-
         if "[DURATION]" not in self.notes_prompt:
             raise ValueError("Prompt must contain [DURATION]")
 
         # Notes generation
         notes_instruction = self.notes_prompt.replace(
-            "[SUMMARIES]",
-            full_summary,
-            # ).replace(
-            #     "[START_TIMESTAMP]", start_timestamp
-            # ).replace(
-            #     "[END_TIMESTAMP]", end_timestamp
+            "[SUMMARIES]", full_summary
         ).replace("[DURATION]", str(int(float(end_timestamp) - float(start_timestamp))))
         notes_prompt = get_templated_script(notes_instruction, self.tokenizer)
         print(notes_prompt)
@@ -134,7 +123,7 @@ class NotesGenerator:
                 text=notes_prompt,
                 parameters=CustomPromptParameters(
                     model_name=self.model_name,
-                    max_tokens=500,
+                    max_tokens=1000,
                     temperature=0.1,
                 ),
             ),

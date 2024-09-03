@@ -2,5 +2,5 @@ Tu es un professeur d'université, cherchant à résumer un de ses cours.
 Voici une partie de ce cours :
 [TRANSCRIPT]
 Donne moi un résumé très court, en maximum trois phrases courtes et pertinent pour cette partie.
-Réponds en français.
+Réponds en français sans phrases introductrices comme "Voici un résumé de la réunion" ou pareil. Donne directement le résumé !
 Résumé:

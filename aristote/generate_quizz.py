@@ -100,9 +100,8 @@ def aristote_worklow():
     print("Media types : ", media_types)
 
     try:
-        print(generate_metadata, generate_quiz, generate_notes)
         enrichment_result = generate(
-            TranscriptWrapper(
+            transcript=TranscriptWrapper(
                 enrichment_version_id=enrichment_version_id,
                 transcript=Transcript(
                     original_file_name=transcript["originalFilename"],
@@ -118,11 +117,11 @@ def aristote_worklow():
                     sentences=transcript["sentences"],
                 ),
             ),
-            media_types,
-            disciplines,
-            generate_metadata,
-            generate_quiz,
-            generate_notes,
+            disciplines=disciplines,
+            media_types=media_types,
+            generate_metadata=generate_metadata,
+            generate_quiz=generate_quiz,
+            generate_notes=generate_notes,
         )
     except NotResponsiveModelError as e:
         print(e)
@@ -132,8 +131,12 @@ def aristote_worklow():
     enrichment_result.task_id = task_id
 
     if generate_metadata:
-        print("Discipline : ", enrichment_result.enrichment_version_metadata.discipline)
-        print("Media type : ", enrichment_result.enrichment_version_metadata.media_type)
+        print(
+            "Discipline : ", [enrichment_result.enrichment_version_metadata.discipline]
+        )
+        print(
+            "Media type : ", [enrichment_result.enrichment_version_metadata.media_type]
+        )
 
         if enrichment_result.enrichment_version_metadata.discipline not in disciplines:
             enrichment_result.enrichment_version_metadata.discipline = None

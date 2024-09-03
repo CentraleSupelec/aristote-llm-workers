@@ -5,10 +5,11 @@ For context, this is the title of the course : [TITLE]
 Ths is a description of the course : [DESCRIPTION]
 Here is the list of topics :
 [TOPICS]
-Give me the translated list of topics separated by a line jump "\n", like below. And do not give anything else besides the translated topics !
+Give me the translated list of topics separated by a line jump "\n", like below as an example :
 TOPICS:
 - Topic 1
 - Topic 2
 - Topic 3
+And do not give anything else besides the translated topics !
 TOPICS:
 -

@@ -23,4 +23,7 @@ Do not repeat the question in the fake answer.
 It must be subtly wrong.
 Fake answer 3: {FAKE ANSWER 3}
 Provide an explanation for the answer and the wrong answers.
+Do not start with an introductury sentence like "Here is the explanation" or a something like that. Just give the explanation and nothing else !
+Do not explain why an aswer is correct by saying "is supported by the extract". The reader has no idea that there is an extract. Refer directly to the piece of information.
+When you refer to answers, do it by the content of the anwser and not by "Fake answer 1" or "Fake answer 2" for example !
 Explanation: {EXPLANATION}

@@ -95,7 +95,7 @@ class TranslationGenerator:
             messages=[Message(**message) for message in conv],
             parameters=CustomPromptParameters(
                 model_name=self.model_name,
-                max_tokens=100,
+                max_tokens=1000,
                 temperature=0,
             ),
         )

@@ -1,5 +1,5 @@
 You're a university professor, trying to summarize one of his lectures.
 Here's part of that lecture:
 [TRANSCRIPT]
-Give me a short, relevant summary for this part.
+Give me a short, relevant summary for this part. Do not start with introductury sentences like "Here's a concise summary" or something like that. Give me directly the summary !
 Summary:
