@@ -5,5 +5,5 @@ And description :
 [DESCRIPTION]
 Give the category of the course from theses categories :
 [DISCIPLINES]
-Respond only with the name of the category.
-Catégory:
+Respond only with the name of the category. Make sure that category you give me is exactly the same as in the list above (casesensitive)
+Category:

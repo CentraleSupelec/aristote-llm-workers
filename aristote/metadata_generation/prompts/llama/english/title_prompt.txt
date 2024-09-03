@@ -1,5 +1,5 @@
 You're a university professor looking for a title for one of your courses.
 Here are the different parts of the course: 
 [SUMMARIES]
-Give me a relevant title that covers everything you think is important.
+Give me a relevant title that covers everything you think is important. Do not say anything apart from the title, no introductive sentences or anything. Just the title and without quotation mark surrounding it !
 Global title:

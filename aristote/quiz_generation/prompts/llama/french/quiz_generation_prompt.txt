@@ -3,7 +3,7 @@ Génère une question à propos de l'extrait suivant qui peut être répondue en
 [EXTRACT]
 Assure-toi que la question porte sur les connaissances mentionnées dans le transcript mais pas sur le transcript en lui-même ou le cours en lui-même.
 La forme de la question doit être la plus simple possible. Assure-toi qu'il n'y a qu'une seule question dans la question.
-Réponds toujours en français.
+Réponds toujours en français sans phrase introductive comme "Voici la question :" ou autre. Réponds juste avec la question.
 Question: {QUESTION}
 Maintenant, génère la réponse à la question en une phrase. La réponse doit être dans l'extrait.
 Ne répète pas la question dans la réponse.
@@ -27,5 +27,5 @@ Elle doit être subtilement fausse.
 Réponds toujours en français.
 Fausse réponse 3: {FAKE ANSWER 3}
 Fournis une explication pour la réponse et les fausses réponses.
-Réponds toujours en français.
+Réponds toujours en français sans phrase introductive comme "L'explication :" ou autre. Réponds juste avec l'explication.
 Explication: {EXPLANATION}

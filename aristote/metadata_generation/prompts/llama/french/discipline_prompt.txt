@@ -5,5 +5,5 @@ Et la description:
 [DESCRIPTION]
 Donne moi la catégorie du cours parmi ces catégories:
 [DISCIPLINES]
-Réponds avec le nom de la discipline uniquement.
-Catégorie:
+Réponds avec le nom de la discipline uniquement et exactement comme elle est donné dans la liste ci-dessus (case sensitive) et sans phrase ou locution introductive.
+Discipline:

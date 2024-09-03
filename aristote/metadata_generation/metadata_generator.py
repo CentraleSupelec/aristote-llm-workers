@@ -363,8 +363,8 @@ class MetadataGenerator:
         return {
             "title": title,
             "description": description,
-            "discipline": discipline,
-            "media_type": media_type,
+            "discipline": discipline.strip(),
+            "media_type": media_type.strip(),
         }
 
     def generate_main_topics(self, summaries: List[Summary]) -> List[str]:
