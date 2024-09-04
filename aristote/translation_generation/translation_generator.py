@@ -101,6 +101,20 @@ class TranslationGenerator:
         )
         return prompt_input
 
+    def remove_substring(
+        self, input_str: str, start_delimiter: str, end_delimiter: str
+    ):
+        start_index = input_str.find(start_delimiter)
+        end_index = input_str.find(end_delimiter)
+
+        if start_index != -1 and end_index != -1:
+            result = (
+                input_str[:start_index] + input_str[end_index + len(end_delimiter) :]
+            )
+            return result
+        else:
+            return input_str
+
     def generate_metadata_translation(
         self, meta_data: MetaData, from_language: str, to_language: str
     ) -> MetaData:
@@ -500,35 +514,79 @@ class TranslationGenerator:
                     "Quiz Translation prompt prompt must contain [TITLE], "
                     + "[DESCRIPTION], [FROM_LANGUAGE] and [TO_LANGUAGE]"
                 )
+            translated_transcripts: List[str] = []
+            current_translation = None
 
-            transcript_translation_prompt = (
-                self.transcript_translation_prompt.replace(
-                    "[TITLE]", meta_data.title if meta_data is not None else "N/A"
+            for i, transcript in enumerate(transcripts):
+                transcript_translation_instruction = (
+                    self.transcript_translation_prompt.replace(
+                        "[TITLE]", meta_data.title if meta_data is not None else "N/A"
+                    )
+                    .replace(
+                        "[DESCRIPTION]",
+                        meta_data.description if meta_data is not None else "N/A",
+                    )
+                    .replace("[FROM_LANGUAGE]", from_language)
+                    .replace("[TO_LANGUAGE]", to_language)
+                    .replace("[TEXT]", transcript.text)
                 )
-                .replace(
-                    "[DESCRIPTION]",
-                    meta_data.description if meta_data is not None else "N/A",
+
+                if i != 0:
+                    transcript_translation_instruction = (
+                        transcript_translation_instruction.replace(
+                            "[PREVIOUS_SENTENCE]", transcripts[i - 1].text
+                        )
+                        .replace("[PREVIOUS_SENTENCE_TRANSLATION]", current_translation)
+                        .replace("[PREVIOUS_SENTENCE_BLOCK_START]\n", "")
+                        .replace("[PREVIOUS_SENTENCE_BLOCK_END]\n", "")
+                    )
+                else:
+                    transcript_translation_instruction = self.remove_substring(
+                        transcript_translation_instruction,
+                        "[PREVIOUS_SENTENCE_BLOCK_START]",
+                        "[PREVIOUS_SENTENCE_BLOCK_END]",
+                    )
+
+                if i != len(transcripts) - 1:
+                    transcript_translation_instruction = (
+                        transcript_translation_instruction.replace(
+                            "[NEXT_SENTENCE]", transcripts[i + 1].text
+                        )
+                        .replace("[NEXT_SENTENCE_BLOCK_START]\n", "")
+                        .replace("[NEXT_SENTENCE_BLOCK_END]\n", "")
+                    )
+                else:
+                    transcript_translation_instruction = self.remove_substring(
+                        transcript_translation_instruction,
+                        "[NEXT_SENTENCE_BLOCK_START]",
+                        "[NEXT_SENTENCE_BLOCK_END]",
+                    )
+
+                transcript_translation_prompt = get_templated_script(
+                    transcript_translation_instruction, self.tokenizer
                 )
-                .replace("[FROM_LANGUAGE]", from_language)
-                .replace("[TO_LANGUAGE]", to_language)
-                .split("{TRANSLATED_TEXT}")[0]
-            )
-            conversations = [
-                [
-                    {
-                        "role": "user",
-                        "content": transcript_translation_prompt.replace(
-                            "{TEXT}", transcript.text
+
+                if self.debug:
+                    print("Translation prompt:", transcript_translation_prompt)
+                    print(
+                        "Translation Tokens: ",
+                        get_token_nb(transcript_translation_prompt, self.tokenizer),
+                    )
+                    print(
+                        "============================================================"
+                    )
+                current_translation = self.api_connector.generate(
+                    CustomPrompt(
+                        text=transcript_translation_prompt,
+                        parameters=CustomPromptParameters(
+                            model_name=self.model_name,
+                            max_tokens=200,
+                            temperature=0.1,
+                            stop=["\n"],
                         ),
-                    }
-                ]
-                for transcript in transcripts
-            ]
-            translated_transcripts = self.api_connector.custom_multi_requests(
-                [self.get_custom_prompt(conv) for conv in conversations],
-                progress_desc="Translating transcript",
-                batch_size=self.batch_size,
-            )
+                    ),
+                )
+                translated_transcripts.append(current_translation)
 
         return [
             TranscribedText(
@@ -548,18 +606,18 @@ class TranslationGenerator:
         from_language: str,
         to_language: str,
     ) -> TranslationResult:
+        transcripts_translation = self.generate_transcript_translation(
+            meta_data=meta_data,
+            transcripts=transcripts,
+            from_language=from_language,
+            to_language=to_language,
+        )
         meta_data_translation = self.generate_metadata_translation(
             meta_data=meta_data, from_language=from_language, to_language=to_language
         )
         quizzes_translation = self.generate_quizzes_translation(
             meta_data=meta_data,
             quizzes=quizzes,
-            from_language=from_language,
-            to_language=to_language,
-        )
-        transcripts_translation = self.generate_transcript_translation(
-            meta_data=meta_data,
-            transcripts=transcripts,
             from_language=from_language,
             to_language=to_language,
         )

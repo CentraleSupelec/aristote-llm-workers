@@ -1,9 +1,32 @@
 This is a part of transcript of a course titled:
+```
 [TITLE]
+```
 A description of the course is provided:
+```
 [DESCRIPTION]
+```
 You are to translate it from [FROM_LANGUAGE] to [TO_LANGUAGE].
+[PREVIOUS_SENTENCE_BLOCK_START]
+For context, this is the sentence that came before it :
+```
+[PREVIOUS_SENTENCE]
+```
+And this is how you translated it, if is not a full sentence, make sure you continue from it making sure that together they make sense :
+```
+[PREVIOUS_SENTENCE_TRANSLATION]
+```
+[PREVIOUS_SENTENCE_BLOCK_END]
+[NEXT_SENTENCE_BLOCK_START]
+For context, this is the sentence that comes after it :
+```
+[NEXT_SENTENCE]
+```
+[NEXT_SENTENCE_BLOCK_END]
 While translating, stay faithful to the original text. Do not expand or add extra elements. In your responses, be direct and only give the translated text.
-Translate the following text:
-{TEXT}
-{TRANSLATED_TEXT}
+If the sentence to translate does not finish with a dot marking its end, do the same for the translated version.
+Taking into account all what is above, translate the following text :
+```
+[TEXT]
+```
+Translation :

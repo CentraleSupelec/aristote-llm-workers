@@ -4,9 +4,6 @@ from transformers import PreTrainedTokenizerBase
 
 from aristote.connectors.connectors import AbstractConnector
 from aristote.dtos import MetaData, TranscribedText
-from aristote.preprocessing.preprocessing import (
-    get_splits,
-)
 from aristote.quiz_generation.quiz_generator import MultipleAnswerQuiz
 from aristote.translation_generation.translation_generator import (
     TranslationGenerator,
@@ -29,16 +26,9 @@ def translation_generation(
     debug: bool = False,
     batch_size: Optional[int] = None,
 ) -> TranslationResult:
-    new_transcripts = get_splits(transcripts, tokenizer=tokenizer)
-    if len(new_transcripts) > 20:
-        new_transcripts = get_splits(transcripts, tokenizer=tokenizer, max_length=3000)
-    if len(new_transcripts) > 20:
-        raise ValueError(f"Too many splits {len(new_transcripts)}")
-
-    print("Number of splits:", len(new_transcripts))
 
     if debug:
-        print(new_transcripts)
+        print(transcripts)
         print("=======================================================")
 
     translation_generator = TranslationGenerator(
@@ -46,14 +36,14 @@ def translation_generation(
         tokenizer=tokenizer,
         api_connector=connector,
         prompts_config=prompts_config,
-        debug=True,
+        debug=False,
         topics=meta_data.main_topics if meta_data is not None else None,
         batch_size=batch_size,
     )
     translation = translation_generator.generate_translation(
         quizzes=quizzes,
         meta_data=meta_data,
-        transcripts=new_transcripts,
+        transcripts=transcripts,
         notes=notes,
         from_language=from_language,
         to_language=to_language,
