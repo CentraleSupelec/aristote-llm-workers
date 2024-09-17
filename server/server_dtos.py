@@ -6,6 +6,13 @@ from pydantic.alias_generators import to_camel
 from aristote.evaluation.evaluator import EvaluatedQuiz
 
 
+class Word(BaseModel):
+    id: Optional[int] = None
+    start: float
+    end: float
+    text: str
+
+
 class Sentence(BaseModel):
     id: Optional[int] = None
     is_transient: Optional[bool] = None
@@ -14,6 +21,7 @@ class Sentence(BaseModel):
     start: float
     end: float
     text: str
+    words: Optional[List[Word]] = None
 
 
 class Transcript(BaseModel):

@@ -17,6 +17,7 @@ from server.server_dtos import (
     Sentence,
     Transcript,
     TranslationInputtWrapper,
+    Word,
 )
 
 load_dotenv(".env")
@@ -107,6 +108,14 @@ def aristote_worklow():
                         text=sentence["text"],
                         start=sentence["start"],
                         end=sentence["end"],
+                        words=[
+                            Word(
+                                text=word["text"],
+                                start=word["start"],
+                                end=word["end"],
+                            )
+                            for word in sentence.get("words", [])
+                        ],
                     )
                     for sentence in transcript["sentences"]
                 ],

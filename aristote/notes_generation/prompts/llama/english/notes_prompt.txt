@@ -7,5 +7,5 @@ From that, generate a structure text containing :
 - The topics discussed.
 - The actions that will be taken following the meeting.
 - The decisions that have been taken in the meeting.
-Respond in English based on the elemets provided above. Do not ask questions.
+Respond in English based on the elements provided above. Do not ask questions.
 Notes:

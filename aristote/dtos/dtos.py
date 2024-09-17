@@ -10,6 +10,7 @@ class TextDTO(BaseModel):
 
 
 class TranscribedText(TextDTO):
+    words: Optional[List[TextDTO]] = None
     pass
 
 
