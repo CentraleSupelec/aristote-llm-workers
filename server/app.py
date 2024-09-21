@@ -117,50 +117,48 @@ def generate_quizzes(
     generate_quiz: bool = True,
     generate_notes: bool = False,
 ) -> QuizzesWrapper:
-    if language in language_map.keys():
-        metadata_prompt_config = MetadataPromptsConfig(
-            reformulation_prompt_path=get_prompt_path(
-                "REFORMULATION_PROMPT_PATH", language=language
-            ),
-            summary_prompt_path=get_prompt_path(
-                "SUMMARY_PROMPT_PATH", language=language
-            ),
-            title_prompt_path=get_prompt_path("TITLE_PROMPT_PATH", language=language),
-            description_prompt_path=get_prompt_path(
-                "DESCRIPTION_PROMPT_PATH", language=language
-            ),
-            generate_topics_prompt_path=get_prompt_path(
-                "GENERATE_TOPICS_PROMPT_PATH", language=language
-            ),
-            discipline_prompt_path=get_prompt_path(
-                "DISCIPLINE_PROMPT_PATH", language=language
-            ),
-            media_type_prompt_path=get_prompt_path(
-                "MEDIA_TYPE_PROMPT_PATH", language=language
-            ),
-            local_media_type_prompt_path=get_prompt_path(
-                "LOCAL_MEDIA_TYPE_PROMPT_PATH", language=language
-            ),
-        )
-        prompts_config = QuizPromptsConfig(
-            quiz_generation_prompt=get_prompt_path(
-                "QUIZ_GENERATION_PROMPT_PATH", language=language
-            ),
-            reformulation_prompt_path=get_prompt_path(
-                "REFORMULATION_PROMPT_PATH", language=language
-            ),
-        )
-        notes_prompts_config = NotesPromptsConfig(
-            notes_prompt_path=get_prompt_path("NOTES_PROMPT_PATH", language=language),
-            reformulation_prompt_path=get_prompt_path(
-                "NOTES_REFORMULATION_PROMPT_PATH", language=language
-            ),
-            summary_prompt_path=get_prompt_path(
-                "NOTES_SUMMARY_PROMPT_PATH", language=language
-            ),
-        )
-    else:
-        raise ValueError(f"Language {language} not supported.")
+    if language not in language_map.keys():
+        language = "en"
+
+    metadata_prompt_config = MetadataPromptsConfig(
+        reformulation_prompt_path=get_prompt_path(
+            "REFORMULATION_PROMPT_PATH", language=language
+        ),
+        summary_prompt_path=get_prompt_path("SUMMARY_PROMPT_PATH", language=language),
+        title_prompt_path=get_prompt_path("TITLE_PROMPT_PATH", language=language),
+        description_prompt_path=get_prompt_path(
+            "DESCRIPTION_PROMPT_PATH", language=language
+        ),
+        generate_topics_prompt_path=get_prompt_path(
+            "GENERATE_TOPICS_PROMPT_PATH", language=language
+        ),
+        discipline_prompt_path=get_prompt_path(
+            "DISCIPLINE_PROMPT_PATH", language=language
+        ),
+        media_type_prompt_path=get_prompt_path(
+            "MEDIA_TYPE_PROMPT_PATH", language=language
+        ),
+        local_media_type_prompt_path=get_prompt_path(
+            "LOCAL_MEDIA_TYPE_PROMPT_PATH", language=language
+        ),
+    )
+    prompts_config = QuizPromptsConfig(
+        quiz_generation_prompt=get_prompt_path(
+            "QUIZ_GENERATION_PROMPT_PATH", language=language
+        ),
+        reformulation_prompt_path=get_prompt_path(
+            "REFORMULATION_PROMPT_PATH", language=language
+        ),
+    )
+    notes_prompts_config = NotesPromptsConfig(
+        notes_prompt_path=get_prompt_path("NOTES_PROMPT_PATH", language=language),
+        reformulation_prompt_path=get_prompt_path(
+            "NOTES_REFORMULATION_PROMPT_PATH", language=language
+        ),
+        summary_prompt_path=get_prompt_path(
+            "NOTES_SUMMARY_PROMPT_PATH", language=language
+        ),
+    )
 
     enrichment_result_wrapper = QuizzesWrapper()
 
@@ -297,31 +295,31 @@ def evaluate_quizzes(
 
 
 def translate_quizzes(
-    enrichment: TranslationInputtWrapper, language: Literal["fr", "en"] = "en"
+    enrichment: TranslationInputtWrapper, language: str = "en"
 ) -> TranslationOutputWrapper:
-    if language in language_map.keys():
-        translation_prompts_config = TranslationPromptsConfig(
-            quiz_translation_prompt_path=get_prompt_path(
-                "QUIZ_TRANSLATION_PROMPT_PATH", language=language
-            ),
-            title_translation_prompt_path=get_prompt_path(
-                "TITLE_TRANSLATION_PROMPT_PATH", language=language
-            ),
-            description_translation_prompt_path=get_prompt_path(
-                "DESCRIPTION_TRANSLATION_PROMPT_PATH", language=language
-            ),
-            topics_translation_prompt_path=get_prompt_path(
-                "TOPICS_TRANSLATION_PROMPT_PATH", language=language
-            ),
-            transcript_translation_prompt_path=get_prompt_path(
-                "TRANSCRIPT_TRANSLATION_PROMPT_PATH", language=language
-            ),
-            notes_translation_prompt_path=get_prompt_path(
-                "NOTES_TRANSLATION_PROMPT_PATH", language=language
-            ),
-        )
-    else:
-        raise ValueError(f"Language {language} not supported.")
+    if language not in language_map.keys():
+        language = "en"
+
+    translation_prompts_config = TranslationPromptsConfig(
+        quiz_translation_prompt_path=get_prompt_path(
+            "QUIZ_TRANSLATION_PROMPT_PATH", language=language
+        ),
+        title_translation_prompt_path=get_prompt_path(
+            "TITLE_TRANSLATION_PROMPT_PATH", language=language
+        ),
+        description_translation_prompt_path=get_prompt_path(
+            "DESCRIPTION_TRANSLATION_PROMPT_PATH", language=language
+        ),
+        topics_translation_prompt_path=get_prompt_path(
+            "TOPICS_TRANSLATION_PROMPT_PATH", language=language
+        ),
+        transcript_translation_prompt_path=get_prompt_path(
+            "TRANSCRIPT_TRANSLATION_PROMPT_PATH", language=language
+        ),
+        notes_translation_prompt_path=get_prompt_path(
+            "NOTES_TRANSLATION_PROMPT_PATH", language=language
+        ),
+    )
 
     transcribed_sentences = [
         TranscribedText(

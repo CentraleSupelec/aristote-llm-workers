@@ -2,6 +2,7 @@ import warnings
 from typing import List, Optional
 
 from pydantic import BaseModel
+from tqdm import tqdm
 from transformers import AutoTokenizer
 
 from aristote.connectors.connectors import (
@@ -517,7 +518,9 @@ class TranslationGenerator:
             translated_transcripts: List[str] = []
             current_translation = None
 
-            for i, transcript in enumerate(transcripts):
+            for i, transcript in enumerate(
+                tqdm(transcripts, desc="Translating transcript")
+            ):
                 transcript_translation_instruction = (
                     self.transcript_translation_prompt.replace(
                         "[TITLE]", meta_data.title if meta_data is not None else "N/A"
