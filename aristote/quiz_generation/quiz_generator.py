@@ -103,6 +103,13 @@ class QuizGenerator:
             with jsonlines.open(self.chunks_path, "w") as writer:
                 for chunk in all_transcripts:
                     writer.write(chunk.model_dump(mode="json"))
+
+        if (
+            len(all_transcripts) == 2
+            and all_transcripts[0].text == all_transcripts[1].text
+        ):
+            all_transcripts = [all_transcripts[0]]
+
         all_reformulations = create_reformulations(
             all_transcripts,
             self.model_name,

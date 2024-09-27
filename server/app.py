@@ -326,10 +326,14 @@ def translate_quizzes(
             text=sentence.text,
             start=sentence.start,
             end=sentence.end,
-            words=[
-                TranscribedText(text=word.text, start=word.start, end=word.end)
-                for word in sentence.words
-            ],
+            words=(
+                [
+                    TranscribedText(text=word.text, start=word.start, end=word.end)
+                    for word in sentence.words
+                ]
+                if sentence.words is not None
+                else None
+            ),
         )
         for sentence in enrichment.transcript.sentences
     ]
