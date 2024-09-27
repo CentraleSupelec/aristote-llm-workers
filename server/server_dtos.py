@@ -90,7 +90,7 @@ class EvaluationsWrapper(BaseSchema):
 class TranslationWrapper(BaseSchema):
     enrichment_version_metadata: Optional[EnrichmentVersionMetadata] = None
     multiple_choice_questions: List[MultipleChoiceQuestion]
-    transcript: Transcript
+    transcript: Optional[Transcript] = None
     notes: Optional[str] = None
 
 
