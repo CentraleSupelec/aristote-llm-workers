@@ -1,4 +1,6 @@
 import os
+
+os.environ["TRANSFORMERS_VERBOSITY"] = "error"
 from datetime import datetime, timedelta
 from typing import List, Literal
 
@@ -228,7 +230,6 @@ def generate_quizzes(
     return enrichment_result_wrapper
 
 
-# TODO: Evaluate quizzes
 def evaluate_quizzes(
     quizzes: QuizzesWrapper, language: Literal["fr", "en"] = "fr"
 ) -> EvaluationsWrapper:

@@ -35,6 +35,7 @@ def enrichment_fail(
     task_id: str,
     token: str,
     failure_cause: str,
+    temporary: bool = False,
 ):
     failure_cause_trucated = (
         (failure_cause[:252] + "...") if len(failure_cause) > 255 else failure_cause
@@ -43,7 +44,7 @@ def enrichment_fail(
         f"{ARISTOTE_API_BASE_URL}/v1/enrichments/{enrichment_id}/versions/{enrichment_version_id}/ai_enrichment",
         json={
             "taskId": task_id,
-            "status": "KO",
+            "status": "UNAVAILABLE" if temporary else "KO",
             "failureCause": failure_cause_trucated,
         },
         headers={"Authorization": "Bearer " + token},
@@ -97,50 +98,66 @@ def aristote_worklow():
         print(f"Couldn't get a job. Error code : {job_response.status_code}")
         return
 
-    quizz = translate(
-        TranslationInputtWrapper(
-            enrichment_version_metadata=json_response["enrichmentVersionMetadata"],
-            transcript=Transcript(
-                language=json_response["language"],
-                text=transcript["text"],
-                sentences=[
-                    Sentence(
-                        text=sentence["text"],
-                        start=sentence["start"],
-                        end=sentence["end"],
-                        words=[
-                            Word(
-                                text=word["text"],
-                                start=word["start"],
-                                end=word["end"],
+    transcript_object = Transcript(
+        language=json_response["language"],
+        text=transcript["text"],
+        sentences=[
+            Sentence(
+                text=sentence["text"],
+                start=sentence["start"],
+                end=sentence["end"],
+                words=[
+                    Word(
+                        text=word["text"],
+                        start=word["start"],
+                        end=word["end"],
+                    )
+                    for word in sentence.get("words", [])
+                ],
+            )
+            for sentence in transcript["sentences"]
+        ],
+    )
+
+    try:
+        quizz = translate(
+            TranslationInputtWrapper(
+                enrichment_version_metadata=json_response["enrichmentVersionMetadata"],
+                transcript=transcript_object,
+                multiple_choice_questions=[
+                    MultipleChoiceQuestion(
+                        id=multiple_choice_question["id"],
+                        question=multiple_choice_question["question"],
+                        explanation=multiple_choice_question["explanation"],
+                        choices=[
+                            Choice(
+                                id=choice["id"],
+                                option_text=choice["optionText"],
+                                correct_answer=False,
                             )
-                            for word in sentence.get("words", [])
+                            for choice in multiple_choice_question["choices"]
                         ],
                     )
-                    for sentence in transcript["sentences"]
+                    for multiple_choice_question in multiple_choice_questions
                 ],
-            ),
-            multiple_choice_questions=[
-                MultipleChoiceQuestion(
-                    id=multiple_choice_question["id"],
-                    question=multiple_choice_question["question"],
-                    explanation=multiple_choice_question["explanation"],
-                    choices=[
-                        Choice(
-                            id=choice["id"],
-                            option_text=choice["optionText"],
-                            correct_answer=False,
-                        )
-                        for choice in multiple_choice_question["choices"]
-                    ],
-                )
-                for multiple_choice_question in multiple_choice_questions
-            ],
-            notes=notes,
-            from_language=json_response["language"],
-            to_language=json_response["translateTo"],
+                notes=notes,
+                from_language=json_response["language"],
+                to_language=json_response["translateTo"],
+            )
         )
-    )
+    except Exception as e:
+        print(e)
+        print(f"Aborting translating enrichment {enrichment_id}")
+        enrichment_fail(
+            enrichment_id,
+            enrichment_version_id,
+            task_id,
+            token,
+            "Error while translating enrichment",
+            True,
+        )
+        return
+
     quizz.task_id = task_id
 
     enrichment_response: Response = requests.post(

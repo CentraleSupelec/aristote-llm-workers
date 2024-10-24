@@ -5,8 +5,8 @@ from transformers import AutoTokenizer
 
 from aristote.connectors.connectors import (
     AbstractConnector,
-    CustomPrompt,
-    CustomPromptParameters,
+    Prompt,
+    PromptParameters,
 )
 from aristote.dtos.dtos import Reformulation, Summary
 from aristote.preprocessing.preprocessing import (
@@ -63,9 +63,9 @@ class NotesGenerator:
         ]
         summary_texts = self.api_connector.custom_multi_requests(
             prompts=[
-                CustomPrompt(
+                Prompt(
                     text=templated_transcript,
-                    parameters=CustomPromptParameters(
+                    parameters=PromptParameters(
                         model_name=self.model_name,
                         max_tokens=min(
                             3500 // len(templated_transcripts),
@@ -113,15 +113,15 @@ class NotesGenerator:
             "[SUMMARIES]", full_summary
         ).replace("[DURATION]", str(int(float(end_timestamp) - float(start_timestamp))))
         notes_prompt = get_templated_script(notes_instruction, self.tokenizer)
-        print(notes_prompt)
+
         if self.debug:
             print("Notes prompt: ", notes_prompt)
             print("Desc Tokens: ", get_token_nb(notes_prompt, self.tokenizer))
             print("============================================================")
         notes = self.api_connector.generate(
-            CustomPrompt(
+            Prompt(
                 text=notes_prompt,
-                parameters=CustomPromptParameters(
+                parameters=PromptParameters(
                     model_name=self.model_name,
                     max_tokens=1000,
                     temperature=0.1,

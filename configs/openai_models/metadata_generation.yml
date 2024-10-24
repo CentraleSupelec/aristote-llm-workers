@@ -1,0 +1,23 @@
+model_name: gpt-3.5-turbo-0125 # Model name used to generate the metadata. It can be an OpenAI model or an huggingface model.
+transcript_path: transcripts_examples/fr/deuxieme_loi_de_newton_les_bons_profs.txt # Path to the .txt transcript. To get an example you can get the generated subtitles from a youtube video.
+output_path: results/metadata_gpt-35_fr_newton.json # Metadata output path
+connector: # Configuration of the connector. You can use the CustomOpenAIConnector for OpenAI and APIConnectorWithOpenAIFormat for HuggingFace models deployed with vLLM
+  (): "aristote.connectors.connectors.CustomOpenAIConnector"
+  cache_path: .cache_gpt-35
+  max_requests_per_second: 30
+disciplines:
+  - Philosophy
+  - Physics
+media_types:
+  - Course
+  - Webinair
+prompts_config: # Prompts configuration. Paths to each prompt saved as .txt file.
+  (): "aristote.metadata_generation.metadata_generator.MetadataPromptsConfig"
+  reformulation_prompt_path: aristote/reformulation/prompts/mistral/french/reformulation_prompt.txt
+  summary_prompt_path: aristote/metadata_generation/prompts/mistral/french/summary_prompt.txt
+  title_prompt_path: aristote/metadata_generation/prompts/mistral/french/title_prompt.txt
+  description_prompt_path: aristote/metadata_generation/prompts/mistral/french/description_prompt.txt
+  generate_topics_prompt_path: aristote/metadata_generation/prompts/mistral/french/generate_topics_prompt.txt
+  discipline_prompt_path: aristote/metadata_generation/prompts/mistral/french/discipline_prompt.txt
+  media_type_prompt_path: aristote/metadata_generation/prompts/mistral/french/media_type_prompt.txt
+  local_media_type_prompt_path: aristote/metadata_generation/prompts/mistral/french/local_media_type_prompt.txt

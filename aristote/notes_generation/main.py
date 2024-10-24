@@ -1,4 +1,4 @@
-import json
+import os
 from typing import List, Optional
 
 from transformers import PreTrainedTokenizerBase
@@ -30,8 +30,6 @@ def notes_generation(
     new_transcripts = get_splits(transcripts, tokenizer=tokenizer)
     if len(new_transcripts) > 20:
         new_transcripts = get_splits(transcripts, tokenizer=tokenizer, max_length=3000)
-    if len(new_transcripts) > 20:
-        raise ValueError(f"Too many splits {len(new_transcripts)}")
 
     print("Number of splits:", len(new_transcripts))
 
@@ -87,5 +85,6 @@ def main(
     )
 
     if output_path is not None:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
         with open(output_path, "w", encoding="utf-8") as file:
-            json.dump(notes.model_dump(mode="json"), file)
+            file.write(notes)

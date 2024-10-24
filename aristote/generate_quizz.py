@@ -10,7 +10,6 @@ from requests.models import Response
 
 sys.path.append("./")
 
-from aristote.custom_exceptions import NotResponsiveModelError
 from server.app import generate
 from server.server_dtos import (
     Transcript,
@@ -20,8 +19,10 @@ from server.server_dtos import (
 load_dotenv(".env")
 
 ARISTOTE_API_BASE_URL = os.environ["ARISTOTE_API_BASE_URL"]
-ARISTOTE_API_CLIENT_ID = os.environ["ARISTOTE_API_CLIENT_ID"]
-ARISTOTE_API_CLIENT_SECRET = os.environ["ARISTOTE_API_CLIENT_SECRET"]
+ARISTOTE_API_ENRICHMENT_CLIENT_ID = os.environ["ARISTOTE_API_ENRICHMENT_CLIENT_ID"]
+ARISTOTE_API_ENRICHMENT_CLIENT_SECRET = os.environ[
+    "ARISTOTE_API_ENRICHMENT_CLIENT_SECRET"
+]
 
 
 def enrichment_fail(
@@ -30,6 +31,7 @@ def enrichment_fail(
     task_id: str,
     token: str,
     failure_cause: str,
+    temporary: bool = False,
 ):
     failure_cause_trucated = (
         (failure_cause[:252] + "...") if len(failure_cause) > 255 else failure_cause
@@ -38,7 +40,7 @@ def enrichment_fail(
         f"{ARISTOTE_API_BASE_URL}/v1/enrichments/{enrichment_id}/versions/{enrichment_version_id}/ai_enrichment",
         json={
             "taskId": task_id,
-            "status": "KO",
+            "status": "UNAVAILABLE" if temporary else "KO",
             "failureCause": failure_cause_trucated,
         },
         headers={"Authorization": "Bearer " + token},
@@ -59,7 +61,7 @@ def aristote_worklow():
         headers={
             "Authorization": "Basic "
             + base64.b64encode(
-                f"{ARISTOTE_API_CLIENT_ID}:{ARISTOTE_API_CLIENT_SECRET}".encode()
+                f"{ARISTOTE_API_ENRICHMENT_CLIENT_ID}:{ARISTOTE_API_ENRICHMENT_CLIENT_SECRET}".encode()
             ).decode(),
         },
         timeout=1000,
@@ -96,8 +98,16 @@ def aristote_worklow():
         return
 
     print("Enrichment ID : ", enrichment_id)
-    print("Disciplines : ", disciplines)
-    print("Media types : ", media_types)
+
+    if len(transcript["sentences"]) == 0:
+        enrichment_fail(
+            enrichment_id,
+            enrichment_version_id,
+            task_id,
+            token,
+            "Transcript sentences is empty",
+        )
+        return
 
     try:
         enrichment_result = generate(
@@ -123,21 +133,22 @@ def aristote_worklow():
             generate_quiz=generate_quiz,
             generate_notes=generate_notes,
         )
-    except NotResponsiveModelError as e:
+    except Exception as e:
         print(e)
         print(f"Aborting enrichment {enrichment_id}")
+        enrichment_fail(
+            enrichment_id,
+            enrichment_version_id,
+            task_id,
+            token,
+            "Error while generating enrichment",
+            True,
+        )
         return
 
     enrichment_result.task_id = task_id
 
     if generate_metadata:
-        print(
-            "Discipline : ", [enrichment_result.enrichment_version_metadata.discipline]
-        )
-        print(
-            "Media type : ", [enrichment_result.enrichment_version_metadata.media_type]
-        )
-
         if enrichment_result.enrichment_version_metadata.discipline not in disciplines:
             enrichment_result.enrichment_version_metadata.discipline = None
         if enrichment_result.enrichment_version_metadata.media_type not in media_types:

@@ -1,3 +1,4 @@
+import os
 import warnings
 from typing import List, Optional, Union
 
@@ -8,9 +9,9 @@ from transformers import PreTrainedTokenizerBase
 
 from aristote.connectors.connectors import (
     AbstractConnector,
-    CustomPrompt,
-    CustomPromptParameters,
     Message,
+    Prompt,
+    PromptParameters,
 )
 from aristote.dtos import Reformulation, TranscribedText
 from aristote.preprocessing.preprocessing import get_splits, get_token_nb
@@ -56,23 +57,10 @@ class QuizGenerator:
         with open(prompts_config.quiz_generation_prompt, "r", encoding="utf-8") as file:
             self.quiz_generation_prompt = file.read()
 
-    def get_custom_prompt(self, conv: List[dict]) -> CustomPrompt:
-        # if isinstance(self.tokenizer, PreTrainedTokenizerBase):
-        #     text = self.tokenizer.apply_chat_template(
-        #         conversation=conv, tokenize=False, add_generation_prompt=True
-        #     )
-        #     prompt_input = CustomPrompt(
-        #         text=text,
-        #         parameters=CustomPromptParameters(
-        #             model_name=self.model_name,
-        #             max_tokens=100,
-        #             temperature=0.3,
-        #         ),
-        #     )
-        # else:
-        prompt_input = CustomPrompt(
+    def get_custom_prompt(self, conv: List[dict]) -> Prompt:
+        prompt_input = Prompt(
             messages=[Message(**message) for message in conv],
-            parameters=CustomPromptParameters(
+            parameters=PromptParameters(
                 model_name=self.model_name,
                 max_tokens=200,
                 temperature=0,
@@ -84,7 +72,6 @@ class QuizGenerator:
         self,
         transcripts: List[TranscribedText],
         max_lengths: List[int],
-        # offsets: Optional[List[int]] = None,
     ) -> List[Reformulation]:
         all_transcripts: List[TranscribedText] = []
         for max_length in max_lengths:
@@ -100,6 +87,7 @@ class QuizGenerator:
                 )
                 break
         if self.chunks_path is not None:
+            os.makedirs(os.path.dirname(self.chunks_path), exist_ok=True)
             with jsonlines.open(self.chunks_path, "w") as writer:
                 for chunk in all_transcripts:
                     writer.write(chunk.model_dump(mode="json"))

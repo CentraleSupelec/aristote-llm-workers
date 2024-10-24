@@ -1,0 +1,19 @@
+model_name: meta-llama/Meta-Llama-3-8B-Instruct # Model name used to generate the evaluation. It can be an OpenAI model or an huggingface model.
+connector: # Configuration of the connector. You can use the CustomOpenAIConnector for OpenAI and APIConnectorWithOpenAIFormat for HuggingFace models deployed with vLLM
+  (): "aristote.connectors.connectors.APIConnectorWithOpenAIFormat"
+  cache_path: .cache_llama3-8b
+  api_url: http://localhost:8000/v1/chat/completions
+metadata_path: results/metadata_llama3-8b_fr_newton.json
+quizzes_path: results/quizzes_llama3-8b_fr_newton.jsonl
+language: fr
+prompts_config:
+  (): "aristote.evaluation.evaluator.EvaluationPromptsConfig"
+  is_related_prompt: aristote/evaluation/prompts/chatgpt/french/question_is_related_prompt.txt
+  is_self_contained_prompt: aristote/evaluation/prompts/chatgpt/french/question_is_self_contained_prompt.txt
+  is_question_prompt: aristote/evaluation/prompts/chatgpt/french/question_is_question_prompt.txt
+  language_is_clear_prompt: aristote/evaluation/prompts/chatgpt/french/question_has_clear_language_prompt.txt
+  answers_are_all_different_prompt: aristote/evaluation/prompts/chatgpt/french/answers_are_all_different_prompt.txt
+  fake_answers_are_not_obvious_prompt: aristote/evaluation/prompts/chatgpt/french/fake_answers_are_not_obvious_prompt.txt
+  answers_are_related: aristote/evaluation/prompts/chatgpt/french/answers_are_related_prompt.txt
+  quiz_about_concept: aristote/evaluation/prompts/chatgpt/french/quiz_about_concept_prompt.txt
+output_path: results/evaluated_quizzes_llama3-8b_fr_newton.jsonl

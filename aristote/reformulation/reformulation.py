@@ -5,8 +5,8 @@ from transformers import AutoTokenizer
 
 from aristote.connectors.connectors import (
     AbstractConnector,
-    CustomPrompt,
-    CustomPromptParameters,
+    Prompt,
+    PromptParameters,
 )
 from aristote.dtos.dtos import Reformulation, TranscribedText
 from aristote.preprocessing.preprocessing import (
@@ -34,9 +34,9 @@ def create_reformulations(
     ]
     reformulation_texts = api_connector.custom_multi_requests(
         prompts=[
-            CustomPrompt(
+            Prompt(
                 text=text,
-                parameters=CustomPromptParameters(
+                parameters=PromptParameters(
                     model_name=model_name,
                     max_tokens=get_token_nb(text, tokenizer),
                     temperature=0.1,

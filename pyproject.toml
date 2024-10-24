@@ -5,7 +5,7 @@ dynamic = ["version"]
 authors = [{ name = "Antonio Loison", email = "antonio.loison@illuin.tech" }]
 maintainers = [{ name = "Antonio Loison", email = "antonio.loison@illuin.tech" }]
 readme = "README.md"
-requires-python = ">=3.10,<3.11"
+requires-python = ">=3.10,<3.12"
 classifiers = [
     "Intended Audience :: Science/Research",
     "Intended Audience :: Developers",
@@ -53,8 +53,8 @@ demo = [
 ]
 
 [project.urls]
-homepage = "https://gitlab.illuin.tech/large-language-models/llm-core/tasks/quiz-generation"
-repository = "https://gitlab.illuin.tech/large-language-models/llm-core/tasks/quiz-generation"
+homepage = "https://github.com/CentraleSupelec/aristote-llm-workers"
+repository = "https://github.com/CentraleSupelec/aristote-llm-workers"
 
 [build-system]
 requires = ["setuptools", "setuptools-scm[toml]", "wheel"]
@@ -142,10 +142,13 @@ line-length = 88
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
+"server/app.py" = ["E402"]
 "server/dtos.py" = ["N815"]
 "test_api.py" = ["E501"]
-"aristote/generate_quizz.py" = ["E402"]
+"aristote/cli/cli.py" = ["E402"]
+"aristote/translate_quizz.py" = ["E402"]
 "aristote/evaluate_quizz.py" = ["E402"]
+"aristote/generate_quizz.py" = ["E402"]
 
 [tool.pytest.ini_options]
 addopts = ["-ra", "--strict-markers"]

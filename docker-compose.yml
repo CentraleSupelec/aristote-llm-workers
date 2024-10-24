@@ -7,7 +7,7 @@ services:
     ipc: host
     env_file:
       - .env
-    command: --model ${MODEL_NAME} --dtype ${DTYPE} --tensor-parallel-size ${TENSOR_PARALLEL_SIZE}
+    command: --env "HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}" --model ${MODEL_NAME} --dtype ${DTYPE} --tensor-parallel-size ${TENSOR_PARALLEL_SIZE}
   aristote:
     build:
       context: .

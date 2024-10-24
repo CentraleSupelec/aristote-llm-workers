@@ -1,0 +1,20 @@
+model_name: meta-llama/Meta-Llama-3-8B-Instruct # Model name used to generate the translation. It can be an OpenAI model or an huggingface model.
+transcript_path: transcripts_examples/fr/deuxieme_loi_de_newton_les_bons_profs.txt # Path to the .txt transcript. To get an example you can get the generated subtitles from a youtube video.
+metadata_path: results/metadata_llama3-8b_fr_newton.json
+quizzes_path: results/quizzes_llama3-8b_fr_newton.jsonl
+notes_path: results/notes_llama3-8b_fr_newton.txt
+from_language: fr
+to_language: en
+output_path: results/translation_llama3-8b_fr_newton.txt # Translation output path
+connector: # Configuration of the connector. You can use the CustomOpenAIConnector for OpenAI and APIConnectorWithOpenAIFormat for HuggingFace models deployed with vLLM
+  (): "aristote.connectors.connectors.APIConnectorWithOpenAIFormat"
+  cache_path: .cache_llama3-8b
+  api_url: http://localhost:8000/v1/chat/completions
+prompts_config: # Prompts configuration. Paths to each prompt saved as .txt file.
+  (): "aristote.translation_generation.translation_generator.TranslationPromptsConfig"
+  title_translation_prompt_path: aristote/translation_generation/prompts/mistral/english/title_translation_prompt.txt
+  description_translation_prompt_path: aristote/translation_generation/prompts/mistral/english/description_translation_prompt.txt
+  topics_translation_prompt_path: aristote/translation_generation/prompts/mistral/english/topics_translation_prompt.txt
+  quiz_translation_prompt_path: aristote/translation_generation/prompts/mistral/english/quiz_translation_prompt.txt
+  transcript_translation_prompt_path: aristote/translation_generation/prompts/mistral/english/transcript_translation_prompt.txt
+  notes_translation_prompt_path: aristote/translation_generation/prompts/mistral/english/notes_translation_prompt.txt

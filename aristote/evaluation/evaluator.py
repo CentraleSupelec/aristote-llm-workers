@@ -1,12 +1,12 @@
-from typing import Any, Dict, List, Literal
+from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel
 from transformers import AutoTokenizer
 
 from aristote.connectors.connectors import (
     AbstractConnector,
-    CustomPrompt,
-    CustomPromptParameters,
+    Prompt,
+    PromptParameters,
 )
 from aristote.dtos.dtos import MetaData
 from aristote.quiz_generation.quiz_generator import MultipleAnswerQuiz
@@ -29,7 +29,7 @@ class QuizEvaluation(BaseModel):
 
 
 class EvaluatedQuiz(BaseModel):
-    id: str
+    id: Optional[str] = None
     quiz: MultipleAnswerQuiz
     evaluation: QuizEvaluation
 
@@ -177,9 +177,9 @@ class Evaluator:
                 )
             ]
             prompts = [
-                CustomPrompt(
+                Prompt(
                     text=text,
-                    parameters=CustomPromptParameters(
+                    parameters=PromptParameters(
                         model_name=self.model_name,
                         max_tokens=10,
                         temperature=0,
@@ -187,6 +187,7 @@ class Evaluator:
                 )
                 for text in prompt_texts
             ]
+
             result_strs = self.connector.custom_multi_requests(
                 prompts, progress_desc=f"Generating {eval_name}"
             )

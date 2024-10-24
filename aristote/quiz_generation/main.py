@@ -1,3 +1,4 @@
+import os
 from typing import List, Optional
 
 import jsonlines
@@ -34,6 +35,7 @@ def main(
     quizzes = quiz_generator.full_generation(transcripts, chunk_sizes=chunk_sizes)
 
     with jsonlines.open(output_path, "w") as writer:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
         for quiz in quizzes:
             writer.write(quiz.model_dump(mode="json"))
 

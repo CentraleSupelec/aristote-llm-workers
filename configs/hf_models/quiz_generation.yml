@@ -1,11 +1,9 @@
-model_name: gpt-3.5-turbo-0125 # Model name used to generate the metadata. It can be an OpenAI model or an huggingface model.
+model_name: meta-llama/Meta-Llama-3-8B-Instruct # Model name used to generate the quizzes. It can be an OpenAI model or an huggingface model.
 transcript_path: transcripts_examples/fr/deuxieme_loi_de_newton_les_bons_profs.txt # Path to the .txt transcript. To get an example you can get the generated subtitles from a youtube video.
 connector: # Configuration of the connector. You can use the CustomOpenAIConnector for OpenAI and APIConnectorWithOpenAIFormat for HuggingFace models deployed with vLLM
-  (): "aristote.connectors.connectors.CustomOpenAIConnector"
-  cache_path: .cache_gpt-35
-  max_requests_per_second: 30
-  backoff_max_time: 3
-  request_timeout: 20
+  (): "aristote.connectors.connectors.APIConnectorWithOpenAIFormat"
+  cache_path: .cache_llama3-8b
+  api_url: http://localhost:8000/v1/chat/completions
 chunks_path: results/newton_chunks.jsonl # Output path of the chunks split by the program. This is an artefact of the generation that helps with debugging.
 chunk_sizes:  # List of sizes of chunks. Here the transcript will first be split in chunks of 2000 tokens and entirely re-split in chunks of 1000 tokens. Each of these chunks will be used as input for one quiz generation.
   - 2000
@@ -14,4 +12,4 @@ prompts_config: # Prompts configuration. Paths to each prompt saved as .txt file
   (): "aristote.quiz_generation.quiz_generator.QuizPromptsConfig"
   quiz_generation_prompt: aristote/quiz_generation/prompts/mistral/french/quiz_generation_prompt.txt
   reformulation_prompt_path: aristote/reformulation/prompts/mistral/french/reformulation_prompt.txt
-output_path: results/quizzes_gpt-35_fr_cs_ri.jsonl # Quizzes output path
+output_path: results/quizzes_llama3-8b_fr_newton.jsonl # Quizzes output path

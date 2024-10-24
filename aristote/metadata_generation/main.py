@@ -1,4 +1,5 @@
 import json
+import os
 from typing import List, Optional
 
 from transformers import PreTrainedTokenizerBase
@@ -77,7 +78,7 @@ def main(
 ) -> None:
     tokenizer = get_tokenizer(model_name)
     transcripts = load_file(transcript_path)
-
+    print(media_types)
     metadata = metadata_generation(
         transcripts,
         model_name,
@@ -90,5 +91,6 @@ def main(
     )
 
     if output_path is not None:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
         with open(output_path, "w", encoding="utf-8") as file:
             json.dump(metadata.model_dump(mode="json"), file)

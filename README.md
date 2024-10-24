@@ -1,29 +1,31 @@
 # Aristote - Quiz Generation
 
-Aristote is an educacional assistant that uses open-source LLMs to describe educational video transcripts and generate quizzes to help students learn.
+Aristote is a personal learning companion! By analyzing video courses transcripts, Aristote crafts concise summaries and generates engaging quizzes, helping you grasp key concepts with ease. Whether you're reviewing lectures or exploring new topics, Aristote is here to make learning more interactive, efficient, and enjoyable.
 
-You can send a video transcript to Aristote and Aristote will generate the title, the description, a list of topics covered in the video and the main discipline of the video. It can also generate a list of potential quizzes on the different topics of the video. These quizzes can have several flaws. So we try to generate as much quizzes as possible so that a human can select the best quizzes and have as much new quiz ideas as possible.
+**Key Features:**
 
-If you want to accelerate the selection of the quizzes generated with the open-source LLMs, you can use Aristote to evaluate your quizzes with GPT-4 according to several specific boolean criteria and filter out bad quizzes based on this evaluation:
+- **Metadata Generation**: Extracts title, description, topics, and main discipline from video transcripts.
+- **Quiz Creation**: Generates diverse quiz questions on various topics covered in the video.
+- **Quiz Evaluation**: Utilizes GPT-4 to assess quiz quality based on specific criteria to accelerate the selection of the quizzes.
 
-- whether the question is really a question,
-- whether the question is related to the subject of the course,
-- whether the question is self contained,
-- whether the language is clear,
-- whether the answers are all different,
-- whether the answers are related,
-- whether the fake answers are not obvious,
-- whether the quiz is about a theoretical concept or a specific course example.
+**Disclaimer:** Aristote can make mistakes. Aristote generates as many quizzes as possible so that a human can select the best quizzes and have as much new quiz ideas as possible.
 
 **Table of Contents**
 
 - [How does it work?](#how-does-it-work)
+  - [Aristote Pipeline](#aristote-pipeline)
+    - [Metadata generation](#metadata-generation)
+    - [Quiz Generation](#quiz-generation)
+    - [Quiz Evaluation](#quiz-evaluation)
 - [Getting Started: Use Aristote with Docker (Recommended)](#getting-started-use-aristote-with-docker-recommended)
-  - [Use `docker-compose` (Recommended)](#use-docker-compose-recommended)
-  - [Launch separatly](#launch-separatly)
+  - [Prerequisites](#prerequisites)
+  - [Quick Start with Docker Compose (Recommended)](#quick-start-with-docker-compose-recommended)
+  - [Alternative: Separate Service Deployment](#alternative-separate-service-deployment)
     - [LLM Service](#llm-service)
     - [Quiz Generation Service](#quiz-generation-service)
-- [Use Aristote's CLI](#use-aristotes-cli)
+- [CLI Usage (for local testing without Docker)](#cli-usage-for-local-testing-without-docker)
+  - [Prerequisite](#prerequisite)
+  - [Install](#install)
   - [Generate metadata](#generate-metadata)
   - [Generate quizzes](#generate-quizzes)
 - [Contributing](#contributing)
@@ -31,11 +33,36 @@ If you want to accelerate the selection of the quizzes generated with the open-s
 
 ## How does it work?
 
-Aristote generates quizzes and metadata from the transcript of a video.
+### Aristote Pipeline
 
-For the metadata generation, it splits the video transcript into chunks. Then each chunk is rewritten with the LLM to have a nicely written text. Each chunk is transformed into a summary of the chunk. Then a title, a description and other metadata are extracted from this set of summaries.
+Here is a detailed description of the Aristote pipeline for each key feature:
 
-Quizzes are generated using the same principle. One quiz is generated from each rewritten chunk. This time, the transcript is split into chunks of different length, which implies that text might appear several times in different chunks. The objective is to have quizzes about local and global transcript information and have as much quizzes as possible so that we can have as much quizzes as possible to choose from. Each quiz can be evaluated using an OpenAI model and the title and description of the quiz.
+#### Metadata generation
+
+1. **Chunk Processing:** Splits transcripts into manageable segments.
+2. **Text Enhancement:** Rewrites each chunk with a Large Language Model (LLM) to improve readability.
+3. **Summarization:** Generates a summary for each chunk.
+4. **Metadata Extraction:** Extracts title, description, and other metadata from the set of summaries.
+
+#### Quiz Generation
+
+1. **Chunk Processing:** Splits transcripts into chunks of varying lengths to create quizzes from local and global information.
+2. **Text Enhancement:** Rewrites each chunk with a Large Language Model (LLM) to improve readability.
+3. **Quiz Generation:** Generates a quiz from each rewritten chunk by sequentially asking for a question, the correct answer, three incorrect answers and an explanation for the correct answer.
+
+#### Quiz Evaluation
+
+1. **Quiz Assessment:** Evaluates quizzes using GPT-4 based on specific boolean criteria:
+   - whether the question is really a question,
+   - whether the question is related to the subject of the course,
+   - whether the question is self-contained,
+   - whether the language is clear,
+   - whether the answers are all different,
+   - whether the answers are related,
+   - whether the fake answers are not obvious,
+   - whether the quiz is about a theoretical concept or a specific course example.
+2. **Score aggregation:** Computes the number of criteria that are successful.
+3. **Quiz Ranking:** Ranks quizzes based on the number of successful criteria.
 
 This diagram shows how the pipeline works:
 
@@ -43,23 +70,20 @@ This diagram shows how the pipeline works:
 
 ## Getting Started: Use Aristote with Docker (Recommended)
 
-Aristote is based on two services. One service deploys the LLM through a vLLM server. The other manages the metadata and quiz generation by calling the LLM.
+### Prerequisites
 
-**VM Specs to launch the service:** Make sure you have the adapted hardware to run Aristote. You will need at least 16GB of GPU VRAM to deploy OpenHermes Mistral 7B.
+- Docker and Docker Compose (recommended)
+- 16GB+ GPU VRAM for running Llama 3 8B
 
-### Use `docker-compose` (Recommended)
+<!-- Aristote is based on two services. One service deploys the LLM through a vLLM server. The other manages the metadata and quiz generation by calling the LLM. -->
 
-First set up your `.env` file based on the `.env.dist` file.
+### Quick Start with Docker Compose (Recommended)
 
-Then you can launch the quiz generation API. You can use the following command:
+1. Copy .env.dist to .env and configure as needed.
+2. Run: `docker compose up`
+3. Go to `http://localhost:3000/docs` to access the API documentation.
 
-```bash
-docker compose up
-```
-
-To get the documentation of the API, you can go to the `/docs` route of the API.
-
-### Launch separatly
+### Alternative: Separate Service Deployment
 
 You can launch the LLM service and the Metadata/Quiz Generation service separately.
 
@@ -70,10 +94,12 @@ docker run --runtime nvidia --gpus all \
     -v ~/.cache/huggingface:/root/.cache/huggingface \
     -p 8000:8000 \
     --ipc=host \
-    vllm/vllm-openai:v0.2.4 \
-    --model teknium/OpenHermes-2.5-Mistral-7B \
-    --dtype float16 \
-    --tensor-parallel-size 2
+    --env "HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}" \
+    vllm/vllm-openai:latest \
+    --model meta-llama/Meta-Llama-3-8B-Instruct \
+    --tokenizer meta-llama/Meta-Llama-3-8B-Instruct \
+    --dtype bfloat16 \
+    --tensor-parallel-size 1
 ```
 
 #### Quiz Generation Service
@@ -84,57 +110,52 @@ docker build -t aristote -f server/Dockerfile . && docker run --env-file .env --
 
 **Warning:** `--network="host"` only works on Linux.
 
-## Use Aristote's CLI
+## CLI Usage (for local testing without Docker)
 
-You can test the features of the app without Docker.
+### Prerequisite
 
-You can do it, locally, through the `aristote` cli.
-In a virtual environment, we recommend installing dependencies with [uv](https://github.com/astral-sh/uv):
+- Access to a LLM deployed following the OpenAI endpoint conventions. You can deploy your LLM like [here](./README.md#llm-service) or you can just use [OpenAI's API](https://platform.openai.com/docs/overview).
 
-```bash
-uv pip install -e .
-```
+### Install
 
-But you can also simply install the dependencies with `pip`.
+1. Set up a virtual environment and install dependencies (we recommend installing dependencies with [uv](https://github.com/astral-sh/uv)).
 
 ```bash
-pip install -e .
+uv pip install .
 ```
 
-You also have to set up your `.env` file based on the `.env.dist` file.
+You can also simply install the dependencies with `pip`.
+
+```bash
+pip install .
+```
+
+2. Copy `.env.dist` to `.env` and configure as needed. Load your environment variables with: `export $(cat .env | xargs)`.
 
 ### Generate metadata
-
-First configure your `yml` file for this generation based on the [provided example](configs/zephyr_fr/metadata_generation.yml).
-
-Then launch the following command with your config file path:
 
 ```bash
 aristote generate-metadata {METADATA_YML_CONFIG_PATH}
 ```
 
-Example of config [here](configs/metadata_generation.yml).
+EExamples of configs are [here](configs/openai_models/metadata_generation.yml) to use an OpenAI model and [here](configs/hf_models/metadata_generation.yml) for a HuggingFace model deployed through a `/v1/chat/completions` route.
 
 ### Generate quizzes
-
-First configure your `yml` file for this generation based on the [provided example](configs/zephyr_fr/quiz_generation.yml).
-
-Then launch the following command with your config file path:
 
 ```bash
 aristote generate-quizzes {QUIZ_GEN_YML_CONFIG_PATH}
 ```
 
-Example of config [here](configs/quiz_generation.yml).
+Examples of configs are [here](configs/openai_models/metadata_generation.yml) to use an OpenAI model and [here](configs/hf_models/metadata_generation.yml) for a HuggingFace model deployed through a `/v1/chat/completions` route.
 
 ## Contributing
 
-To contribute, we recommend to install the [`just`](https://github.com/casey/just) command.
+To contribute, we recommend installing the [`just`](https://github.com/casey/just) command runner.
 
 Then you can setup the dev dependencies with:
 
 ```bash
-just intall
+just install
 ```
 
 Launch tests with:
@@ -159,4 +180,4 @@ just format
 
 This project is based on a prototype made by four students from the [Paris Digital Lab](https://paris-digital-lab.com/): Antoine Vaglio, Liwei Sun, Mohammed Bahhad et Pierre-Louis Veyrenc.
 
-Illuin Technology perfected the project and made it available as it is now for CentraleSupélec.
+[Illuin Technology](https://www.illuin.tech/) perfected the project and made it available as it is now for [CentraleSupélec](https://www.centralesupelec.fr/). The main contributors are Mohamed-Ali Barka, António Loison and Bruno Hays from Illuin Technology.

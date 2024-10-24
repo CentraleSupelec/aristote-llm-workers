@@ -20,7 +20,7 @@ class Message(BaseModel):
     content: str
 
 
-class CustomPromptParameters(BaseModel):
+class PromptParameters(BaseModel):
     model_name: str
     max_tokens: int = 256
     temperature: float = 0.5
@@ -29,11 +29,14 @@ class CustomPromptParameters(BaseModel):
     stop: Optional[Union[str, List[str]]] = None
     response_format: Literal["text", "json_object"] = "text"
 
+    class Config:
+        protected_namespaces = ()
 
-class CustomPrompt(BaseModel):
+
+class Prompt(BaseModel):
     text: Optional[str] = None
     messages: Optional[List[Message]] = None
-    parameters: CustomPromptParameters
+    parameters: PromptParameters
 
 
 class AbstractConnector:
@@ -41,12 +44,12 @@ class AbstractConnector:
         self.cache_path = cache_path
 
     @abstractmethod
-    def generate(self, prompt: CustomPrompt) -> str:
+    def generate(self, prompt: Prompt) -> str:
         pass
 
     def custom_multi_requests(
         self,
-        prompts: List[CustomPrompt],
+        prompts: List[Prompt],
         progress_desc: Optional[str] = None,
         batch_size: int = 16,
     ) -> List[str]:
@@ -63,7 +66,7 @@ class AbstractConnector:
         return responses
 
 
-def get_cache_key(prompt: CustomPrompt) -> str:
+def get_cache_key(prompt: Prompt) -> str:
     if prompt.parameters.stop is not None:
         stop_str = "-".join(prompt.parameters.stop)
     else:
@@ -102,7 +105,7 @@ class CustomOpenAIConnector(AbstractConnector):
         self.max_requests_per_second = max_requests_per_second
         self.cache = Cache(cache_path)
 
-    # def generate(self, prompt: CustomPrompt) -> str:
+    # def generate(self, prompt: Prompt) -> str:
     #     text_generation = self.make_request(
     #         prompt=Prompt(
     #             text=prompt.text,
@@ -125,7 +128,7 @@ class CustomOpenAIConnector(AbstractConnector):
 
     def _generate(
         self,
-        prompt: CustomPrompt,
+        prompt: Prompt,
     ) -> str:
         cache_key = get_cache_key(prompt)
         if self.cache is not None:
@@ -169,14 +172,10 @@ class CustomOpenAIConnector(AbstractConnector):
                 return result.strip()
             except Exception as exception:
                 raise exception
-                # warnings.warn(
-                #     f"Request failed with this exception: {exception}"
-                # )
-                # return ""
 
     def generate(
         self,
-        prompt: CustomPrompt,
+        prompt: Prompt,
     ) -> str:
         """Make asynchronous request using backoff
         that retries the request if it failed.
@@ -199,7 +198,7 @@ class APIConnector(AbstractConnector):
 
     def generate(
         self,
-        prompt: CustomPrompt,
+        prompt: Prompt,
     ) -> str:
         cache_key = get_cache_key(prompt)
         cached_text = self.cache.get(cache_key)
@@ -266,7 +265,7 @@ class APIConnectorWithOpenAIFormat(AbstractConnector):
 
     def generate(
         self,
-        prompt: CustomPrompt,
+        prompt: Prompt,
     ) -> str:
         cache_key = get_cache_key(prompt)
         if self.cache is not None:

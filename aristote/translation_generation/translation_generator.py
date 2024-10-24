@@ -7,9 +7,9 @@ from transformers import AutoTokenizer
 
 from aristote.connectors.connectors import (
     AbstractConnector,
-    CustomPrompt,
-    CustomPromptParameters,
     Message,
+    Prompt,
+    PromptParameters,
 )
 from aristote.dtos.dtos import MetaData, TranscribedText
 from aristote.preprocessing.preprocessing import (
@@ -91,10 +91,10 @@ class TranslationGenerator:
             warnings.warn("No topics_prompt provided, topics will not be translated")
             self.topics_prompt = None
 
-    def get_custom_prompt(self, conv: List[dict]) -> CustomPrompt:
-        prompt_input = CustomPrompt(
+    def get_custom_prompt(self, conv: List[dict]) -> Prompt:
+        prompt_input = Prompt(
             messages=[Message(**message) for message in conv],
-            parameters=CustomPromptParameters(
+            parameters=PromptParameters(
                 model_name=self.model_name,
                 max_tokens=1000,
                 temperature=0,
@@ -148,9 +148,9 @@ class TranslationGenerator:
                 print("Title Tokens: ", get_token_nb(title_prompt, self.tokenizer))
                 print("============================================================")
             title = self.api_connector.generate(
-                CustomPrompt(
+                Prompt(
                     text=title_prompt,
-                    parameters=CustomPromptParameters(
+                    parameters=PromptParameters(
                         model_name=self.model_name,
                         max_tokens=100,
                         temperature=0.1,
@@ -191,9 +191,9 @@ class TranslationGenerator:
                 )
                 print("============================================================")
             description = self.api_connector.generate(
-                CustomPrompt(
+                Prompt(
                     text=description_prompt,
-                    parameters=CustomPromptParameters(
+                    parameters=PromptParameters(
                         model_name=self.model_name,
                         max_tokens=100,
                         temperature=0.1,
@@ -229,9 +229,9 @@ class TranslationGenerator:
                 print("Topics Tokens: ", get_token_nb(topics_prompt, self.tokenizer))
                 print("============================================================")
             topics_list_raw = self.api_connector.generate(
-                CustomPrompt(
+                Prompt(
                     text=topics_prompt,
-                    parameters=CustomPromptParameters(
+                    parameters=PromptParameters(
                         model_name=self.model_name,
                         max_tokens=512,
                         temperature=0.1,
@@ -290,9 +290,9 @@ class TranslationGenerator:
                 print("Notes Tokens: ", get_token_nb(notes_prompt, self.tokenizer))
                 print("============================================================")
             translated_notes = self.api_connector.generate(
-                CustomPrompt(
+                Prompt(
                     text=notes_prompt,
-                    parameters=CustomPromptParameters(
+                    parameters=PromptParameters(
                         model_name=self.model_name,
                         max_tokens=500,
                         temperature=0.1,
@@ -579,9 +579,9 @@ class TranslationGenerator:
                         "============================================================"
                     )
                 current_translation = self.api_connector.generate(
-                    CustomPrompt(
+                    Prompt(
                         text=transcript_translation_prompt,
-                        parameters=CustomPromptParameters(
+                        parameters=PromptParameters(
                             model_name=self.model_name,
                             max_tokens=200,
                             temperature=0.1,

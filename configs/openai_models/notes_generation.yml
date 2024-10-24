@@ -1,0 +1,14 @@
+model_name: gpt-3.5-turbo-0125 # Model name used to generate the notes. It can be an OpenAI model or an huggingface model.
+transcript_path: transcripts_examples/fr/deuxieme_loi_de_newton_les_bons_profs.txt # Path to the .txt transcript. To get an example you can get the generated subtitles from a youtube video.
+start_timestamp: 0
+end_timestamp: 3600
+output_path: results/notes_gpt-35_fr_newton.txt # Notes output path
+connector: # Configuration of the connector. You can use the CustomOpenAIConnector for OpenAI and APIConnectorWithOpenAIFormat for HuggingFace models deployed with vLLM
+  (): "aristote.connectors.connectors.CustomOpenAIConnector"
+  cache_path: .cache_gpt-35
+  max_requests_per_second: 30
+prompts_config: # Prompts configuration. Paths to each prompt saved as .txt file.
+  (): "aristote.notes_generation.notes_generator.NotesPromptsConfig"
+  notes_prompt_path: aristote/notes_generation/prompts/mistral/french/notes_prompt.txt
+  reformulation_prompt_path: aristote/notes_generation/prompts/mistral/french/reformulation_prompt.txt
+  summary_prompt_path: aristote/notes_generation/prompts/mistral/french/summary_prompt.txt

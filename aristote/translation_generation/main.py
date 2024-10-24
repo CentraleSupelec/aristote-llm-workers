@@ -1,9 +1,13 @@
+import json
+import os
 from typing import List, Optional
 
+import jsonlines
 from transformers import PreTrainedTokenizerBase
 
 from aristote.connectors.connectors import AbstractConnector
 from aristote.dtos import MetaData, TranscribedText
+from aristote.preprocessing.preprocessing import get_tokenizer, load_file
 from aristote.quiz_generation.quiz_generator import MultipleAnswerQuiz
 from aristote.translation_generation.translation_generator import (
     TranslationGenerator,
@@ -85,6 +89,50 @@ def transcript_short_sentences(sentences: List[TranscribedText]):
     return result
 
 
-def main():
-    # TODO: Finish translation from file paths
+def main(
+    model_name: str,
+    connector: AbstractConnector,
+    metadata_path: str,
+    quizzes_path: str,
+    transcript_path: str,
+    notes_path: str,
+    from_language: str,
+    to_language: str,
+    prompts_config: TranslationPromptsConfig,
+    output_path: Optional[str] = None,
+    debug: bool = False,
+) -> None:
+    tokenizer = get_tokenizer(model_name)
+
+    with open(metadata_path, "r", encoding="utf-8") as file:
+        metadata = json.load(file)
+
+    transcripts = load_file(transcript_path)
+
+    quizzes = []
+    with jsonlines.open(quizzes_path, "r") as reader:
+        for line in reader:
+            quizzes.append(MultipleAnswerQuiz(**line))
+
+    with open(notes_path, "r", encoding="utf-8") as file:
+        notes = file.read()
+
+    translation = translation_generation(
+        meta_data=MetaData(**metadata),
+        transcripts=transcripts,
+        quizzes=quizzes,
+        notes=notes,
+        from_language=from_language,
+        to_language=to_language,
+        model_name=model_name,
+        tokenizer=tokenizer,
+        connector=connector,
+        prompts_config=prompts_config,
+        debug=debug,
+    )
+
+    with jsonlines.open(output_path, "w") as writer:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        writer.write(translation.model_dump(mode="json"))
+
     return

@@ -6,8 +6,8 @@ from transformers import AutoTokenizer
 
 from aristote.connectors.connectors import (
     AbstractConnector,
-    CustomPrompt,
-    CustomPromptParameters,
+    Prompt,
+    PromptParameters,
 )
 from aristote.dtos.dtos import MediaType, MetaData, Reformulation, Summary
 from aristote.preprocessing.preprocessing import (
@@ -138,9 +138,9 @@ class MetadataGenerator:
         ]
         summary_texts = self.api_connector.custom_multi_requests(
             prompts=[
-                CustomPrompt(
+                Prompt(
                     text=templated_transcript,
-                    parameters=CustomPromptParameters(
+                    parameters=PromptParameters(
                         model_name=self.model_name,
                         max_tokens=min(
                             3500 // len(templated_transcripts),
@@ -182,9 +182,9 @@ class MetadataGenerator:
         ]
         local_media_types_text = self.api_connector.custom_multi_requests(
             prompts=[
-                CustomPrompt(
+                Prompt(
                     text=templated_transcript,
-                    parameters=CustomPromptParameters(
+                    parameters=PromptParameters(
                         model_name=self.model_name,
                         max_tokens=min(
                             3500 // len(templated_transcripts),
@@ -239,9 +239,9 @@ class MetadataGenerator:
             print("Desc Tokens: ", get_token_nb(description_prompt, self.tokenizer))
             print("============================================================")
         description = self.api_connector.generate(
-            CustomPrompt(
+            Prompt(
                 text=description_prompt,
-                parameters=CustomPromptParameters(
+                parameters=PromptParameters(
                     model_name=self.model_name,
                     max_tokens=500,
                     temperature=0.1,
@@ -262,9 +262,9 @@ class MetadataGenerator:
             print("Title Tokens: ", get_token_nb(title_prompt, self.tokenizer))
             print("============================================================")
         title = self.api_connector.generate(
-            CustomPrompt(
+            Prompt(
                 text=title_prompt,
-                parameters=CustomPromptParameters(
+                parameters=PromptParameters(
                     model_name=self.model_name,
                     max_tokens=100,
                     temperature=0.1,
@@ -298,9 +298,9 @@ class MetadataGenerator:
                 print("Title Tokens: ", get_token_nb(discipline_prompt, self.tokenizer))
                 print("============================================================")
             discipline = self.api_connector.generate(
-                CustomPrompt(
+                Prompt(
                     text=discipline_prompt,
-                    parameters=CustomPromptParameters(
+                    parameters=PromptParameters(
                         model_name=self.model_name,
                         max_tokens=100,
                         temperature=0.1,
@@ -346,9 +346,9 @@ class MetadataGenerator:
                 print("Title Tokens: ", get_token_nb(media_type_prompt, self.tokenizer))
                 print("============================================================")
             media_type = self.api_connector.generate(
-                CustomPrompt(
+                Prompt(
                     text=media_type_prompt,
-                    parameters=CustomPromptParameters(
+                    parameters=PromptParameters(
                         model_name=self.model_name,
                         max_tokens=100,
                         temperature=0.1,
@@ -384,9 +384,9 @@ class MetadataGenerator:
             )
             print("============================================================")
         topics_list_raw = self.api_connector.generate(
-            CustomPrompt(
+            Prompt(
                 text=topics_prompt,
-                parameters=CustomPromptParameters(
+                parameters=PromptParameters(
                     model_name=self.model_name,
                     max_tokens=512,
                     temperature=0.1,

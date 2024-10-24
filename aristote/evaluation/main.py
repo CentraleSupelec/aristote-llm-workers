@@ -1,4 +1,5 @@
 import json
+import os
 from typing import Literal
 
 import jsonlines
@@ -43,5 +44,6 @@ def main(
     evaluated_quizzes = evaluator.evaluate_quizzes(quizzes)
 
     with jsonlines.open(output_path, "w") as writer:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
         for evaluated_quiz in evaluated_quizzes:
             writer.write(evaluated_quiz.model_dump(mode="json"))
