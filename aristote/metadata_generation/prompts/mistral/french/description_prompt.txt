@@ -1,4 +1,6 @@
-Tu es un professeur d'université, cherchant à donner une petite description du sujet d'un de ses cours.
+Tu es un professeur d'université, cherchant à donner une petite description du sujet d'une vidéo qui peut être un cours, une conférence, un webinar, etc.
+Le type du média est :
+[MEDIA_TYPE]
 Voici les différentes parties de ce cours : 
 [SUMMARIES]
 Donne moi une courte description du cours en moins de quatre phrases.
