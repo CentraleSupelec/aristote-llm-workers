@@ -1,8 +1,6 @@
 You're a university professor, looking to determine the type of one of his courses.
 This is the course's title :
 [TITLE]
-And description :
-[DESCRIPTION]
 An AI has analyzed different parts of the transcript of the course to determine the type based on that part of the transcript.
 This is the list of types determined for each part of the transcript :
 [LOCAL_MEDIA_TYPES]

@@ -1,4 +1,6 @@
-You're a university professor, looking to give a brief description of the subject of one of your courses.
+You're a university professor, looking to give a brief description of the subject of a video that can be a course, a conference, a webinar, etc.
+The media type is :
+[MEDIA_TYPE]
 Here are the different parts of the course: 
 [SUMMARIES]
 Give me a short description of the course in less than four sentences.

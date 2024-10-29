@@ -44,6 +44,8 @@ class MetadataGenerator:
         self.api_connector = api_connector
         self.debug = debug
         self.batch_size = batch_size
+        self.media_types = media_types
+        self.disciplines = disciplines
 
         with open(prompts_config.summary_prompt_path, "r", encoding="utf-8") as file:
             self.summary_prompt = file.read()
@@ -169,6 +171,15 @@ class MetadataGenerator:
         self,
         transcripts: List[Reformulation],
     ) -> List[MediaType]:
+        if self.media_types is not None and len(self.media_types) == 1:
+            return [
+                MediaType(
+                    text=self.media_types[0],
+                    start=transcripts[0].start,
+                    end=transcripts[len(transcripts) - 1].end,
+                )
+            ]
+
         # Generate media type of reformulations
         replaced_texts = []
         if "[TRANSCRIPT]" not in self.local_media_type_prompt:
@@ -227,31 +238,6 @@ class MetadataGenerator:
         if "[SUMMARIES]" not in self.description_prompt:
             raise ValueError("Prompt must contain [SUMMARIES]")
 
-        # Description generation
-        description_instruction = self.description_prompt.replace(
-            "[SUMMARIES]", full_summary
-        )
-        description_prompt = get_templated_script(
-            description_instruction, self.tokenizer
-        )
-        if self.debug:
-            print("Description prompt: ", description_prompt)
-            print("Desc Tokens: ", get_token_nb(description_prompt, self.tokenizer))
-            print("============================================================")
-        description = self.api_connector.generate(
-            Prompt(
-                text=description_prompt,
-                parameters=PromptParameters(
-                    model_name=self.model_name,
-                    max_tokens=500,
-                    temperature=0.1,
-                ),
-            ),
-        )
-        if self.debug:
-            print("Description:", description)
-            print("============================================================")
-
         # Title generation
         if "[SUMMARIES]" not in self.title_prompt:
             raise ValueError("Title prompt must contain [SUMMARIES]")
@@ -276,6 +262,80 @@ class MetadataGenerator:
             print("Title:", title)
             print("============================================================")
 
+        # Media type generation
+        if self.media_types is not None and len(self.media_types) == 1:
+            media_type = self.media_types[0]
+        elif self.media_type_prompt is None:
+            media_type = None
+        else:
+            if (
+                "[TITLE]" not in self.media_type_prompt
+                or "[LOCAL_MEDIA_TYPES]" not in self.media_type_prompt
+            ):
+                raise ValueError(
+                    "Media type prompt must contain [TITLE] and [LOCAL_MEIDA_TYPES]"
+                )
+            media_type_instruction = self.media_type_prompt.replace(
+                "[TITLE]", title
+            ).replace(
+                "[LOCAL_MEDIA_TYPES]",
+                "\n".join(
+                    [
+                        f"- {local_media_type.text}"
+                        for local_media_type in local_media_types
+                    ]
+                ),
+            )
+            media_type_prompt = get_templated_script(
+                media_type_instruction, self.tokenizer
+            )
+            if self.debug:
+                print("Media type prompt:", media_type_prompt)
+                print(
+                    "Media type Tokens: ",
+                    get_token_nb(media_type_prompt, self.tokenizer),
+                )
+                print("============================================================")
+            media_type = self.api_connector.generate(
+                Prompt(
+                    text=media_type_prompt,
+                    parameters=PromptParameters(
+                        model_name=self.model_name,
+                        max_tokens=100,
+                        temperature=0.1,
+                        stop=["\n", "."],
+                    ),
+                ),
+            )
+        if self.debug:
+            print("Media type:", media_type)
+            print("============================================================")
+
+        # Description generation
+        description_instruction = self.description_prompt.replace(
+            "[SUMMARIES]", full_summary
+        ).replace("[MEDIA_TYPE]", media_type)
+        description_prompt = get_templated_script(
+            description_instruction, self.tokenizer
+        )
+        if self.debug:
+            print("Description prompt: ", description_prompt)
+            print("Desc Tokens: ", get_token_nb(description_prompt, self.tokenizer))
+            print("============================================================")
+        description = self.api_connector.generate(
+            Prompt(
+                text=description_prompt,
+                parameters=PromptParameters(
+                    model_name=self.model_name,
+                    max_tokens=500,
+                    temperature=0.1,
+                ),
+            ),
+        )
+        if self.debug:
+            print("Description:", description)
+            print("============================================================")
+
         # Discipline generation
         if self.discipline_prompt is None:
             discipline = None
@@ -294,8 +354,11 @@ class MetadataGenerator:
                 discipline_instruction, self.tokenizer
             )
             if self.debug:
-                print("Title prompt:", discipline_prompt)
-                print("Title Tokens: ", get_token_nb(discipline_prompt, self.tokenizer))
+                print("Discipline prompt:", discipline_prompt)
+                print(
+                    "Discipline Tokens: ",
+                    get_token_nb(discipline_prompt, self.tokenizer),
+                )
                 print("============================================================")
             discipline = self.api_connector.generate(
                 Prompt(
@@ -310,54 +373,6 @@ class MetadataGenerator:
             )
         if self.debug:
             print("Discipline:", discipline)
-            print("============================================================")
-
-        # Media type generation
-        if self.media_type_prompt is None:
-            media_type = None
-        else:
-            if (
-                "[TITLE]" not in self.media_type_prompt
-                or "[DESCRIPTION]" not in self.media_type_prompt
-                or "[LOCAL_MEDIA_TYPES]" not in self.media_type_prompt
-            ):
-                raise ValueError(
-                    "Media type prompt must contain [TITLE], [DESCRIPTION]"
-                    + ", [LOCAL_MEIDA_TYPES]"
-                )
-            media_type_instruction = (
-                self.media_type_prompt.replace("[TITLE]", title)
-                .replace("[DESCRIPTION]", description)
-                .replace(
-                    "[LOCAL_MEDIA_TYPES]",
-                    "\n".join(
-                        [
-                            f"- {local_media_type.text}"
-                            for local_media_type in local_media_types
-                        ]
-                    ),
-                )
-            )
-            media_type_prompt = get_templated_script(
-                media_type_instruction, self.tokenizer
-            )
-            if self.debug:
-                print("Title prompt:", media_type_prompt)
-                print("Title Tokens: ", get_token_nb(media_type_prompt, self.tokenizer))
-                print("============================================================")
-            media_type = self.api_connector.generate(
-                Prompt(
-                    text=media_type_prompt,
-                    parameters=PromptParameters(
-                        model_name=self.model_name,
-                        max_tokens=100,
-                        temperature=0.1,
-                        stop=["\n", "."],
-                    ),
-                ),
-            )
-        if self.debug:
-            print("Media type:", media_type)
             print("============================================================")
 
         return {
