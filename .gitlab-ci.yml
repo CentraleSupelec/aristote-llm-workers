@@ -45,7 +45,7 @@ test:
   extends: .lint_test_template
   stage: test
   script:
-    - python -m nltk.downloader stopwords punkt
+    - python -m nltk.downloader stopwords punkt punkt_tab
     - coverage run -m pytest tests/
     - coverage xml -o coverage.xml
     - coverage report -m --skip-covered

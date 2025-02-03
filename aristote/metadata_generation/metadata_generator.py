@@ -254,7 +254,7 @@ class MetadataGenerator:
                     model_name=self.model_name,
                     max_tokens=100,
                     temperature=0.1,
-                    stop=["\n", "."],
+                    stop=["\n"],
                 ),
             ),
         )
@@ -303,7 +303,7 @@ class MetadataGenerator:
                         model_name=self.model_name,
                         max_tokens=100,
                         temperature=0.1,
-                        stop=["\n", "."],
+                        stop=["\n"],
                     ),
                 ),
             )
@@ -367,7 +367,7 @@ class MetadataGenerator:
                         model_name=self.model_name,
                         max_tokens=100,
                         temperature=0.1,
-                        stop=["\n", "."],
+                        stop=["\n"],
                     ),
                 ),
             )

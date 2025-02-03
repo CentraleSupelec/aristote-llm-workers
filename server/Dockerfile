@@ -15,6 +15,7 @@ COPY ./requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 RUN python -m nltk.downloader punkt
+RUN python -m nltk.downloader punkt_tab
 
 COPY ./aristote /server_app/aristote
 COPY ./server /server_app/server
